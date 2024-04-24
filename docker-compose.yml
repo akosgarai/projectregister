@@ -1,0 +1,13 @@
+services:
+  web:
+    build: .
+    ports:
+      - "8090:8090"
+    restart: unless-stopped
+
+  go:
+    image: golang:1.22-bullseye
+    volumes:
+      - .:/go/src/app
+    working_dir: /go/src/app
+    entrypoint: go
