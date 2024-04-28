@@ -12,5 +12,6 @@ import (
 func New() *mux.Router {
 	r := mux.NewRouter()
 	r.HandleFunc("/health", controller.HealthController)
+	r.HandleFunc("/login", controller.LoginPageController)
 	return r
 }

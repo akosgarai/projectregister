@@ -1,0 +1,10 @@
+{{define "content"}}
+	<div class="container">
+		<p>Login Page</p>
+		<form action="/auth/login" method="post">
+			<input type="text" name="username" placeholder="Username" required><br>
+			<input type="password" name="password" placeholder="Password" required><br>
+			<input type="submit" value="Login">
+		</form>
+	</div>
+{{end}}
