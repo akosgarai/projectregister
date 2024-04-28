@@ -7,15 +7,24 @@ import (
 	"os/signal"
 	"time"
 
+	"github.com/joho/godotenv"
+
 	"github.com/akosgarai/projectregister/pkg/application"
 )
 
 var (
-	wait time.Duration = 15 * time.Second
+	wait       time.Duration = 15 * time.Second
+	dotEnvFile               = ".env"
 )
 
 func main() {
-	app := application.New()
+	dotenvConfig := make(map[string]string)
+	dotenvConfig, err := godotenv.Read(dotEnvFile)
+	if err != nil {
+		log.Println("Error loading .env file")
+	}
+	// load .env file
+	app := application.New(dotenvConfig)
 	app.Initialize()
 
 	// Run our server in a goroutine so that it doesn't block.

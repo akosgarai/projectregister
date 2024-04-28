@@ -6,17 +6,22 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
+
+	"github.com/akosgarai/projectregister/pkg/config"
 )
 
 // App is a struct that holds the application configuration.
 type App struct {
-	Server *http.Server
-	Router *mux.Router
+	envConfig *config.Environment
+	Server    *http.Server
+	Router    *mux.Router
 }
 
 // New creates a new instance of the application.
-func New() *App {
-	return &App{}
+func New(envConfig map[string]string) *App {
+	return &App{
+		envConfig: config.NewEnvironment(envConfig),
+	}
 }
 
 // Initialize initializes the application, runs the database migrations, and sets up the routes.
@@ -30,11 +35,11 @@ func (a *App) Initialize() {
 	})
 	// create a new server
 	a.Server = &http.Server{
-		Addr: "0.0.0.0:8090",
+		Addr: a.envConfig.GetServerAddr() + ":" + a.envConfig.GetServerPort(),
 		// Good practice to set timeouts to avoid Slowloris attacks.
-		WriteTimeout: time.Second * 15,
-		ReadTimeout:  time.Second * 15,
-		IdleTimeout:  time.Second * 60,
+		WriteTimeout: time.Second * time.Duration(a.envConfig.GetServerWriteTimeout()),
+		ReadTimeout:  time.Second * time.Duration(a.envConfig.GetServerReadTimeout()),
+		IdleTimeout:  time.Second * time.Duration(a.envConfig.GetServerIdleTimeout()),
 		Handler:      a.Router, // Pass our instance of gorilla/mux in.
 	}
 }
