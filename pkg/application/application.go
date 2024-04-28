@@ -1,13 +1,13 @@
 package application
 
 import (
-	"encoding/json"
 	"net/http"
 	"time"
 
 	"github.com/gorilla/mux"
 
 	"github.com/akosgarai/projectregister/pkg/config"
+	"github.com/akosgarai/projectregister/pkg/router"
 )
 
 // App is a struct that holds the application configuration.
@@ -26,13 +26,8 @@ func New(envConfig map[string]string) *App {
 
 // Initialize initializes the application, runs the database migrations, and sets up the routes.
 func (a *App) Initialize() {
-	// TODO: Implement it.
 	// create a new router
-	a.Router = mux.NewRouter()
-	a.Router.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
-		// an example API handler
-		json.NewEncoder(w).Encode(map[string]bool{"ok": true})
-	})
+	a.Router = router.New()
 	// create a new server
 	a.Server = &http.Server{
 		Addr: a.envConfig.GetServerAddr() + ":" + a.envConfig.GetServerPort(),
