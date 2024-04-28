@@ -20,3 +20,15 @@ func LoginPageController(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 }
+
+// LoginActionController is the login action controller.
+// It is responsible for handling the login action.
+func LoginActionController(w http.ResponseWriter, r *http.Request) {
+	username := r.FormValue("username")
+	password := r.FormValue("password")
+	if username == "admin" && password == "admin" {
+		http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
+		return
+	}
+	http.Redirect(w, r, "/login", http.StatusSeeOther)
+}
