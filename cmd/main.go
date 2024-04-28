@@ -2,14 +2,12 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"log"
-	"net/http"
 	"os"
 	"os/signal"
 	"time"
 
-	"github.com/gorilla/mux"
+	"github.com/akosgarai/projectregister/pkg/application"
 )
 
 var (
@@ -17,24 +15,12 @@ var (
 )
 
 func main() {
-	router := mux.NewRouter()
-	router.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
-		// an example API handler
-		json.NewEncoder(w).Encode(map[string]bool{"ok": true})
-	})
-
-	srv := &http.Server{
-		Addr: "0.0.0.0:8090",
-		// Good practice to set timeouts to avoid Slowloris attacks.
-		WriteTimeout: time.Second * 15,
-		ReadTimeout:  time.Second * 15,
-		IdleTimeout:  time.Second * 60,
-		Handler:      router, // Pass our instance of gorilla/mux in.
-	}
+	app := application.New()
+	app.Initialize()
 
 	// Run our server in a goroutine so that it doesn't block.
 	go func() {
-		if err := srv.ListenAndServe(); err != nil {
+		if err := app.Run(); err != nil {
 			log.Println(err)
 		}
 	}()
@@ -52,7 +38,7 @@ func main() {
 	defer cancel()
 	// Doesn't block if no connections, but will otherwise wait
 	// until the timeout deadline.
-	srv.Shutdown(ctx)
+	app.Server.Shutdown(ctx)
 	// Optionally, you could run srv.Shutdown in a goroutine and block on
 	// <-ctx.Done() if your application should wait for other services
 	// to finalize based on context cancellation.
