@@ -15,5 +15,6 @@ func New() *mux.Router {
 	r.HandleFunc("/login", controller.LoginPageController)
 	r.HandleFunc("/auth/login", controller.LoginActionController).Methods("POST")
 	r.HandleFunc("/dashboard", controller.DashboardController)
+	r.HandleFunc("/user/view/{userId}", controller.UserViewController)
 	return r
 }
