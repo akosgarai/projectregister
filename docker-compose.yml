@@ -4,6 +4,8 @@ services:
     ports:
       - "8090:8090"
     restart: unless-stopped
+    networks:
+      - projectregister
 
   go:
     image: golang:1.22-bullseye
@@ -11,3 +13,42 @@ services:
       - .:/go/src/app
     working_dir: /go/src/app
     entrypoint: go
+    networks:
+      - projectregister
+
+  migrate:
+    build:
+      context: .
+      dockerfile: build/docker/migrate/Dockerfile
+    user: "1000:1000"
+    volumes:
+      - .:/app
+    entrypoint: /migrate
+    working_dir: /app
+    networks:
+      - projectregister
+
+  db:
+    image: postgres:16
+    restart: always
+    environment:
+      POSTGRES_DB: 'projectregister_development'
+      POSTGRES_USER: 'projectregister'
+      POSTGRES_PASSWORD: 'password'
+    ports:
+      - '5432:5432'
+    volumes:
+      - pg-db:/var/lib/postgresql/data
+    networks:
+      - projectregister
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready" ]
+      retries: 3
+      timeout: 5s
+
+# Names our volume
+volumes:
+  pg-db:
+
+networks:
+  projectregister:
