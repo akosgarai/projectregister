@@ -4,6 +4,10 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/golang-migrate/migrate/v4"
+	// import the postgres driver
+	_ "github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/gorilla/mux"
 
 	"github.com/akosgarai/projectregister/pkg/config"
@@ -26,6 +30,8 @@ func New(envConfig map[string]string) *App {
 
 // Initialize initializes the application, runs the database migrations, and sets up the routes.
 func (a *App) Initialize() {
+	// execute the migrations
+	a.executeMigrations()
 	// create a new router
 	a.Router = router.New()
 	// create a new server
@@ -45,4 +51,15 @@ func (a *App) Run() error {
 		return err
 	}
 	return nil
+}
+
+// execute the migrations
+func (a *App) executeMigrations() {
+	m, err := migrate.New(
+		"file://db/migrations",
+		"postgres://projectregister:password@db:5432/projectregister_development?sslmode=disable")
+	if err != nil {
+		panic(err)
+	}
+	m.Up()
 }
