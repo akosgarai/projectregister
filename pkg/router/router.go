@@ -21,5 +21,6 @@ func New(db *database.DB) *mux.Router {
 
 	apiRouter := r.PathPrefix("/api").Subrouter()
 	apiRouter.HandleFunc("/user/create", routerController.UserCreateAPIController).Methods("POST")
+	apiRouter.HandleFunc("/user/view/{userId}", routerController.UserViewAPIController)
 	return r
 }
