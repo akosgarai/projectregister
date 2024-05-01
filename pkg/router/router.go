@@ -16,5 +16,8 @@ func New() *mux.Router {
 	r.HandleFunc("/auth/login", controller.LoginActionController).Methods("POST")
 	r.HandleFunc("/dashboard", controller.DashboardController)
 	r.HandleFunc("/user/view/{userId}", controller.UserViewController)
+
+	s := r.PathPrefix("/api").Subrouter()
+	s.HandleFunc("/user/create", controller.UserCreateAPIController).Methods("POST")
 	return r
 }

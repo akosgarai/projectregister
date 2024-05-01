@@ -39,3 +39,27 @@ func UserViewController(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 }
+
+// UserCreateAPIController is the controller for the user create API.
+// It is responsible for creating a new user.
+// It returns the created user as JSON.
+// Example request:
+// curl -X POST http://localhost:8090/api/user/create -d "name=Bob&email=bob@bob"
+func UserCreateAPIController(w http.ResponseWriter, r *http.Request) {
+	// it is a POST request, so we can parse the form
+	err := r.ParseForm()
+	if err != nil {
+		http.Error(w, "Invalid form", http.StatusBadRequest)
+		return
+	}
+	name := r.FormValue("name")
+	email := r.FormValue("email")
+	// create the user
+	u := &model.User{
+		Name:  name,
+		Email: email,
+		ID:    0,
+	}
+	// return the user as JSON
+	render.JSON(w, http.StatusOK, u)
+}
