@@ -7,7 +7,7 @@ import (
 )
 
 // DashboardController is the dashboard controller.
-func DashboardController(w http.ResponseWriter, r *http.Request) {
+func (c *Controller) DashboardController(w http.ResponseWriter, r *http.Request) {
 	template := render.BuildTemplate("dashboard", []string{"web/template/dashboard/index.html.tmpl"})
 	content := struct {
 		Title string

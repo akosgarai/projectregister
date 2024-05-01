@@ -11,7 +11,7 @@ import (
 )
 
 // UserViewController is the controller for the user view page.
-func UserViewController(w http.ResponseWriter, r *http.Request) {
+func (c *Controller) UserViewController(w http.ResponseWriter, r *http.Request) {
 	template := render.BuildTemplate("login", []string{"web/template/user/view.html.tmpl"})
 	vars := mux.Vars(r)
 	userIDVariable := vars["userId"]
@@ -45,7 +45,7 @@ func UserViewController(w http.ResponseWriter, r *http.Request) {
 // It returns the created user as JSON.
 // Example request:
 // curl -X POST http://localhost:8090/api/user/create -d "name=Bob&email=bob@bob"
-func UserCreateAPIController(w http.ResponseWriter, r *http.Request) {
+func (c *Controller) UserCreateAPIController(w http.ResponseWriter, r *http.Request) {
 	// it is a POST request, so we can parse the form
 	err := r.ParseForm()
 	if err != nil {

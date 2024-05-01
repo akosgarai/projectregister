@@ -11,13 +11,14 @@ import (
 // New creates a new instance of the router gorilla/mux router.
 func New() *mux.Router {
 	r := mux.NewRouter()
-	r.HandleFunc("/health", controller.HealthController)
-	r.HandleFunc("/login", controller.LoginPageController)
-	r.HandleFunc("/auth/login", controller.LoginActionController).Methods("POST")
-	r.HandleFunc("/dashboard", controller.DashboardController)
-	r.HandleFunc("/user/view/{userId}", controller.UserViewController)
+	routerController := controller.New()
+	r.HandleFunc("/health", routerController.HealthController)
+	r.HandleFunc("/login", routerController.LoginPageController)
+	r.HandleFunc("/auth/login", routerController.LoginActionController).Methods("POST")
+	r.HandleFunc("/dashboard", routerController.DashboardController)
+	r.HandleFunc("/user/view/{userId}", routerController.UserViewController)
 
-	s := r.PathPrefix("/api").Subrouter()
-	s.HandleFunc("/user/create", controller.UserCreateAPIController).Methods("POST")
+	apiRouter := r.PathPrefix("/api").Subrouter()
+	apiRouter.HandleFunc("/user/create", routerController.UserCreateAPIController).Methods("POST")
 	return r
 }

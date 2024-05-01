@@ -8,7 +8,7 @@ import (
 
 // LoginPageController is the login controller.
 // It returns the login page.
-func LoginPageController(w http.ResponseWriter, r *http.Request) {
+func (c *Controller) LoginPageController(w http.ResponseWriter, r *http.Request) {
 	template := render.BuildTemplate("login", []string{"web/template/auth/login.html.tmpl"})
 	content := struct {
 		Title string
@@ -23,7 +23,7 @@ func LoginPageController(w http.ResponseWriter, r *http.Request) {
 
 // LoginActionController is the login action controller.
 // It is responsible for handling the login action.
-func LoginActionController(w http.ResponseWriter, r *http.Request) {
+func (c *Controller) LoginActionController(w http.ResponseWriter, r *http.Request) {
 	username := r.FormValue("username")
 	password := r.FormValue("password")
 	if username == "admin" && password == "admin" {
