@@ -46,3 +46,8 @@ func (d *DB) Exec(query string, args ...interface{}) (sql.Result, error) {
 func (d *DB) QueryRow(query string, args ...interface{}) *sql.Row {
 	return d.database.QueryRow(query, args...)
 }
+
+// Query executes a query that is expected to return rows
+func (d *DB) Query(query string, args ...interface{}) (*sql.Rows, error) {
+	return d.database.Query(query, args...)
+}

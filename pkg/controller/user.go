@@ -62,19 +62,11 @@ func (c *Controller) UserCreateAPIController(w http.ResponseWriter, r *http.Requ
 		return
 	}
 	// create the user
-	u := &model.User{
-		Name:     name,
-		Email:    email,
-		Password: string(hashedPassword),
-		ID:       0,
-	}
-	// insert the user into the database
-	query := "INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING id"
-	err = c.db.QueryRow(query, u.Name, u.Email, u.Password).Scan(&u.ID)
+	user, err := c.userRepository.CreateUser(name, email, string(hashedPassword))
 	if err != nil {
 		http.Error(w, "Internal server error - failed to insert data to the database "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 	// return the user as JSON
-	render.JSON(w, http.StatusOK, u)
+	render.JSON(w, http.StatusOK, user)
 }
