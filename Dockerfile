@@ -25,6 +25,8 @@ COPY --from=builder /entrypoint-cmd /entrypoint-cmd
 COPY --from=builder /app/db/migrations /db/migrations
 # copy the .env file
 COPY --from=builder /app/.env /.env
+# copy the templates
+COPY --from=builder /app/web /web
 
 EXPOSE 8090
 

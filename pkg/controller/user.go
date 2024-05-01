@@ -23,10 +23,10 @@ func (c *Controller) UserViewController(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	u := &model.User{
-		Name:  "admin",
-		Email: "admin@admin.com",
-		ID:    userID,
+	u, err := c.userRepository.GetUserByID(userID)
+	if err != nil {
+		http.Error(w, "Internal server error - failed to get user data "+err.Error(), http.StatusInternalServerError)
+		return
 	}
 	content := struct {
 		Title string
