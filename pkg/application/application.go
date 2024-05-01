@@ -4,13 +4,10 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/golang-migrate/migrate/v4"
-	// import the postgres driver
-	_ "github.com/golang-migrate/migrate/v4/database/postgres"
-	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/gorilla/mux"
 
 	"github.com/akosgarai/projectregister/pkg/config"
+	"github.com/akosgarai/projectregister/pkg/database"
 	"github.com/akosgarai/projectregister/pkg/router"
 )
 
@@ -55,11 +52,9 @@ func (a *App) Run() error {
 
 // execute the migrations
 func (a *App) executeMigrations() {
-	m, err := migrate.New(
-		"file://db/migrations",
-		"postgres://projectregister:password@db:5432/projectregister_development?sslmode=disable")
+	migration := database.NewMigration(a.envConfig)
+	err := migration.Up()
 	if err != nil {
 		panic(err)
 	}
-	m.Up()
 }
