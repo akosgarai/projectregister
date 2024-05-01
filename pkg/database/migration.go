@@ -1,8 +1,6 @@
 package database
 
 import (
-	"fmt"
-
 	"github.com/golang-migrate/migrate/v4"
 	// import the postgres driver
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
@@ -27,20 +25,10 @@ func NewMigration(envConfig *config.Environment) *Migration {
 func (m *Migration) Up() error {
 	migration, err := migrate.New(
 		"file://"+m.envConfig.GetMigrationDirectoryPath(),
-		m.getDatabaseURL())
+		getDatabaseURL(m.envConfig))
 	if err != nil {
 		return err
 	}
 	migration.Up()
 	return nil
-}
-
-// get the database url
-func (m *Migration) getDatabaseURL() string {
-	return fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable",
-		m.envConfig.GetDatabaseUser(),
-		m.envConfig.GetDatabasePassword(),
-		m.envConfig.GetDatabaseHost(),
-		m.envConfig.GetDatabasePort(),
-		m.envConfig.GetDatabaseName())
 }

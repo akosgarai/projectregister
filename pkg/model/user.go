@@ -8,5 +8,5 @@ type User struct {
 	CreatedAt string
 	UpdatedAt string
 
-	password string
+	Password string
 }

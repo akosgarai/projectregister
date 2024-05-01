@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"golang.org/x/crypto/bcrypt"
 	"net/http"
 	"strconv"
 
@@ -54,11 +55,31 @@ func (c *Controller) UserCreateAPIController(w http.ResponseWriter, r *http.Requ
 	}
 	name := r.FormValue("name")
 	email := r.FormValue("email")
+	password := r.FormValue("password")
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		http.Error(w, "Internal server error - failed to encrypt the password", http.StatusInternalServerError)
+		return
+	}
 	// create the user
 	u := &model.User{
-		Name:  name,
-		Email: email,
-		ID:    0,
+		Name:     name,
+		Email:    email,
+		Password: string(hashedPassword),
+		ID:       0,
+	}
+	// insert the user into the database
+	query := "INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING id"
+	userID, err := c.db.Exec(query, u.Name, u.Email, u.Password)
+	if err != nil {
+		http.Error(w, "Internal server error - failed to insert data to the database", http.StatusInternalServerError)
+		return
+	}
+	// set the user ID
+	u.ID, err = userID.LastInsertId()
+	if err != nil {
+		http.Error(w, "Internal server error - failed to retrieve the inserted id"+err.Error(), http.StatusInternalServerError)
+		return
 	}
 	// return the user as JSON
 	render.JSON(w, http.StatusOK, u)
