@@ -50,7 +50,7 @@ func (c *Controller) UserCreateAPIController(w http.ResponseWriter, r *http.Requ
 	// it is a POST request, so we can parse the form
 	err := r.ParseForm()
 	if err != nil {
-		http.Error(w, "Invalid form", http.StatusBadRequest)
+		http.Error(w, "Invalid form "+err.Error(), http.StatusBadRequest)
 		return
 	}
 	name := r.FormValue("name")
@@ -58,7 +58,7 @@ func (c *Controller) UserCreateAPIController(w http.ResponseWriter, r *http.Requ
 	password := r.FormValue("password")
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
-		http.Error(w, "Internal server error - failed to encrypt the password", http.StatusInternalServerError)
+		http.Error(w, "Internal server error - failed to encrypt the password "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 	// create the user
@@ -70,15 +70,9 @@ func (c *Controller) UserCreateAPIController(w http.ResponseWriter, r *http.Requ
 	}
 	// insert the user into the database
 	query := "INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING id"
-	userID, err := c.db.Exec(query, u.Name, u.Email, u.Password)
+	err = c.db.QueryRow(query, u.Name, u.Email, u.Password).Scan(&u.ID)
 	if err != nil {
-		http.Error(w, "Internal server error - failed to insert data to the database", http.StatusInternalServerError)
-		return
-	}
-	// set the user ID
-	u.ID, err = userID.LastInsertId()
-	if err != nil {
-		http.Error(w, "Internal server error - failed to retrieve the inserted id"+err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Internal server error - failed to insert data to the database "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 	// return the user as JSON

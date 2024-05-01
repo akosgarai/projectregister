@@ -41,3 +41,8 @@ func (d *DB) Close() error {
 func (d *DB) Exec(query string, args ...interface{}) (sql.Result, error) {
 	return d.database.Exec(query, args...)
 }
+
+// QueryRow executes a query that is expected to return at most one row
+func (d *DB) QueryRow(query string, args ...interface{}) *sql.Row {
+	return d.database.QueryRow(query, args...)
+}

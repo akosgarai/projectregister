@@ -6,3 +6,5 @@ CREATE TABLE users (
 	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 	updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE UNIQUE INDEX users_email_unique ON users (email);
