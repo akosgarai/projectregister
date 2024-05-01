@@ -11,6 +11,18 @@ const (
 	DefaultServerAddr = "0.0.0.0"
 	// DefaultServerPort is the default server port.
 	DefaultServerPort = "8090"
+	// DefaultMigrationDirectoryPath is the default migration directory path.
+	DefaultMigrationDirectoryPath = "db/migrations"
+	// DefaultDatabaseUser is the default database user.
+	DefaultDatabaseUser = "projectregister"
+	// DefaultDatabasePassword is the default database password.
+	DefaultDatabasePassword = "password"
+	// DefaultDatabaseName is the default database name.
+	DefaultDatabaseName = "projectregister_development"
+	// DefaultDatabaseHost is the default database host.
+	DefaultDatabaseHost = "db"
+	// DefaultDatabasePort is the default database port.
+	DefaultDatabasePort = "5432"
 
 	// environment variables
 
@@ -24,4 +36,16 @@ const (
 	ServerAddrEnvName = "SERVER_ADDR"
 	// ServerPortEnvName is the server port environment variable name.
 	ServerPortEnvName = "SERVER_PORT"
+	// MigrationDirectoryPathEnvName is the migration directory path environment variable name.
+	MigrationDirectoryPathEnvName = "MIGRATION_DIRECTORY_PATH"
+	// DatabaseUserEnvName is the database user environment variable name.
+	DatabaseUserEnvName = "DATABASE_USER"
+	// DatabasePasswordEnvName is the database password environment variable name.
+	DatabasePasswordEnvName = "DATABASE_PASSWORD"
+	// DatabaseNameEnvName is the database name environment variable name.
+	DatabaseNameEnvName = "DATABASE_NAME"
+	// DatabaseHostEnvName is the database host environment variable name.
+	DatabaseHostEnvName = "DATABASE_HOST"
+	// DatabasePortEnvName is the database port environment variable name.
+	DatabasePortEnvName = "DATABASE_PORT"
 )
