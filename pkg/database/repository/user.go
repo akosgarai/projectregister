@@ -49,7 +49,7 @@ func (u *UserRepository) GetUserByID(id int64) (*model.User, error) {
 // UpdateUser updates a user
 func (u *UserRepository) UpdateUser(user *model.User) error {
 	query := "UPDATE users SET name = $1, email = $2, password = $3, updated_at = $4 WHERE id = $5"
-	now := time.Now().Format("2006-01-02 15:04:05")
+	now := time.Now().Format("2006-01-02 15:04:05.999999-07:00")
 	_, err := u.db.Exec(query, user.Name, user.Email, user.Password, now, user.ID)
 	return err
 }

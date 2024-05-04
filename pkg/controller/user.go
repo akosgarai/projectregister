@@ -90,3 +90,88 @@ func (c *Controller) UserCreateAPIController(w http.ResponseWriter, r *http.Requ
 	// return the user as JSON
 	render.JSON(w, http.StatusOK, user)
 }
+
+// UserUpdateAPIController is the controller for the user update API.
+// It is responsible for updating a user.
+// It returns the updated user as JSON.
+// Example request:
+// curl -X POST http://localhost:8090/api/user/update/1 -d "name=Bob&email=bob@bob&password=password"
+func (c *Controller) UserUpdateAPIController(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	userIDVariable := vars["userId"]
+	// it has to be converted to int64
+	userID, err := strconv.ParseInt(userIDVariable, 10, 64)
+	if err != nil {
+		http.Error(w, "Invalid user id "+err.Error(), http.StatusBadRequest)
+		return
+	}
+	// it is a POST request, so we can parse the form
+	err = r.ParseForm()
+	if err != nil {
+		http.Error(w, "Invalid form "+err.Error(), http.StatusBadRequest)
+		return
+	}
+	name := r.FormValue("name")
+	email := r.FormValue("email")
+	password := r.FormValue("password")
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		http.Error(w, "Internal server error - failed to encrypt the password "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+	// get the user
+	user, err := c.userRepository.GetUserByID(userID)
+	if err != nil {
+		http.Error(w, "Internal server error - failed to get the user "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+	// update the user
+	user.Name = name
+	user.Email = email
+	user.Password = string(hashedPassword)
+	err = c.userRepository.UpdateUser(user)
+	if err != nil {
+		http.Error(w, "Internal server error - failed to update the user "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+	// return the updated user as JSON
+	render.JSON(w, http.StatusOK, user)
+}
+
+// UserDeleteAPIController is the controller for the user delete API.
+// It is responsible for deleting a user.
+// Example request:
+// curl -X DELETE http://localhost:8090/api/user/delete/1
+func (c *Controller) UserDeleteAPIController(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	userIDVariable := vars["userId"]
+	// it has to be converted to int64
+	userID, err := strconv.ParseInt(userIDVariable, 10, 64)
+	if err != nil {
+		http.Error(w, "Invalid user id "+err.Error(), http.StatusBadRequest)
+		return
+	}
+	// delete the user
+	err = c.userRepository.DeleteUser(userID)
+	if err != nil {
+		http.Error(w, "Internal server error - failed to delete the user "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+	// return success
+	render.JSON(w, http.StatusOK, "Success")
+}
+
+// UserListAPIController is the controller for the user list API.
+// It is responsible for returning all users.
+// Example request:
+// curl -X GET http://localhost:8090/api/user/list
+func (c *Controller) UserListAPIController(w http.ResponseWriter, r *http.Request) {
+	// get all users
+	users, err := c.userRepository.GetUsers()
+	if err != nil {
+		http.Error(w, "Internal server error - failed to get the users "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+	// return the users as JSON
+	render.JSON(w, http.StatusOK, users)
+}
