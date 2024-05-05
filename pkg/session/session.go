@@ -1,7 +1,9 @@
 package session
 
 import (
+	"crypto/rand"
 	"fmt"
+	"math/big"
 	"time"
 
 	"github.com/akosgarai/projectregister/pkg/model"
@@ -60,4 +62,24 @@ func (s *Store) Set(id string, session *Session) {
 // Delete deletes a session from the store
 func (s *Store) Delete(id string) {
 	delete(s.sessions, id)
+}
+
+// GenerateSessionKey returns a securely generated random string.
+// It will return an error if the system's secure random
+// number generator fails to function correctly, in which
+// case the caller should not continue.
+// https://gist.github.com/dopey/c69559607800d2f2f90b1b1ed4e550fb
+func GenerateSessionKey() (string, error) {
+	const n = 32
+	const letters = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-"
+	ret := make([]byte, n)
+	for i := 0; i < n; i++ {
+		num, err := rand.Int(rand.Reader, big.NewInt(int64(len(letters))))
+		if err != nil {
+			return "", err
+		}
+		ret[i] = letters[num.Int64()]
+	}
+
+	return string(ret), nil
 }

@@ -5,21 +5,25 @@ import (
 
 	"github.com/akosgarai/projectregister/pkg/controller"
 	"github.com/akosgarai/projectregister/pkg/database"
+	"github.com/akosgarai/projectregister/pkg/session"
 )
 
 // I want the router creation to be here.
 
 // New creates a new instance of the router gorilla/mux router.
-func New(db *database.DB) *mux.Router {
+func New(db *database.DB, sessionStore *session.Store) *mux.Router {
 	r := mux.NewRouter()
-	routerController := controller.New(db)
+	routerController := controller.New(db, sessionStore)
 	r.HandleFunc("/health", routerController.HealthController)
 	r.HandleFunc("/login", routerController.LoginPageController)
 	r.HandleFunc("/auth/login", routerController.LoginActionController).Methods("POST")
-	r.HandleFunc("/dashboard", routerController.DashboardController)
-	r.HandleFunc("/user/view/{userId}", routerController.UserViewController)
+	adminRouter := r.PathPrefix("/admin").Subrouter()
+	adminRouter.Use(routerController.AuthMiddleware)
+	adminRouter.HandleFunc("/dashboard", routerController.DashboardController)
+	adminRouter.HandleFunc("/user/view/{userId}", routerController.UserViewController)
 
 	apiRouter := r.PathPrefix("/api").Subrouter()
+	apiRouter.Use(routerController.AuthMiddleware)
 	apiRouter.HandleFunc("/user/create", routerController.UserCreateAPIController).Methods("POST")
 	apiRouter.HandleFunc("/user/view/{userId}", routerController.UserViewAPIController)
 	apiRouter.HandleFunc("/user/update/{userId}", routerController.UserUpdateAPIController).Methods("POST")

@@ -9,6 +9,7 @@ import (
 	"github.com/akosgarai/projectregister/pkg/config"
 	"github.com/akosgarai/projectregister/pkg/database"
 	"github.com/akosgarai/projectregister/pkg/router"
+	"github.com/akosgarai/projectregister/pkg/session"
 )
 
 // App is a struct that holds the application configuration.
@@ -39,7 +40,7 @@ func (a *App) Initialize() {
 		panic(err)
 	}
 	// create a new router
-	a.Router = router.New(a.db)
+	a.Router = router.New(a.db, session.NewStore(30*time.Minute))
 	// create a new server
 	a.Server = &http.Server{
 		Addr: a.envConfig.GetServerAddr() + ":" + a.envConfig.GetServerPort(),
