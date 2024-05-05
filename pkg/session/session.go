@@ -69,7 +69,7 @@ func (s *Store) Delete(id string) {
 // number generator fails to function correctly, in which
 // case the caller should not continue.
 // https://gist.github.com/dopey/c69559607800d2f2f90b1b1ed4e550fb
-func GenerateSessionKey() (string, error) {
+func (s *Store) GenerateSessionKey() (string, error) {
 	const n = 32
 	const letters = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-"
 	ret := make([]byte, n)

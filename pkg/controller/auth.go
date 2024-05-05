@@ -50,7 +50,7 @@ func (c *Controller) LoginActionController(w http.ResponseWriter, r *http.Reques
 		return
 	}
 	// generate session key
-	sessionKey, err := session.GenerateSessionKey()
+	sessionKey, err := c.sessionStore.GenerateSessionKey()
 	if err != nil {
 		http.Error(w, "Failed to generate session key "+err.Error(), http.StatusInternalServerError)
 		return
