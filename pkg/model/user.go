@@ -10,3 +10,13 @@ type User struct {
 
 	Password string
 }
+
+// UserRepository interface
+type UserRepository interface {
+	CreateUser(username, email, password string) (*User, error)
+	GetUserByEmail(email string) (*User, error)
+	GetUserByID(id int64) (*User, error)
+	UpdateUser(user *User) error
+	DeleteUser(id int64) error
+	GetUsers() ([]*User, error)
+}

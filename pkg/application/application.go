@@ -8,6 +8,7 @@ import (
 
 	"github.com/akosgarai/projectregister/pkg/config"
 	"github.com/akosgarai/projectregister/pkg/database"
+	"github.com/akosgarai/projectregister/pkg/database/repository"
 	"github.com/akosgarai/projectregister/pkg/router"
 	"github.com/akosgarai/projectregister/pkg/session"
 )
@@ -40,7 +41,8 @@ func (a *App) Initialize() {
 		panic(err)
 	}
 	// create a new router
-	a.Router = router.New(a.db, session.NewStore(a.envConfig))
+	userRepository := repository.NewUserRepository(a.db)
+	a.Router = router.New(userRepository, session.NewStore(a.envConfig))
 	// create a new server
 	a.Server = &http.Server{
 		Addr: a.envConfig.GetServerAddr() + ":" + a.envConfig.GetServerPort(),
