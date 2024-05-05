@@ -40,6 +40,15 @@ func TestDefaultEnvironment(t *testing.T) {
 	if env.GetDatabaseName() != DefaultDatabaseName {
 		t.Errorf("Expected %s, got %s", DefaultDatabaseName, env.GetDatabaseName())
 	}
+	if env.GetSessionNameLength() != DefaultSessionNameLength {
+		t.Errorf("Expected %d, got %d", DefaultSessionNameLength, env.GetSessionNameLength())
+	}
+	if env.GetSessionLength() != DefaultSessionLength {
+		t.Errorf("Expected %d, got %d", DefaultSessionLength, env.GetSessionLength())
+	}
+	if env.GetSessionNameAlphabet() != DefaultSessionNameAlphabet {
+		t.Errorf("Expected %s, got %s", DefaultSessionNameAlphabet, env.GetSessionNameAlphabet())
+	}
 }
 
 // TestNewEnvironmentWithEmptyValues tests the NewEnvironment function with empty values.
@@ -81,6 +90,15 @@ func TestNewEnvironmentWithEmptyValues(t *testing.T) {
 	}
 	if env.GetDatabaseName() != DefaultDatabaseName {
 		t.Errorf("Expected %s, got %s", DefaultDatabaseName, env.GetDatabaseName())
+	}
+	if env.GetSessionNameLength() != DefaultSessionNameLength {
+		t.Errorf("Expected %d, got %d", DefaultSessionNameLength, env.GetSessionNameLength())
+	}
+	if env.GetSessionLength() != DefaultSessionLength {
+		t.Errorf("Expected %d, got %d", DefaultSessionLength, env.GetSessionLength())
+	}
+	if env.GetSessionNameAlphabet() != DefaultSessionNameAlphabet {
+		t.Errorf("Expected %s, got %s", DefaultSessionNameAlphabet, env.GetSessionNameAlphabet())
 	}
 }
 
@@ -199,6 +217,39 @@ func TestNewEnvironmentDatabaseName(t *testing.T) {
 	env := NewEnvironment(envList)
 	if env.GetDatabaseName() != databaseName {
 		t.Errorf("Expected %s, got %s", databaseName, env.GetDatabaseName())
+	}
+}
+
+// TestNewEnvironmentSessionNameLength tests the NewEnvironment function with a session name length value.
+func TestNewEnvironmentSessionNameLength(t *testing.T) {
+	envList := make(map[string]string)
+	sessionNameLength := "10"
+	envList[SessionNameLengthEnvName] = sessionNameLength
+	env := NewEnvironment(envList)
+	if env.GetSessionNameLength() != 10 {
+		t.Errorf("Expected 10, got %d", env.GetSessionNameLength())
+	}
+}
+
+// TestNewEnvironmentSessionLength tests the NewEnvironment function with a session length value.
+func TestNewEnvironmentSessionLength(t *testing.T) {
+	envList := make(map[string]string)
+	sessionLength := "10"
+	envList[SessionLengthEnvName] = sessionLength
+	env := NewEnvironment(envList)
+	if env.GetSessionLength() != 10 {
+		t.Errorf("Expected 10, got %d", env.GetSessionLength())
+	}
+}
+
+// TestNewEnvironmentSessionNameAlphabet tests the NewEnvironment function with a session name alphabet value.
+func TestNewEnvironmentSessionNameAlphabet(t *testing.T) {
+	envList := make(map[string]string)
+	sessionNameAlphabet := "abc"
+	envList[SessionNameAlphabetEnvName] = sessionNameAlphabet
+	env := NewEnvironment(envList)
+	if env.GetSessionNameAlphabet() != sessionNameAlphabet {
+		t.Errorf("Expected %s, got %s", sessionNameAlphabet, env.GetSessionNameAlphabet())
 	}
 }
 

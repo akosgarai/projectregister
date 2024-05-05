@@ -19,6 +19,10 @@ type Environment struct {
 	databaseUser     string
 	databasePassword string
 	databaseName     string
+
+	sessionNameLength   int
+	sessionLength       int64
+	sessionNameAlphabet string
 }
 
 // DefaultEnvironment creates a new instance of the environment with default values.
@@ -37,6 +41,10 @@ func DefaultEnvironment() *Environment {
 		databaseUser:     DefaultDatabaseUser,
 		databasePassword: DefaultDatabasePassword,
 		databaseName:     DefaultDatabaseName,
+
+		sessionNameLength:   DefaultSessionNameLength,
+		sessionLength:       DefaultSessionLength,
+		sessionNameAlphabet: DefaultSessionNameAlphabet,
 	}
 }
 
@@ -95,6 +103,21 @@ func (e *Environment) GetDatabaseName() string {
 	return e.databaseName
 }
 
+// GetSessionNameLength returns the session name length.
+func (e *Environment) GetSessionNameLength() int {
+	return e.sessionNameLength
+}
+
+// GetSessionLength returns the session length.
+func (e *Environment) GetSessionLength() int64 {
+	return e.sessionLength
+}
+
+// GetSessionNameAlphabet returns the session name alphabet.
+func (e *Environment) GetSessionNameAlphabet() string {
+	return e.sessionNameAlphabet
+}
+
 // NewEnvironment creates a new instance of the environment.
 func NewEnvironment(envConfig map[string]string) *Environment {
 	env := DefaultEnvironment()
@@ -130,6 +153,15 @@ func NewEnvironment(envConfig map[string]string) *Environment {
 	}
 	if val, ok := envConfig[DatabaseNameEnvName]; ok {
 		env.databaseName = val
+	}
+	if val, ok := envConfig[SessionNameLengthEnvName]; ok {
+		env.sessionNameLength = int(env.toInt64(val))
+	}
+	if val, ok := envConfig[SessionLengthEnvName]; ok {
+		env.sessionLength = env.toInt64(val)
+	}
+	if val, ok := envConfig[SessionNameAlphabetEnvName]; ok {
+		env.sessionNameAlphabet = val
 	}
 
 	return env

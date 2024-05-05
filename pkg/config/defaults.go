@@ -23,6 +23,12 @@ const (
 	DefaultDatabaseHost = "db"
 	// DefaultDatabasePort is the default database port.
 	DefaultDatabasePort = "5432"
+	// DefaultSessionNameLength is the default session name length.
+	DefaultSessionNameLength = 32
+	// DefaultSessionLength is the default session length in minutes.
+	DefaultSessionLength = 30
+	// DefaultSessionNameAlphabet is the default session name alphabet.
+	DefaultSessionNameAlphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-"
 
 	// environment variables
 
@@ -48,4 +54,10 @@ const (
 	DatabaseHostEnvName = "DATABASE_HOST"
 	// DatabasePortEnvName is the database port environment variable name.
 	DatabasePortEnvName = "DATABASE_PORT"
+	// SessionNameLengthEnvName is the session name length environment variable name.
+	SessionNameLengthEnvName = "SESSION_NAME_LENGTH"
+	// SessionLengthEnvName is the session length environment variable name.
+	SessionLengthEnvName = "SESSION_LENGTH"
+	// SessionNameAlphabetEnvName is the session name alphabet environment variable name.
+	SessionNameAlphabetEnvName = "SESSION_NAME_ALPHABET"
 )
