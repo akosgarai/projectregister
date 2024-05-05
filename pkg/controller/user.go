@@ -1,13 +1,13 @@
 package controller
 
 import (
-	"golang.org/x/crypto/bcrypt"
 	"net/http"
 	"strconv"
 
 	"github.com/gorilla/mux"
 
 	"github.com/akosgarai/projectregister/pkg/model"
+	"github.com/akosgarai/projectregister/pkg/passwd"
 	"github.com/akosgarai/projectregister/pkg/render"
 )
 
@@ -76,7 +76,7 @@ func (c *Controller) UserCreateAPIController(w http.ResponseWriter, r *http.Requ
 	name := r.FormValue("name")
 	email := r.FormValue("email")
 	password := r.FormValue("password")
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	hashedPassword, err := passwd.HashPassword(password)
 	if err != nil {
 		http.Error(w, "Internal server error - failed to encrypt the password "+err.Error(), http.StatusInternalServerError)
 		return
@@ -114,21 +114,21 @@ func (c *Controller) UserUpdateAPIController(w http.ResponseWriter, r *http.Requ
 	name := r.FormValue("name")
 	email := r.FormValue("email")
 	password := r.FormValue("password")
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-	if err != nil {
-		http.Error(w, "Internal server error - failed to encrypt the password "+err.Error(), http.StatusInternalServerError)
-		return
-	}
 	// get the user
 	user, err := c.userRepository.GetUserByID(userID)
 	if err != nil {
 		http.Error(w, "Internal server error - failed to get the user "+err.Error(), http.StatusInternalServerError)
 		return
 	}
+	hashedPassword, err := passwd.HashPassword(password)
+	if err != nil {
+		http.Error(w, "Internal server error - failed to encrypt the password "+err.Error(), http.StatusInternalServerError)
+		return
+	}
 	// update the user
 	user.Name = name
 	user.Email = email
-	user.Password = string(hashedPassword)
+	user.Password = hashedPassword
 	err = c.userRepository.UpdateUser(user)
 	if err != nil {
 		http.Error(w, "Internal server error - failed to update the user "+err.Error(), http.StatusInternalServerError)
