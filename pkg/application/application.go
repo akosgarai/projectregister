@@ -40,7 +40,7 @@ func (a *App) Initialize() {
 		panic(err)
 	}
 	// create a new router
-	a.Router = router.New(a.db, session.NewStore(30*time.Minute))
+	a.Router = router.New(a.db, session.NewStore(a.envConfig))
 	// create a new server
 	a.Server = &http.Server{
 		Addr: a.envConfig.GetServerAddr() + ":" + a.envConfig.GetServerPort(),

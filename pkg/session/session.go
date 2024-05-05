@@ -6,6 +6,7 @@ import (
 	"math/big"
 	"time"
 
+	"github.com/akosgarai/projectregister/pkg/config"
 	"github.com/akosgarai/projectregister/pkg/model"
 )
 
@@ -25,15 +26,19 @@ func New(user *model.User) *Session {
 
 // Store type a simple in memory session store
 type Store struct {
-	sessions map[string]*Session
-	length   time.Duration
+	sessions  map[string]*Session
+	length    time.Duration
+	keyLength int
+	alphabet  string
 }
 
 // NewStore creates a new session store
-func NewStore(sessionLength time.Duration) *Store {
+func NewStore(c *config.Environment) *Store {
 	return &Store{
-		sessions: make(map[string]*Session),
-		length:   sessionLength,
+		sessions:  make(map[string]*Session),
+		length:    time.Duration(c.GetSessionLength()) * time.Minute,
+		keyLength: c.GetSessionNameLength(),
+		alphabet:  c.GetSessionNameAlphabet(),
 	}
 }
 
@@ -70,15 +75,13 @@ func (s *Store) Delete(id string) {
 // case the caller should not continue.
 // https://gist.github.com/dopey/c69559607800d2f2f90b1b1ed4e550fb
 func (s *Store) GenerateSessionKey() (string, error) {
-	const n = 32
-	const letters = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-"
-	ret := make([]byte, n)
-	for i := 0; i < n; i++ {
-		num, err := rand.Int(rand.Reader, big.NewInt(int64(len(letters))))
+	ret := make([]byte, s.keyLength)
+	for i := 0; i < s.keyLength; i++ {
+		num, err := rand.Int(rand.Reader, big.NewInt(int64(len(s.alphabet))))
 		if err != nil {
 			return "", err
 		}
-		ret[i] = letters[num.Int64()]
+		ret[i] = s.alphabet[num.Int64()]
 	}
 
 	return string(ret), nil

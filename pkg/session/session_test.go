@@ -4,6 +4,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/akosgarai/projectregister/pkg/config"
 	"github.com/akosgarai/projectregister/pkg/model"
 )
 
@@ -21,12 +22,13 @@ func TestNewSession(t *testing.T) {
 
 // TestNewStore tests the NewStore function
 func TestNewStore(t *testing.T) {
-	store := NewStore(10 * time.Second)
+	envConfig := config.DefaultEnvironment()
+	store := NewStore(envConfig)
 	if store == nil {
 		t.Errorf("Expected a store, got nil")
 	}
-	if store.length != 10*time.Second {
-		t.Errorf("Expected 10 seconds, got %v", store.length)
+	if store.length != config.DefaultSessionLength*time.Minute {
+		t.Errorf("Expected %d seconds, got %v", config.DefaultSessionLength, store.length)
 	}
 	if store.sessions == nil {
 		t.Errorf("Expected a map, got nil")
@@ -39,7 +41,8 @@ func TestNewStore(t *testing.T) {
 
 // TestStoreSet tests the Store.Set function
 func TestStoreSet(t *testing.T) {
-	store := NewStore(10 * time.Second)
+	envConfig := config.DefaultEnvironment()
+	store := NewStore(envConfig)
 	user := &model.User{ID: 1, Name: "test", Email: "test@email.com", Password: "password", CreatedAt: "2020-01-01", UpdatedAt: "2020-01-01"}
 	session := New(user)
 	store.Set("test", session)
@@ -50,7 +53,8 @@ func TestStoreSet(t *testing.T) {
 
 // TestStoreGet tests the Store.Get function
 func TestStoreGet(t *testing.T) {
-	store := NewStore(10 * time.Second)
+	envConfig := config.DefaultEnvironment()
+	store := NewStore(envConfig)
 	user := &model.User{ID: 1, Name: "test", Email: "test@email.com", Password: "password", CreatedAt: "2020-01-01", UpdatedAt: "2020-01-01"}
 	session := New(user)
 	store.Set("test", session)
@@ -69,8 +73,11 @@ func TestStoreGet(t *testing.T) {
 	}
 	// test getting an expired session
 	store.Set("expired", session)
-	store.sessions["expired"].lastActivity = store.sessions["expired"].lastActivity.Add(-11 * time.Second)
-	_, err = store.Get("expired")
+	store.sessions["expired"].lastActivity = store.sessions["expired"].lastActivity.Add(time.Duration(-envConfig.GetSessionLength()-1) * time.Minute)
+	expiredSession, err := store.Get("expired")
+	if expiredSession != nil {
+		t.Errorf("Expected nil, got %v", expiredSession)
+	}
 	if err == nil {
 		t.Errorf("Expected error, got nil")
 	}
@@ -78,7 +85,8 @@ func TestStoreGet(t *testing.T) {
 
 // TestStoreDelete tests the Store.Delete function
 func TestStoreDelete(t *testing.T) {
-	store := NewStore(10 * time.Second)
+	envConfig := config.DefaultEnvironment()
+	store := NewStore(envConfig)
 	user := &model.User{ID: 1, Name: "test", Email: "test@email.com", Password: "password", CreatedAt: "2020-01-01", UpdatedAt: "2020-01-01"}
 	session := New(user)
 	store.Set("test", session)
@@ -96,7 +104,8 @@ func TestStoreDelete(t *testing.T) {
 
 // TestGenerateSessionKey tests the GenerateSessionKey function
 func TestGenerateSessionKey(t *testing.T) {
-	store := NewStore(10 * time.Second)
+	envConfig := config.DefaultEnvironment()
+	store := NewStore(envConfig)
 	key, err := store.GenerateSessionKey()
 	if err != nil {
 		t.Errorf("Expected nil, got %v", err)
@@ -104,7 +113,7 @@ func TestGenerateSessionKey(t *testing.T) {
 	if key == "" {
 		t.Errorf("Expected a key, got %v", key)
 	}
-	if len(key) != 32 {
-		t.Errorf("Expected 32, got %v", len(key))
+	if len(key) != config.DefaultSessionNameLength {
+		t.Errorf("Expected %d, got %v", config.DefaultSessionNameLength, len(key))
 	}
 }
