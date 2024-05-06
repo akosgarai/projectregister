@@ -72,3 +72,41 @@ func TestJSON(t *testing.T) {
 		t.Errorf("The body is not correct. Expected: 'Internal server error\n', got: '%s'", w.Body.String())
 	}
 }
+
+// TestStatus is a test function for the Status function.
+func TestStatus(t *testing.T) {
+	testConfig := config.NewEnvironment(testConfigData)
+	renderer := NewRenderer(testConfig)
+	// Test the Status function with different status codes.
+	httpStatusCodes := []int{200, 201, 202, 203, 204, 205, 206, 207, 208, 226, 300, 301, 302, 303, 304, 305, 306, 307, 308}
+	for _, code := range httpStatusCodes {
+		w := httptest.NewRecorder()
+		renderer.Status(w, code)
+		if w.Code != code {
+			t.Errorf("The status is not correct. Expected: %d, got: %d", code, w.Code)
+		}
+		// body is empty
+		if w.Body.String() != "" {
+			t.Errorf("The body is not correct. Expected: '', got: '%s'", w.Body.String())
+		}
+	}
+}
+
+// TestError is a test function for the Error function.
+func TestError(t *testing.T) {
+	testConfig := config.NewEnvironment(testConfigData)
+	renderer := NewRenderer(testConfig)
+	// Test the Error function with different status codes and messages.
+	httpStatusCodes := []int{200, 201, 202, 203, 204, 205, 206, 207, 208, 226, 300, 301, 302, 303, 304, 305, 306, 307, 308}
+	for _, code := range httpStatusCodes {
+		w := httptest.NewRecorder()
+		testMessage := "test message"
+		renderer.Error(w, code, testMessage)
+		if w.Code != code {
+			t.Errorf("The status is not correct. Expected: %d, got: %d", code, w.Code)
+		}
+		if w.Body.String() != testMessage+"\n" {
+			t.Errorf("The body is not correct. Expected: '%s', got: '%s'", testMessage, w.Body.String())
+		}
+	}
+}

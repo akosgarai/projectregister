@@ -43,3 +43,13 @@ func (r *Renderer) JSON(w http.ResponseWriter, status int, v interface{}) {
 	w.WriteHeader(status)
 	_ = json.NewEncoder(w).Encode(v)
 }
+
+// Status renders a status response with empty body.
+func (r *Renderer) Status(w http.ResponseWriter, status int) {
+	w.WriteHeader(status)
+}
+
+// Error renders an error response.
+func (r *Renderer) Error(w http.ResponseWriter, status int, message string) {
+	http.Error(w, message, status)
+}
