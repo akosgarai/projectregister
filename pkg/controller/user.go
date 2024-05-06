@@ -8,12 +8,11 @@ import (
 
 	"github.com/akosgarai/projectregister/pkg/model"
 	"github.com/akosgarai/projectregister/pkg/passwd"
-	"github.com/akosgarai/projectregister/pkg/render"
 )
 
 // UserViewController is the controller for the user view page.
 func (c *Controller) UserViewController(w http.ResponseWriter, r *http.Request) {
-	template := render.BuildTemplate("login", []string{"web/template/user/view.html.tmpl"})
+	template := c.renderer.BuildTemplate("login", []string{"web/template/user/view.html.tmpl"})
 	u, statusCode, err := c.userViewData(r)
 	if err != nil {
 		http.Error(w, "Failed to get user data "+err.Error(), statusCode)
@@ -42,7 +41,7 @@ func (c *Controller) UserViewAPIController(w http.ResponseWriter, r *http.Reques
 		http.Error(w, "Failed to get user data "+err.Error(), statusCode)
 		return
 	}
-	render.JSON(w, statusCode, u)
+	c.renderer.JSON(w, statusCode, u)
 }
 
 // userViewData gets the request as input, and returns the user data, status code and error.
@@ -88,7 +87,7 @@ func (c *Controller) UserCreateAPIController(w http.ResponseWriter, r *http.Requ
 		return
 	}
 	// return the user as JSON
-	render.JSON(w, http.StatusOK, user)
+	c.renderer.JSON(w, http.StatusOK, user)
 }
 
 // UserUpdateAPIController is the controller for the user update API.
@@ -135,7 +134,7 @@ func (c *Controller) UserUpdateAPIController(w http.ResponseWriter, r *http.Requ
 		return
 	}
 	// return the updated user as JSON
-	render.JSON(w, http.StatusOK, user)
+	c.renderer.JSON(w, http.StatusOK, user)
 }
 
 // UserDeleteAPIController is the controller for the user delete API.
@@ -158,7 +157,7 @@ func (c *Controller) UserDeleteAPIController(w http.ResponseWriter, r *http.Requ
 		return
 	}
 	// return success
-	render.JSON(w, http.StatusOK, "Success")
+	c.renderer.JSON(w, http.StatusOK, "Success")
 }
 
 // UserListAPIController is the controller for the user list API.
@@ -173,5 +172,5 @@ func (c *Controller) UserListAPIController(w http.ResponseWriter, r *http.Reques
 		return
 	}
 	// return the users as JSON
-	render.JSON(w, http.StatusOK, users)
+	c.renderer.JSON(w, http.StatusOK, users)
 }

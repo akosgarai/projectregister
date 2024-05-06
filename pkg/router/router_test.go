@@ -5,18 +5,11 @@ import (
 
 	"github.com/akosgarai/projectregister/pkg/config"
 	"github.com/akosgarai/projectregister/pkg/model"
+	"github.com/akosgarai/projectregister/pkg/render"
 	"github.com/akosgarai/projectregister/pkg/session"
 )
 
 // UserRepositoryMock is a mock for the UserRepository
-/*
-	CreateUser(username, email, password string) (*User, error)
-	GetUserByEmail(email string) (*User, error)
-	GetUserByID(id int64) (*User, error)
-	UpdateUser(user *User) error
-	DeleteUser(id int64) error
-	GetUsers() ([]*User, error)
-*/
 type UserRepositoryMock struct{}
 
 func (u *UserRepositoryMock) CreateUser(username, email, password string) (*model.User, error) {
@@ -45,7 +38,7 @@ func (u *UserRepositoryMock) GetUsers() ([]*model.User, error) {
 func TestNew(t *testing.T) {
 	userRepository := &UserRepositoryMock{}
 	sessionStore := session.NewStore(config.DefaultEnvironment())
-	router := New(userRepository, sessionStore)
+	router := New(userRepository, sessionStore, render.NewRenderer(config.DefaultEnvironment()))
 	if router == nil {
 		t.Error("New router is nil")
 	}

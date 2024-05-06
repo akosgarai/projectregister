@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"encoding/json"
 	"net/http"
 )
 
@@ -9,5 +8,5 @@ import (
 // It is responsible for handling health checks.
 // TODO: return only a status code.
 func (c *Controller) HealthController(w http.ResponseWriter, r *http.Request) {
-	json.NewEncoder(w).Encode(map[string]bool{"ok": true})
+	c.renderer.JSON(w, http.StatusOK, nil)
 }

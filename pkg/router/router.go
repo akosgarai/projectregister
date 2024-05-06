@@ -5,15 +5,16 @@ import (
 
 	"github.com/akosgarai/projectregister/pkg/controller"
 	"github.com/akosgarai/projectregister/pkg/model"
+	"github.com/akosgarai/projectregister/pkg/render"
 	"github.com/akosgarai/projectregister/pkg/session"
 )
 
 // I want the router creation to be here.
 
 // New creates a new instance of the router gorilla/mux router.
-func New(userRepository model.UserRepository, sessionStore *session.Store) *mux.Router {
+func New(userRepository model.UserRepository, sessionStore *session.Store, renderer *render.Renderer) *mux.Router {
 	r := mux.NewRouter()
-	routerController := controller.New(userRepository, sessionStore)
+	routerController := controller.New(userRepository, sessionStore, renderer)
 	r.HandleFunc("/health", routerController.HealthController)
 	r.HandleFunc("/login", routerController.LoginPageController)
 	r.HandleFunc("/auth/login", routerController.LoginActionController).Methods("POST")

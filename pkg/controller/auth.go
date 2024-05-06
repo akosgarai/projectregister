@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/akosgarai/projectregister/pkg/passwd"
-	"github.com/akosgarai/projectregister/pkg/render"
 	"github.com/akosgarai/projectregister/pkg/session"
 )
 
@@ -22,7 +21,7 @@ func (c *Controller) LoginPageController(w http.ResponseWriter, r *http.Request)
 			return
 		}
 	}
-	template := render.BuildTemplate("login", []string{"web/template/auth/login.html.tmpl"})
+	template := c.renderer.BuildTemplate("login", []string{"web/template/auth/login.html.tmpl"})
 	content := struct {
 		Title string
 	}{

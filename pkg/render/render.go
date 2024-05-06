@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"html/template"
 	"net/http"
+
+	"github.com/akosgarai/projectregister/pkg/config"
 )
 
 const (
@@ -11,17 +13,33 @@ const (
 	BaseTemplatePath = "web/template/base.html.tmpl"
 )
 
+// Renderer is the renderer.
+type Renderer struct {
+	// baseTemplate is the base template.
+	baseTemplate string
+}
+
+// NewRenderer creates a new renderer.
+func NewRenderer(envConfig *config.Environment) *Renderer {
+	return &Renderer{
+		baseTemplate: envConfig.GetRenderTemplateDirectoryPath() + "/" + envConfig.GetRenderBaseTemplate(),
+	}
+}
+
 // BuildTemplate builds a template.
-func BuildTemplate(name string, files []string) *template.Template {
-	return template.Must(template.New(name).ParseFiles(append(files, BaseTemplatePath)...))
+func (r *Renderer) BuildTemplate(name string, files []string) *template.Template {
+	return template.Must(template.New(name).ParseFiles(append(files, r.baseTemplate)...))
 }
 
 // JSON renders a JSON response.
-func JSON(w http.ResponseWriter, status int, v interface{}) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(status)
-	err := json.NewEncoder(w).Encode(v)
+func (r *Renderer) JSON(w http.ResponseWriter, status int, v interface{}) {
+	// check that v is marshalable
+	_, err := json.Marshal(v)
 	if err != nil {
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
 	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+	_ = json.NewEncoder(w).Encode(v)
 }

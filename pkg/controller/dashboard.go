@@ -2,13 +2,11 @@ package controller
 
 import (
 	"net/http"
-
-	"github.com/akosgarai/projectregister/pkg/render"
 )
 
 // DashboardController is the dashboard controller.
 func (c *Controller) DashboardController(w http.ResponseWriter, r *http.Request) {
-	template := render.BuildTemplate("dashboard", []string{"web/template/dashboard/index.html.tmpl"})
+	template := c.renderer.BuildTemplate("dashboard", []string{"web/template/dashboard/index.html.tmpl"})
 	content := struct {
 		Title string
 	}{
