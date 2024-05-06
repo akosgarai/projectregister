@@ -29,6 +29,10 @@ const (
 	DefaultSessionLength = 30
 	// DefaultSessionNameAlphabet is the default session name alphabet.
 	DefaultSessionNameAlphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-"
+	// DefaultRenderTemplateDirectoryPath is the default render template directory path.
+	DefaultRenderTemplateDirectoryPath = "./web/template"
+	// DefaultRenderBaseTemplate is the default render base template.
+	DefaultRenderBaseTemplate = "base.html.tmpl"
 
 	// environment variables
 
@@ -60,4 +64,8 @@ const (
 	SessionLengthEnvName = "SESSION_LENGTH"
 	// SessionNameAlphabetEnvName is the session name alphabet environment variable name.
 	SessionNameAlphabetEnvName = "SESSION_NAME_ALPHABET"
+	// RenderTemplateDirectoryPathEnvName is the render template directory path environment variable name.
+	RenderTemplateDirectoryPathEnvName = "RENDER_TEMPLATE_DIRECTORY_PATH"
+	// RenderBaseTemplateEnvName is the render base template environment variable name.
+	RenderBaseTemplateEnvName = "RENDER_BASE_TEMPLATE"
 )

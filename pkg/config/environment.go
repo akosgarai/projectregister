@@ -23,6 +23,9 @@ type Environment struct {
 	sessionNameLength   int
 	sessionLength       int64
 	sessionNameAlphabet string
+
+	renderTemplateDirectoryPath string
+	renderBaseTemplate          string
 }
 
 // DefaultEnvironment creates a new instance of the environment with default values.
@@ -45,6 +48,9 @@ func DefaultEnvironment() *Environment {
 		sessionNameLength:   DefaultSessionNameLength,
 		sessionLength:       DefaultSessionLength,
 		sessionNameAlphabet: DefaultSessionNameAlphabet,
+
+		renderTemplateDirectoryPath: DefaultRenderTemplateDirectoryPath,
+		renderBaseTemplate:          DefaultRenderBaseTemplate,
 	}
 }
 
@@ -118,6 +124,16 @@ func (e *Environment) GetSessionNameAlphabet() string {
 	return e.sessionNameAlphabet
 }
 
+// GetRenderTemplateDirectoryPath returns the render template directory path.
+func (e *Environment) GetRenderTemplateDirectoryPath() string {
+	return e.renderTemplateDirectoryPath
+}
+
+// GetRenderBaseTemplate returns the render base template.
+func (e *Environment) GetRenderBaseTemplate() string {
+	return e.renderBaseTemplate
+}
+
 // NewEnvironment creates a new instance of the environment.
 func NewEnvironment(envConfig map[string]string) *Environment {
 	env := DefaultEnvironment()
@@ -162,6 +178,12 @@ func NewEnvironment(envConfig map[string]string) *Environment {
 	}
 	if val, ok := envConfig[SessionNameAlphabetEnvName]; ok {
 		env.sessionNameAlphabet = val
+	}
+	if val, ok := envConfig[RenderTemplateDirectoryPathEnvName]; ok {
+		env.renderTemplateDirectoryPath = val
+	}
+	if val, ok := envConfig[RenderBaseTemplateEnvName]; ok {
+		env.renderBaseTemplate = val
 	}
 
 	return env

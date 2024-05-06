@@ -49,6 +49,12 @@ func TestDefaultEnvironment(t *testing.T) {
 	if env.GetSessionNameAlphabet() != DefaultSessionNameAlphabet {
 		t.Errorf("Expected %s, got %s", DefaultSessionNameAlphabet, env.GetSessionNameAlphabet())
 	}
+	if env.GetRenderTemplateDirectoryPath() != DefaultRenderTemplateDirectoryPath {
+		t.Errorf("Expected %s, got %s", DefaultRenderTemplateDirectoryPath, env.GetRenderTemplateDirectoryPath())
+	}
+	if env.GetRenderBaseTemplate() != DefaultRenderBaseTemplate {
+		t.Errorf("Expected %s, got %s", DefaultRenderBaseTemplate, env.GetRenderBaseTemplate())
+	}
 }
 
 // TestNewEnvironmentWithEmptyValues tests the NewEnvironment function with empty values.
@@ -99,6 +105,12 @@ func TestNewEnvironmentWithEmptyValues(t *testing.T) {
 	}
 	if env.GetSessionNameAlphabet() != DefaultSessionNameAlphabet {
 		t.Errorf("Expected %s, got %s", DefaultSessionNameAlphabet, env.GetSessionNameAlphabet())
+	}
+	if env.GetRenderTemplateDirectoryPath() != DefaultRenderTemplateDirectoryPath {
+		t.Errorf("Expected %s, got %s", DefaultRenderTemplateDirectoryPath, env.GetRenderTemplateDirectoryPath())
+	}
+	if env.GetRenderBaseTemplate() != DefaultRenderBaseTemplate {
+		t.Errorf("Expected %s, got %s", DefaultRenderBaseTemplate, env.GetRenderBaseTemplate())
 	}
 }
 
@@ -250,6 +262,28 @@ func TestNewEnvironmentSessionNameAlphabet(t *testing.T) {
 	env := NewEnvironment(envList)
 	if env.GetSessionNameAlphabet() != sessionNameAlphabet {
 		t.Errorf("Expected %s, got %s", sessionNameAlphabet, env.GetSessionNameAlphabet())
+	}
+}
+
+// TestNewEnvironmentRenderTemplateDirectoryPath tests the NewEnvironment function with a render template directory path value.
+func TestNewEnvironmentRenderTemplateDirectoryPath(t *testing.T) {
+	envList := make(map[string]string)
+	renderTemplateDirectoryPath := "web/template/updated/path"
+	envList[RenderTemplateDirectoryPathEnvName] = renderTemplateDirectoryPath
+	env := NewEnvironment(envList)
+	if env.GetRenderTemplateDirectoryPath() != renderTemplateDirectoryPath {
+		t.Errorf("Expected %s, got %s", renderTemplateDirectoryPath, env.GetRenderTemplateDirectoryPath())
+	}
+}
+
+// TestNewEnvironmentRenderBaseTemplate tests the NewEnvironment function with a render base template value.
+func TestNewEnvironmentRenderBaseTemplate(t *testing.T) {
+	envList := make(map[string]string)
+	renderBaseTemplate := "base.html"
+	envList[RenderBaseTemplateEnvName] = renderBaseTemplate
+	env := NewEnvironment(envList)
+	if env.GetRenderBaseTemplate() != renderBaseTemplate {
+		t.Errorf("Expected %s, got %s", renderBaseTemplate, env.GetRenderBaseTemplate())
 	}
 }
 
