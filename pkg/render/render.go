@@ -17,13 +17,23 @@ const (
 type Renderer struct {
 	// baseTemplate is the base template.
 	baseTemplate string
+
+	// templateDirectoryPath is the path to the template directory.
+	templateDirectoryPath string
 }
 
 // NewRenderer creates a new renderer.
 func NewRenderer(envConfig *config.Environment) *Renderer {
 	return &Renderer{
 		baseTemplate: envConfig.GetRenderTemplateDirectoryPath() + "/" + envConfig.GetRenderBaseTemplate(),
+
+		templateDirectoryPath: envConfig.GetRenderTemplateDirectoryPath(),
 	}
+}
+
+// GetTemplateDirectoryPath returns the template directory path.
+func (r *Renderer) GetTemplateDirectoryPath() string {
+	return r.templateDirectoryPath
 }
 
 // BuildTemplate builds a template.

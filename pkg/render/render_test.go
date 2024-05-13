@@ -25,6 +25,15 @@ func TestNewRenderer(t *testing.T) {
 	}
 }
 
+// TestGetTemplateDirectoryPath is a test function for the GetTemplateDirectoryPath function.
+func TestGetTemplateDirectoryPath(t *testing.T) {
+	testConfig := config.NewEnvironment(testConfigData)
+	renderer := NewRenderer(testConfig)
+	if renderer.GetTemplateDirectoryPath() != testConfig.GetRenderTemplateDirectoryPath() {
+		t.Errorf("The template directory path is not correct. Expected: %s, got: %s", testConfig.GetRenderTemplateDirectoryPath(), renderer.GetTemplateDirectoryPath())
+	}
+}
+
 // TestBuildTemplate is a test function for the BuildTemplate function.
 func TestBuildTemplate(t *testing.T) {
 	// Test the template building with empty file list.
