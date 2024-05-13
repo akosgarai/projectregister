@@ -21,7 +21,7 @@ func (c *Controller) LoginPageController(w http.ResponseWriter, r *http.Request)
 			return
 		}
 	}
-	template := c.renderer.BuildTemplate("login", []string{"web/template/auth/login.html.tmpl"})
+	template := c.renderer.BuildTemplate("login", []string{c.renderer.GetTemplateDirectoryPath() + "/auth/login.html.tmpl"})
 	content := struct {
 		Title string
 	}{
@@ -39,6 +39,11 @@ func (c *Controller) LoginActionController(w http.ResponseWriter, r *http.Reques
 	// the username is the email as it is unique.
 	username := r.FormValue("username")
 	password := r.FormValue("password")
+	// If the username or password is empty, redirect to the login page.
+	if username == "" || password == "" {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
 	user, err := c.userRepository.GetUserByEmail(username)
 	if err != nil {
 		http.Error(w, "Failed to get user data "+err.Error(), http.StatusInternalServerError)
