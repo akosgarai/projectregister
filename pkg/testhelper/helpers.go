@@ -12,7 +12,9 @@ import (
 type UserRepositoryMock struct {
 	LatestUser *model.User
 	AllUsers   []*model.User
-	Error      error
+
+	Error           error
+	UpdateUserError error
 }
 
 // CreateUser mocks the CreateUser method.
@@ -32,7 +34,7 @@ func (u *UserRepositoryMock) GetUserByID(id int64) (*model.User, error) {
 
 // UpdateUser mocks the UpdateUser method.
 func (u *UserRepositoryMock) UpdateUser(user *model.User) error {
-	return u.Error
+	return u.UpdateUserError
 }
 
 // DeleteUser mocks the DeleteUser method.

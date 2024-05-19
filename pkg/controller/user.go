@@ -12,7 +12,7 @@ import (
 
 // UserViewController is the controller for the user view page.
 func (c *Controller) UserViewController(w http.ResponseWriter, r *http.Request) {
-	template := c.renderer.BuildTemplate("login", []string{"web/template/user/view.html.tmpl"})
+	template := c.renderer.BuildTemplate("login", []string{c.renderer.GetTemplateDirectoryPath() + "/user/view.html.tmpl"})
 	u, statusCode, err := c.userViewData(r)
 	if err != nil {
 		http.Error(w, "Failed to get user data "+err.Error(), statusCode)
@@ -66,12 +66,6 @@ func (c *Controller) userViewData(r *http.Request) (*model.User, int, error) {
 // Example request:
 // curl -X POST http://localhost:8090/api/user/create -d "name=Bob&email=bob@bob"
 func (c *Controller) UserCreateAPIController(w http.ResponseWriter, r *http.Request) {
-	// it is a POST request, so we can parse the form
-	err := r.ParseForm()
-	if err != nil {
-		http.Error(w, "Invalid form "+err.Error(), http.StatusBadRequest)
-		return
-	}
 	name := r.FormValue("name")
 	email := r.FormValue("email")
 	password := r.FormValue("password")
@@ -102,12 +96,6 @@ func (c *Controller) UserUpdateAPIController(w http.ResponseWriter, r *http.Requ
 	userID, err := strconv.ParseInt(userIDVariable, 10, 64)
 	if err != nil {
 		http.Error(w, "Invalid user id "+err.Error(), http.StatusBadRequest)
-		return
-	}
-	// it is a POST request, so we can parse the form
-	err = r.ParseForm()
-	if err != nil {
-		http.Error(w, "Invalid form "+err.Error(), http.StatusBadRequest)
 		return
 	}
 	name := r.FormValue("name")
