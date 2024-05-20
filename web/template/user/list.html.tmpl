@@ -1,0 +1,19 @@
+{{define "content"}}
+	<div class="container">
+		<h1>{{.Title}}</h1>
+		<table >
+			<tr>
+				<th>ID</th>
+				<th>Name</th>
+				<th>Email</th>
+			</tr>
+			{{ range .Users }}
+				<tr>
+					<td>{{.ID}}</td>
+					<td>{{.Name}}</td>
+					<td>{{.Email}}</td>
+				</tr>
+			{{end}}
+		</table>
+	</div>
+{{end}}

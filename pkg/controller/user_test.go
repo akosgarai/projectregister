@@ -682,6 +682,86 @@ func TestUserDeleteAPIControllerDelete(t *testing.T) {
 	}
 }
 
+// TestUserListViewControllerError tests the UserListViewController function.
+// It creates a new controller, and calls the UserListViewController function.
+// The test checks the status code of the response.
+// The test creates a new request with a new response recorder.
+// It calls the UserListViewController function with the recorder and the request.
+func TestUserListViewControllerError(t *testing.T) {
+	userRepository := &testhelper.UserRepositoryMock{}
+	userRepository.Error = errors.New("List error")
+	testConfig := config.NewEnvironment(testConfigData)
+	sessionStore := session.NewStore(testConfig)
+	renderer := render.NewRenderer(testConfig)
+	c := New(userRepository, sessionStore, renderer)
+	req, err := http.NewRequest("GET", "/admin/user/list", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	rr := httptest.NewRecorder()
+	router := mux.NewRouter()
+	router.HandleFunc("/admin/user/list", c.UserListViewController)
+	router.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusInternalServerError {
+		t.Errorf("handler returned wrong status code: got %v want %v",
+			status, http.StatusInternalServerError)
+	}
+}
+
+// TestUserListViewController tests the UserListViewController function.
+// It creates a new controller, and calls the UserListViewController function.
+// The test checks the status code of the response.
+// The test creates a new request with a new response recorder.
+// It calls the UserListViewController function with the recorder and the request.
+func TestUserListViewController(t *testing.T) {
+	userRepository := &testhelper.UserRepositoryMock{}
+	testUser := &model.User{
+		ID:    1,
+		Email: "one@email.com",
+		Name:  "Test User 01",
+	}
+	testUser2 := &model.User{
+		ID:    2,
+		Email: "two@email.com",
+		Name:  "Test User 02",
+	}
+	userRepository.AllUsers = []*model.User{testUser, testUser2}
+	testConfig := config.NewEnvironment(testConfigData)
+	sessionStore := session.NewStore(testConfig)
+	renderer := render.NewRenderer(testConfig)
+	c := New(userRepository, sessionStore, renderer)
+	req, err := http.NewRequest("GET", "/admin/user/list", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	rr := httptest.NewRecorder()
+	router := mux.NewRouter()
+	router.HandleFunc("/admin/user/list", c.UserListViewController)
+	router.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v",
+			status, http.StatusOK)
+	}
+	needles := []string{
+		"<title>User List</title>",
+		"<h1>User List</h1>",
+		"<td>" + strconv.Itoa((int)(testUser.ID)) + "</td>",
+		"<td>" + testUser.Email + "</td>",
+		"<td>" + testUser.Name + "</td>",
+		"<td>" + strconv.Itoa((int)(testUser2.ID)) + "</td>",
+		"<td>" + testUser2.Email + "</td>",
+		"<td>" + testUser2.Name + "</td>",
+	}
+	body := rr.Body.String()
+	for _, needle := range needles {
+		if !strings.Contains(body, needle) {
+			t.Errorf("handler returned unexpected body: got %v want %v", body, needle)
+		}
+	}
+}
+
 // TestUserListAPIControllerError tests the UserListAPIController function.
 // It creates a new controller, and calls the UserListAPIController function.
 // The test checks the status code of the response.

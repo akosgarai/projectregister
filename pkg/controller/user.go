@@ -148,6 +148,28 @@ func (c *Controller) UserDeleteAPIController(w http.ResponseWriter, r *http.Requ
 	c.renderer.JSON(w, http.StatusOK, "Success")
 }
 
+// UserListViewController is the controller for the user list view.
+func (c *Controller) UserListViewController(w http.ResponseWriter, r *http.Request) {
+	// get all users
+	users, err := c.userRepository.GetUsers()
+	if err != nil {
+		http.Error(w, "Failed to get user data "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+	template := c.renderer.BuildTemplate("user-list", []string{c.renderer.GetTemplateDirectoryPath() + "/user/list.html.tmpl"})
+	content := struct {
+		Title string
+		Users []*model.User
+	}{
+		Title: "User List",
+		Users: users,
+	}
+	err = template.ExecuteTemplate(w, "base.html", content)
+	if err != nil {
+		panic(err)
+	}
+}
+
 // UserListAPIController is the controller for the user list API.
 // It is responsible for returning all users.
 // Example request:

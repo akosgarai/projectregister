@@ -22,6 +22,7 @@ func New(userRepository model.UserRepository, sessionStore *session.Store, rende
 	adminRouter.Use(routerController.AuthMiddleware)
 	adminRouter.HandleFunc("/dashboard", routerController.DashboardController)
 	adminRouter.HandleFunc("/user/view/{userId}", routerController.UserViewController)
+	adminRouter.HandleFunc("/user/list", routerController.UserListViewController)
 
 	apiRouter := r.PathPrefix("/api").Subrouter()
 	apiRouter.Use(routerController.AuthMiddleware)
