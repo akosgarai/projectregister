@@ -84,6 +84,75 @@ func (c *Controller) UserCreateAPIController(w http.ResponseWriter, r *http.Requ
 	c.renderer.JSON(w, http.StatusOK, user)
 }
 
+// UserUpdateViewController is the controller for the user update view.
+// On case of get request, it returns the user update page.
+// On case of put request, it updates the user and redirects to the list page.
+func (c *Controller) UserUpdateViewController(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	userIDVariable := vars["userId"]
+	// it has to be converted to int64
+	userID, err := strconv.ParseInt(userIDVariable, 10, 64)
+	if err != nil {
+		http.Error(w, "Invalid user id "+err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	// get the user
+	user, err := c.userRepository.GetUserByID(userID)
+	if err != nil {
+		http.Error(w, "Internal server error - failed to get the user "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	if r.Method == http.MethodGet {
+		template := c.renderer.BuildTemplate("user-update", []string{c.renderer.GetTemplateDirectoryPath() + "/user/update.html.tmpl"})
+		content := struct {
+			Title string
+			User  *model.User
+		}{
+			Title: "User Update",
+			User:  user,
+		}
+		err = template.ExecuteTemplate(w, "base.html", content)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	if r.Method == http.MethodPost {
+		// update the user
+		name := r.FormValue("name")
+		email := r.FormValue("email")
+		password := r.FormValue("password")
+
+		// if the name or email is empty, return an error
+		if name == "" || email == "" {
+			http.Error(w, "Name and email are required", http.StatusBadRequest)
+			return
+		}
+
+		// if the password is not empty, encrypt it
+		if password != "" {
+			password, err := passwd.HashPassword(password)
+			if err != nil {
+				http.Error(w, "Internal server error - failed to encrypt the password "+err.Error(), http.StatusInternalServerError)
+				return
+			}
+			user.Password = password
+		}
+		// update the user
+		user.Name = name
+		user.Email = email
+		err = c.userRepository.UpdateUser(user)
+		if err != nil {
+			http.Error(w, "Internal server error - failed to update the user "+err.Error(), http.StatusInternalServerError)
+			return
+		}
+		http.Redirect(w, r, "/admin/user/list", http.StatusSeeOther)
+		return
+	}
+}
+
 // UserUpdateAPIController is the controller for the user update API.
 // It is responsible for updating a user.
 // It returns the updated user as JSON.

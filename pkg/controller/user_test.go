@@ -375,6 +375,266 @@ func TestUserCreateAPIControllerCreateErrorLongPwd(t *testing.T) {
 	}
 }
 
+// TestUserUpdateViewControllerInvalidUserId tests the UserUpdateViewController function.
+// It creates a new controller, and calls the UserUpdateViewController function.
+// The test checks the status code of the response.
+// The test creates a new request with a new response recorder.
+// It calls the UserUpdateViewController function with the recorder and the request.
+func TestUserUpdateViewControllerInvalidUserId(t *testing.T) {
+	userRepository := &testhelper.UserRepositoryMock{}
+	testConfig := config.NewEnvironment(testConfigData)
+	sessionStore := session.NewStore(testConfig)
+	renderer := render.NewRenderer(testConfig)
+	c := New(userRepository, sessionStore, renderer)
+
+	req, err := http.NewRequest("GET", "/admin/user/update/Wrong", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	rr := httptest.NewRecorder()
+	router := mux.NewRouter()
+	router.HandleFunc("/admin/user/update/{userId}", c.UserUpdateViewController)
+	router.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusBadRequest {
+		t.Errorf("handler returned wrong status code: got %v want %v",
+			status, http.StatusBadRequest)
+	}
+}
+
+// TestUserUpdateViewControllerMissingUserId tests the UserUpdateViewController function.
+// It creates a new controller, and calls the UserUpdateViewController function.
+// The test checks the status code of the response.
+// The test creates a new request with a new response recorder.
+// It calls the UserUpdateViewController function with the recorder and the request.
+func TestUserUpdateViewControllerMissingUserId(t *testing.T) {
+	userRepository := &testhelper.UserRepositoryMock{}
+	userRepository.Error = errors.New("Missing data error")
+	testConfig := config.NewEnvironment(testConfigData)
+	sessionStore := session.NewStore(testConfig)
+	renderer := render.NewRenderer(testConfig)
+	c := New(userRepository, sessionStore, renderer)
+
+	req, err := http.NewRequest("GET", "/admin/user/update/2", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	rr := httptest.NewRecorder()
+	router := mux.NewRouter()
+	router.HandleFunc("/admin/user/update/{userId}", c.UserUpdateViewController)
+	router.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusInternalServerError {
+		t.Errorf("handler returned wrong status code: got %v want %v",
+			status, http.StatusInternalServerError)
+	}
+}
+
+// TestUserUpdateViewControllerRendersTemplate tests the UserUpdateViewController function.
+// It creates a new controller, and calls the UserUpdateViewController function.
+// The test checks the status code of the response.
+// The test creates a new request with a new response recorder.
+// It calls the UserUpdateViewController function with the recorder and the request.
+func TestUserUpdateViewControllerRendersTemplate(t *testing.T) {
+	userRepository := &testhelper.UserRepositoryMock{}
+	testUser := &model.User{
+		ID:    1,
+		Email: "test@email.com",
+		Name:  "Test User",
+	}
+	userRepository.LatestUser = testUser
+	testConfig := config.NewEnvironment(testConfigData)
+	sessionStore := session.NewStore(testConfig)
+	renderer := render.NewRenderer(testConfig)
+	c := New(userRepository, sessionStore, renderer)
+
+	req, err := http.NewRequest("GET", "/admin/user/update/1", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	rr := httptest.NewRecorder()
+	router := mux.NewRouter()
+	router.HandleFunc("/admin/user/update/{userId}", c.UserUpdateViewController)
+	router.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v",
+			status, http.StatusOK)
+	}
+	needles := []string{
+		"<title>User Update</title>",
+		"<h1>User Update</h1>",
+		"<label for=\"email\">Email</label>",
+		"<input type=\"email\" class=\"form-control\" id=\"email\" name=\"email\" value=\"" + testUser.Email + "\" required>",
+		"<label for=\"name\">Name</label>",
+		"<input type=\"text\" class=\"form-control\" id=\"name\" name=\"name\" value=\"" + testUser.Name + "\" required>",
+		"<label for=\"password\">Password</label>",
+		"<input type=\"password\" class=\"form-control\" id=\"password\" name=\"password\">",
+	}
+	body := rr.Body.String()
+	for _, needle := range needles {
+		if !strings.Contains(body, needle) {
+			t.Errorf("handler returned unexpected body: got %v want %v", body, needle)
+		}
+	}
+}
+
+// TestUserUpdateViewControllerEmptyNameError tests the UserUpdateViewController function.
+// It creates a new controller, and calls the UserUpdateViewController function.
+// The test checks the status code of the response.
+// The test creates a new request with a new response recorder.
+// It calls the UserUpdateViewController function with the recorder and the request.
+func TestUserUpdateViewControllerEmptyNameError(t *testing.T) {
+	userRepository := &testhelper.UserRepositoryMock{}
+	// Set the user data for the mock.
+	testUser := &model.User{
+		ID:    1,
+		Email: "email@address.com",
+		Name:  "Test User",
+	}
+	userRepository.LatestUser = testUser
+	testConfig := config.NewEnvironment(testConfigData)
+	sessionStore := session.NewStore(testConfig)
+	renderer := render.NewRenderer(testConfig)
+	c := New(userRepository, sessionStore, renderer)
+
+	req, err := http.NewRequest("POST", "/admin/user/update/1", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	req.Form = map[string][]string{
+		"email": []string{"email@address.com"},
+		"name":  []string{""},
+	}
+	rr := httptest.NewRecorder()
+	router := mux.NewRouter()
+	router.HandleFunc("/admin/user/update/{userId}", c.UserUpdateViewController)
+	router.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusBadRequest {
+		t.Errorf("handler returned wrong status code: got %v want %v",
+			status, http.StatusBadRequest)
+	}
+}
+
+// TestUserUpdateViewControllerLongPasswd tests the UserUpdateViewController function.
+// It creates a new controller, and calls the UserUpdateViewController function.
+// The test checks the status code of the response.
+// The test creates a new request with a new response recorder.
+// It calls the UserUpdateViewController function with the recorder and the request.
+func TestUserUpdateViewControllerLongPasswd(t *testing.T) {
+	userRepository := &testhelper.UserRepositoryMock{}
+	// Set the user data for the mock.
+	testUser := &model.User{
+		ID:    1,
+		Email: "email@address.com",
+		Name:  "Test User",
+	}
+	userRepository.LatestUser = testUser
+	testConfig := config.NewEnvironment(testConfigData)
+	sessionStore := session.NewStore(testConfig)
+	renderer := render.NewRenderer(testConfig)
+	c := New(userRepository, sessionStore, renderer)
+
+	req, err := http.NewRequest("POST", "/admin/user/update/1", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	req.Form = map[string][]string{
+		"email":    []string{"email@address.com"},
+		"name":     []string{"Test User update"},
+		"password": []string{"passwordpasswordpasswordpasswordpasswordpasswordpasswordpasswordpasswordpasswordpasswordpassword"},
+	}
+	rr := httptest.NewRecorder()
+	router := mux.NewRouter()
+	router.HandleFunc("/admin/user/update/{userId}", c.UserUpdateViewController)
+	router.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusInternalServerError {
+		t.Errorf("handler returned wrong status code: got %v want %v",
+			status, http.StatusInternalServerError)
+	}
+}
+
+// TestUserUpdateViewControllerSave tests the UserUpdateViewController function.
+// It creates a new controller, and calls the UserUpdateViewController function.
+// The test checks the status code of the response.
+// The test creates a new request with a new response recorder.
+// It calls the UserUpdateViewController function with the recorder and the request.
+func TestUserUpdateViewControllerSave(t *testing.T) {
+	userRepository := &testhelper.UserRepositoryMock{}
+	// Set the user data for the mock.
+	testUser := &model.User{
+		ID:    1,
+		Email: "email@address.com",
+		Name:  "Test User",
+	}
+	userRepository.LatestUser = testUser
+	testConfig := config.NewEnvironment(testConfigData)
+	sessionStore := session.NewStore(testConfig)
+	renderer := render.NewRenderer(testConfig)
+	c := New(userRepository, sessionStore, renderer)
+
+	req, err := http.NewRequest("POST", "/admin/user/update/1", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	req.Form = map[string][]string{
+		"email":    []string{"email@address.com"},
+		"name":     []string{"Test User update"},
+		"password": []string{"password"},
+	}
+	rr := httptest.NewRecorder()
+	router := mux.NewRouter()
+	router.HandleFunc("/admin/user/update/{userId}", c.UserUpdateViewController)
+	router.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusSeeOther {
+		t.Errorf("handler returned wrong status code: got %v want %v",
+			status, http.StatusSeeOther)
+	}
+}
+
+// TestUserUpdateViewControllerUpdateError tests the UserUpdateViewController function.
+// It creates a new controller, and calls the UserUpdateViewController function.
+// The test checks the status code of the response.
+// The test creates a new request with a new response recorder.
+// It calls the UserUpdateViewController function with the recorder and the request.
+func TestUserUpdateViewControllerUpdateError(t *testing.T) {
+	userRepository := &testhelper.UserRepositoryMock{}
+	// Set the user data for the mock.
+	testUser := &model.User{
+		ID:    1,
+		Email: "email@address.com",
+		Name:  "Test User",
+	}
+	userRepository.LatestUser = testUser
+	userRepository.UpdateUserError = errors.New("Update error")
+	testConfig := config.NewEnvironment(testConfigData)
+	sessionStore := session.NewStore(testConfig)
+	renderer := render.NewRenderer(testConfig)
+	c := New(userRepository, sessionStore, renderer)
+
+	req, err := http.NewRequest("POST", "/admin/user/update/1", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	req.Form = map[string][]string{
+		"email":    []string{"email@address.com"},
+		"name":     []string{"Test User update"},
+		"password": []string{"password"},
+	}
+	rr := httptest.NewRecorder()
+	router := mux.NewRouter()
+	router.HandleFunc("/admin/user/update/{userId}", c.UserUpdateViewController)
+	router.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusInternalServerError {
+		t.Errorf("handler returned wrong status code: got %v want %v",
+			status, http.StatusInternalServerError)
+	}
+}
+
 // TestUserUpdateAPIControllerBadUserId tests the UserUpdateAPIController function.
 // It creates a new controller, and calls the UserUpdateAPIController function.
 // The test checks the status code of the response.
