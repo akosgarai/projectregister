@@ -24,6 +24,7 @@ func New(userRepository model.UserRepository, sessionStore *session.Store, rende
 	adminRouter.HandleFunc("/user/create", routerController.UserCreateViewController).Methods("GET", "POST")
 	adminRouter.HandleFunc("/user/view/{userId}", routerController.UserViewController)
 	adminRouter.HandleFunc("/user/update/{userId}", routerController.UserUpdateViewController).Methods("GET", "POST")
+	adminRouter.HandleFunc("/user/delete/{userId}", routerController.UserDeleteViewController).Methods("POST")
 	adminRouter.HandleFunc("/user/list", routerController.UserListViewController)
 
 	apiRouter := r.PathPrefix("/api").Subrouter()

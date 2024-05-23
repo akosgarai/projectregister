@@ -17,6 +17,9 @@
 					<td>
 						<a href="/admin/user/view/{{.ID}}">View</a>
 						<a href="/admin/user/update/{{.ID}}">Edit</a>
+						<form action="/admin/user/delete/{{.ID}}" method="post">
+							<input type="submit" value="Delete">
+						</form>
 					</td>
 				</tr>
 			{{end}}

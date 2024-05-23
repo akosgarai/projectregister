@@ -845,7 +845,7 @@ func TestUserUpdateViewControllerUpdateError(t *testing.T) {
 // It creates a new controller, and calls the UserUpdateAPIController function.
 // The test checks the status code of the response.
 // The test creates a new request with a new response recorder.
-// It calls the UserViewController function with the recorder and the request.
+// It calls the UserUpdateAPIController function with the recorder and the request.
 func TestUserUpdateAPIControllerBadUserId(t *testing.T) {
 	userRepository := &testhelper.UserRepositoryMock{}
 	// Set the user data for the mock.
@@ -881,7 +881,7 @@ func TestUserUpdateAPIControllerBadUserId(t *testing.T) {
 // It creates a new controller, and calls the UserUpdateAPIController function.
 // The test checks the status code of the response.
 // The test creates a new request with a new response recorder.
-// It calls the UserViewController function with the recorder and the request.
+// It calls the UserUpdateAPIController function with the recorder and the request.
 func TestUserUpdateAPIControllerMissingUserId(t *testing.T) {
 	userRepository := &testhelper.UserRepositoryMock{}
 	// Set the user data for the mock.
@@ -918,7 +918,7 @@ func TestUserUpdateAPIControllerMissingUserId(t *testing.T) {
 // It creates a new controller, and calls the UserUpdateAPIController function.
 // The test checks the status code of the response.
 // The test creates a new request with a new response recorder.
-// It calls the UserViewController function with the recorder and the request.
+// It calls the UserUpdateAPIController function with the recorder and the request.
 func TestUserUpdateAPIControllerWrongNewPassword(t *testing.T) {
 	userRepository := &testhelper.UserRepositoryMock{}
 	// Set the user data for the mock.
@@ -959,7 +959,7 @@ func TestUserUpdateAPIControllerWrongNewPassword(t *testing.T) {
 // It creates a new controller, and calls the UserUpdateAPIController function.
 // The test checks the status code of the response.
 // The test creates a new request with a new response recorder.
-// It calls the UserViewController function with the recorder and the request.
+// It calls the UserUpdateAPIController function with the recorder and the request.
 func TestUserUpdateAPIControllerSave(t *testing.T) {
 	userRepository := &testhelper.UserRepositoryMock{}
 	// Set the user data for the mock.
@@ -1000,7 +1000,7 @@ func TestUserUpdateAPIControllerSave(t *testing.T) {
 // It creates a new controller, and calls the UserUpdateAPIController function.
 // The test checks the status code of the response.
 // The test creates a new request with a new response recorder.
-// It calls the UserViewController function with the recorder and the request.
+// It calls the UserUpdateAPIController function with the recorder and the request.
 func TestUserUpdateAPIControllerSaveError(t *testing.T) {
 	userRepository := &testhelper.UserRepositoryMock{}
 	// Set the user data for the mock.
@@ -1038,11 +1038,129 @@ func TestUserUpdateAPIControllerSaveError(t *testing.T) {
 	}
 }
 
+// TestUserDeleteViewControllerWrongUserId tests the UserDeleteViewController function.
+// It creates a new controller, and calls the UserDeleteViewController function.
+// The test checks the status code of the response.
+// The test creates a new request with a new response recorder.
+// It calls the UserDeleteViewController function with the recorder and the request.
+func TestUserDeleteViewControllerWrongUserId(t *testing.T) {
+	userRepository := &testhelper.UserRepositoryMock{}
+	testConfig := config.NewEnvironment(testConfigData)
+	sessionStore := session.NewStore(testConfig)
+	renderer := render.NewRenderer(testConfig)
+	c := New(userRepository, sessionStore, renderer)
+	req, err := http.NewRequest("GET", "/admin/user/delete/Wrong", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	rr := httptest.NewRecorder()
+	router := mux.NewRouter()
+	router.HandleFunc("/admin/user/delete/{userId}", c.UserDeleteViewController)
+	router.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusBadRequest {
+		t.Errorf("handler returned wrong status code: got %v want %v",
+			status, http.StatusBadRequest)
+	}
+}
+
+// TestUserDeleteViewControllerMissingUserId tests the UserDeleteViewController function.
+// It creates a new controller, and calls the UserDeleteViewController function.
+// The test checks the status code of the response.
+// The test creates a new request with a new response recorder.
+// It calls the UserDeleteViewController function with the recorder and the request.
+func TestUserDeleteViewControllerMissingUserId(t *testing.T) {
+	userRepository := &testhelper.UserRepositoryMock{}
+	userRepository.Error = errors.New("Missing data error")
+	testConfig := config.NewEnvironment(testConfigData)
+	sessionStore := session.NewStore(testConfig)
+	renderer := render.NewRenderer(testConfig)
+	c := New(userRepository, sessionStore, renderer)
+	req, err := http.NewRequest("GET", "/admin/user/delete/2", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	rr := httptest.NewRecorder()
+	router := mux.NewRouter()
+	router.HandleFunc("/admin/user/delete/{userId}", c.UserDeleteViewController)
+	router.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusInternalServerError {
+		t.Errorf("handler returned wrong status code: got %v want %v",
+			status, http.StatusInternalServerError)
+	}
+}
+
+// TestUserDeleteViewControllerRedirects tests the UserDeleteViewController function.
+// It creates a new controller, and calls the UserDeleteViewController function.
+// The test checks the status code of the response.
+// The test creates a new request with a new response recorder.
+// It calls the UserDeleteViewController function with the recorder and the request.
+func TestUserDeleteViewControllerRedirects(t *testing.T) {
+	userRepository := &testhelper.UserRepositoryMock{}
+	testUser := &model.User{
+		ID:    1,
+		Email: "test@email.com",
+		Name:  "Test User",
+	}
+	userRepository.LatestUser = testUser
+	testConfig := config.NewEnvironment(testConfigData)
+	sessionStore := session.NewStore(testConfig)
+	renderer := render.NewRenderer(testConfig)
+	c := New(userRepository, sessionStore, renderer)
+	req, err := http.NewRequest("GET", "/admin/user/delete/1", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	rr := httptest.NewRecorder()
+	router := mux.NewRouter()
+	router.HandleFunc("/admin/user/delete/{userId}", c.UserDeleteViewController)
+	router.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusSeeOther {
+		t.Errorf("handler returned wrong status code: got %v want %v",
+			status, http.StatusSeeOther)
+	}
+}
+
+// TestUserDeleteViewControllerDeleteError tests the UserDeleteViewController function.
+// It creates a new controller, and calls the UserDeleteViewController function.
+// The test checks the status code of the response.
+// The test creates a new request with a new response recorder.
+// It calls the UserDeleteViewController function with the recorder and the request.
+func TestUserDeleteViewControllerDeleteError(t *testing.T) {
+	userRepository := &testhelper.UserRepositoryMock{}
+	testUser := &model.User{
+		ID:    1,
+		Email: "test@email.com",
+		Name:  "Test User",
+	}
+	userRepository.LatestUser = testUser
+	userRepository.Error = errors.New("Delete error")
+	testConfig := config.NewEnvironment(testConfigData)
+	sessionStore := session.NewStore(testConfig)
+	renderer := render.NewRenderer(testConfig)
+	c := New(userRepository, sessionStore, renderer)
+	req, err := http.NewRequest("GET", "/admin/user/delete/1", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	rr := httptest.NewRecorder()
+	router := mux.NewRouter()
+	router.HandleFunc("/admin/user/delete/{userId}", c.UserDeleteViewController)
+	router.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusInternalServerError {
+		t.Errorf("handler returned wrong status code: got %v want %v",
+			status, http.StatusInternalServerError)
+	}
+}
+
 // TestUserDeleteAPIControllerBadUserId tests the UserDeleteAPIController function.
 // It creates a new controller, and calls the UserDeleteAPIController function.
 // The test checks the status code of the response.
 // The test creates a new request with a new response recorder.
-// It calls the UserViewController function with the recorder and the request.
+// It calls the UserDeleteAPIController function with the recorder and the request.
 func TestUserDeleteAPIControllerBadUserId(t *testing.T) {
 	userRepository := &testhelper.UserRepositoryMock{}
 	// Set the user data for the mock.
@@ -1079,7 +1197,7 @@ func TestUserDeleteAPIControllerBadUserId(t *testing.T) {
 // It creates a new controller, and calls the UserDeleteAPIController function.
 // The test checks the status code of the response.
 // The test creates a new request with a new response recorder.
-// It calls the UserViewController function with the recorder and the request.
+// It calls the UserDeleteAPIController function with the recorder and the request.
 func TestUserDeleteAPIControllerMissingUserId(t *testing.T) {
 	userRepository := &testhelper.UserRepositoryMock{}
 	// Set the user data for the mock.
@@ -1116,7 +1234,7 @@ func TestUserDeleteAPIControllerMissingUserId(t *testing.T) {
 // It creates a new controller, and calls the UserDeleteAPIController function.
 // The test checks the status code of the response.
 // The test creates a new request with a new response recorder.
-// It calls the UserViewController function with the recorder and the request.
+// It calls the UserDeleteAPIController function with the recorder and the request.
 func TestUserDeleteAPIControllerDelete(t *testing.T) {
 	userRepository := &testhelper.UserRepositoryMock{}
 	// Set the user data for the mock.

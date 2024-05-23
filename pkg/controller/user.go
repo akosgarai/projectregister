@@ -238,6 +238,28 @@ func (c *Controller) UserUpdateAPIController(w http.ResponseWriter, r *http.Requ
 	c.renderer.JSON(w, http.StatusOK, user)
 }
 
+// UserDeleteViewController is the controller for the user delete view.
+// It is responsible for deleting a user.
+// It redirects to the user list page.
+func (c *Controller) UserDeleteViewController(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	userIDVariable := vars["userId"]
+	// it has to be converted to int64
+	userID, err := strconv.ParseInt(userIDVariable, 10, 64)
+	if err != nil {
+		http.Error(w, "Invalid user id "+err.Error(), http.StatusBadRequest)
+		return
+	}
+	// delete the user
+	err = c.userRepository.DeleteUser(userID)
+	if err != nil {
+		http.Error(w, "Internal server error - failed to delete the user "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+	// redirect to the user list
+	http.Redirect(w, r, "/admin/user/list", http.StatusSeeOther)
+}
+
 // UserDeleteAPIController is the controller for the user delete API.
 // It is responsible for deleting a user.
 // Example request:
