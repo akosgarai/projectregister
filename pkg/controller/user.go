@@ -60,6 +60,50 @@ func (c *Controller) userViewData(r *http.Request) (*model.User, int, error) {
 	return u, http.StatusOK, nil
 }
 
+// UserCreateViewController is the controller for the user create view.
+// On case of get request, it returns the user create page.
+// On case of put request, it creates the user and redirects to the list page.
+func (c *Controller) UserCreateViewController(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodGet {
+		template := c.renderer.BuildTemplate("user-create", []string{c.renderer.GetTemplateDirectoryPath() + "/user/create.html.tmpl"})
+		content := struct {
+			Title string
+		}{
+			Title: "User Create",
+		}
+		err := template.ExecuteTemplate(w, "base.html", content)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	if r.Method == http.MethodPost {
+		// update the user
+		name := r.FormValue("name")
+		email := r.FormValue("email")
+		password := r.FormValue("password")
+
+		// if the name or email is empty, return an error
+		if name == "" || email == "" || password == "" {
+			http.Error(w, "Name and email and password are required", http.StatusBadRequest)
+			return
+		}
+
+		password, err := passwd.HashPassword(password)
+		if err != nil {
+			http.Error(w, "Internal server error - failed to encrypt the password "+err.Error(), http.StatusInternalServerError)
+			return
+		}
+		_, err = c.userRepository.CreateUser(name, email, string(password))
+		if err != nil {
+			http.Error(w, "Internal server error - failed to create the user "+err.Error(), http.StatusInternalServerError)
+			return
+		}
+		http.Redirect(w, r, "/admin/user/list", http.StatusSeeOther)
+		return
+	}
+}
+
 // UserCreateAPIController is the controller for the user create API.
 // It is responsible for creating a new user.
 // It returns the created user as JSON.

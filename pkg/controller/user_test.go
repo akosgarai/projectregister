@@ -250,6 +250,212 @@ func TestUserViewAPIController(t *testing.T) {
 	}
 }
 
+// TestUserCreateViewControllerRendersTemplate tests the UserCreateViewController function.
+// It creates a new controller, and calls the UserCreateViewController function.
+// The test checks the status code of the response.
+// The test creates a new request with a new response recorder.
+// It calls the UserCreateViewController function with the recorder and the request.
+func TestUserCreateViewControllerRendersTemplate(t *testing.T) {
+	userRepository := &testhelper.UserRepositoryMock{}
+	testUser := &model.User{
+		ID:    1,
+		Email: "test@email.com",
+		Name:  "Test User",
+	}
+	userRepository.LatestUser = testUser
+	testConfig := config.NewEnvironment(testConfigData)
+	sessionStore := session.NewStore(testConfig)
+	renderer := render.NewRenderer(testConfig)
+	c := New(userRepository, sessionStore, renderer)
+
+	req, err := http.NewRequest("GET", "/admin/user/create", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	rr := httptest.NewRecorder()
+	router := mux.NewRouter()
+	router.HandleFunc("/admin/user/create", c.UserCreateViewController)
+	router.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v",
+			status, http.StatusOK)
+	}
+	needles := []string{
+		"<title>User Create</title>",
+		"<h1>User Create</h1>",
+		"<label for=\"email\">Email</label>",
+		"<input type=\"email\" class=\"form-control\" id=\"email\" name=\"email\" value=\"\" required>",
+		"<label for=\"name\">Name</label>",
+		"<input type=\"text\" class=\"form-control\" id=\"name\" name=\"name\" value=\"\" required>",
+		"<label for=\"password\">Password</label>",
+		"<input type=\"password\" class=\"form-control\" id=\"password\" name=\"password\">",
+	}
+	body := rr.Body.String()
+	for _, needle := range needles {
+		if !strings.Contains(body, needle) {
+			t.Errorf("handler returned unexpected body: got %v want %v", body, needle)
+		}
+	}
+}
+
+// TestUserCreateViewControllerEmptyNameError tests the UserCreateViewController function.
+// It creates a new controller, and calls the UserCreateViewController function.
+// The test checks the status code of the response.
+// The test creates a new request with a new response recorder.
+// It calls the UserCreateViewController function with the recorder and the request.
+func TestUserCreateViewControllerEmptyNameError(t *testing.T) {
+	userRepository := &testhelper.UserRepositoryMock{}
+	// Set the user data for the mock.
+	testUser := &model.User{
+		ID:    1,
+		Email: "email@address.com",
+		Name:  "Test User",
+	}
+	userRepository.LatestUser = testUser
+	testConfig := config.NewEnvironment(testConfigData)
+	sessionStore := session.NewStore(testConfig)
+	renderer := render.NewRenderer(testConfig)
+	c := New(userRepository, sessionStore, renderer)
+
+	req, err := http.NewRequest("POST", "/admin/user/create", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	req.Form = map[string][]string{
+		"email":    []string{"email@address.com"},
+		"name":     []string{""},
+		"password": []string{"password"},
+	}
+	rr := httptest.NewRecorder()
+	router := mux.NewRouter()
+	router.HandleFunc("/admin/user/create", c.UserCreateViewController)
+	router.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusBadRequest {
+		t.Errorf("handler returned wrong status code: got %v want %v",
+			status, http.StatusBadRequest)
+	}
+}
+
+// TestUserCreateViewControllerLongPasswd tests the UserCreateViewController function.
+// It creates a new controller, and calls the UserCreateViewController function.
+// The test checks the status code of the response.
+// The test creates a new request with a new response recorder.
+// It calls the UserCreateViewController function with the recorder and the request.
+func TestUserCreateViewControllerLongPasswd(t *testing.T) {
+	userRepository := &testhelper.UserRepositoryMock{}
+	// Set the user data for the mock.
+	testUser := &model.User{
+		ID:    1,
+		Email: "email@address.com",
+		Name:  "Test User",
+	}
+	userRepository.LatestUser = testUser
+	testConfig := config.NewEnvironment(testConfigData)
+	sessionStore := session.NewStore(testConfig)
+	renderer := render.NewRenderer(testConfig)
+	c := New(userRepository, sessionStore, renderer)
+
+	req, err := http.NewRequest("POST", "/admin/user/create", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	req.Form = map[string][]string{
+		"email":    []string{"email@address.com"},
+		"name":     []string{"Test User update"},
+		"password": []string{"passwordpasswordpasswordpasswordpasswordpasswordpasswordpasswordpasswordpasswordpasswordpassword"},
+	}
+	rr := httptest.NewRecorder()
+	router := mux.NewRouter()
+	router.HandleFunc("/admin/user/create", c.UserCreateViewController)
+	router.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusInternalServerError {
+		t.Errorf("handler returned wrong status code: got %v want %v",
+			status, http.StatusInternalServerError)
+	}
+}
+
+// TestUserCreateViewControllerSave tests the UserCreateViewController function.
+// It creates a new controller, and calls the UserCreateViewController function.
+// The test checks the status code of the response.
+// The test creates a new request with a new response recorder.
+// It calls the UserCreateViewController function with the recorder and the request.
+func TestUserCreateViewControllerSave(t *testing.T) {
+	userRepository := &testhelper.UserRepositoryMock{}
+	// Set the user data for the mock.
+	testUser := &model.User{
+		ID:    1,
+		Email: "email@address.com",
+		Name:  "Test User",
+	}
+	userRepository.LatestUser = testUser
+	testConfig := config.NewEnvironment(testConfigData)
+	sessionStore := session.NewStore(testConfig)
+	renderer := render.NewRenderer(testConfig)
+	c := New(userRepository, sessionStore, renderer)
+
+	req, err := http.NewRequest("POST", "/admin/user/create", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	req.Form = map[string][]string{
+		"email":    []string{"email@address.com"},
+		"name":     []string{"Test User update"},
+		"password": []string{"password"},
+	}
+	rr := httptest.NewRecorder()
+	router := mux.NewRouter()
+	router.HandleFunc("/admin/user/create", c.UserCreateViewController)
+	router.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusSeeOther {
+		t.Errorf("handler returned wrong status code: got %v want %v",
+			status, http.StatusSeeOther)
+	}
+}
+
+// TestUserCreateViewControllerCreateError tests the UserCreateViewController function.
+// It creates a new controller, and calls the UserCreateViewController function.
+// The test checks the status code of the response.
+// The test creates a new request with a new response recorder.
+// It calls the UserCreateViewController function with the recorder and the request.
+func TestUserCreateViewControllerCreateError(t *testing.T) {
+	userRepository := &testhelper.UserRepositoryMock{}
+	// Set the user data for the mock.
+	testUser := &model.User{
+		ID:    1,
+		Email: "email@address.com",
+		Name:  "Test User",
+	}
+	userRepository.LatestUser = testUser
+	userRepository.Error = errors.New("Create error")
+	testConfig := config.NewEnvironment(testConfigData)
+	sessionStore := session.NewStore(testConfig)
+	renderer := render.NewRenderer(testConfig)
+	c := New(userRepository, sessionStore, renderer)
+
+	req, err := http.NewRequest("POST", "/admin/user/create", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	req.Form = map[string][]string{
+		"email":    []string{"email@address.com"},
+		"name":     []string{"Test User update"},
+		"password": []string{"password"},
+	}
+	rr := httptest.NewRecorder()
+	router := mux.NewRouter()
+	router.HandleFunc("/admin/user/create", c.UserCreateViewController)
+	router.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusInternalServerError {
+		t.Errorf("handler returned wrong status code: got %v want %v",
+			status, http.StatusInternalServerError)
+	}
+}
+
 // TestUserCreateAPIController tests the UserCreateAPIController function.
 // It creates a new controller, and calls the UserCreateAPIController function.
 // The test checks the status code of the response.
@@ -1013,6 +1219,10 @@ func TestUserListViewController(t *testing.T) {
 		"<td>" + strconv.Itoa((int)(testUser2.ID)) + "</td>",
 		"<td>" + testUser2.Email + "</td>",
 		"<td>" + testUser2.Name + "</td>",
+		"<a href=\"/admin/user/update/" + strconv.Itoa((int)(testUser.ID)) + "\">Edit</a>",
+		"<a href=\"/admin/user/update/" + strconv.Itoa((int)(testUser2.ID)) + "\">Edit</a>",
+		"<a href=\"/admin/user/view/" + strconv.Itoa((int)(testUser.ID)) + "\">View</a>",
+		"<a href=\"/admin/user/view/" + strconv.Itoa((int)(testUser2.ID)) + "\">View</a>",
 	}
 	body := rr.Body.String()
 	for _, needle := range needles {
