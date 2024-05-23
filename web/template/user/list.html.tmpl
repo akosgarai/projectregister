@@ -6,12 +6,17 @@
 				<th>ID</th>
 				<th>Name</th>
 				<th>Email</th>
+				<th>Actions</th>
 			</tr>
 			{{ range .Users }}
 				<tr>
 					<td>{{.ID}}</td>
 					<td>{{.Name}}</td>
 					<td>{{.Email}}</td>
+					<td>
+						<a href="/admin/user/view/{{.ID}}">View</a>
+						<a href="/admin/user/update/{{.ID}}">Edit</a>
+					</td>
 				</tr>
 			{{end}}
 		</table>
