@@ -1,0 +1,10 @@
+CREATE TABLE roles (
+	id SERIAL PRIMARY KEY,
+	name VARCHAR(255) NOT NULL,
+	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE UNIQUE INDEX roles_name_unique ON roles (name);
+
+INSERT INTO roles (name) VALUES ('admin'), ('user');

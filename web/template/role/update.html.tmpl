@@ -1,0 +1,12 @@
+{{define "content"}}
+	<div class="container">
+		<h1>{{.Title}}</h1>
+		<form action="/admin/role/update/{{.Role.ID}}" method="post">
+			<div class="form-group">
+				<label for="name">Name</label>
+				<input type="text" class="form-control" id="name" name="name" value="{{.Role.Name}}" required>
+			</div>
+			<input type="submit" value="Update">
+		</form>
+	</div>
+{{end}}
