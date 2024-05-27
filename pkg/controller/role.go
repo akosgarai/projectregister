@@ -75,7 +75,7 @@ func (c *Controller) RoleCreateViewController(w http.ResponseWriter, r *http.Req
 			return
 		}
 
-		_, err := c.roleRepository.CreateRole(name)
+		_, err := c.roleRepository.CreateRole(name, []int64{})
 		if err != nil {
 			http.Error(w, "Internal server error - failed to create the role "+err.Error(), http.StatusInternalServerError)
 			return

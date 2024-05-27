@@ -21,11 +21,22 @@ func NewRoleRepository(db *database.DB) *RoleRepository {
 
 // CreateRole creates a new role
 // it returns the created role and an error
-// the input parameter is the name
-func (r *RoleRepository) CreateRole(name string) (*model.Role, error) {
+// the input parameter is the name and the resource ids
+func (r *RoleRepository) CreateRole(name string, resourceIDs []int64) (*model.Role, error) {
 	var role model.Role
 	query := "INSERT INTO roles (name) VALUES ($1) RETURNING *"
 	err := r.db.QueryRow(query, name).Scan(&role.ID, &role.Name, &role.CreatedAt, &role.UpdatedAt)
+	if err != nil {
+		return nil, err
+	}
+	// insert the role_to_resource records
+	for _, resourceID := range resourceIDs {
+		query = "INSERT INTO role_to_resource (role_id, resource_id) VALUES ($1, $2)"
+		_, err = r.db.Exec(query, role.ID, resourceID)
+		if err != nil {
+			return nil, err
+		}
+	}
 	return &role, err
 }
 
@@ -36,6 +47,24 @@ func (r *RoleRepository) GetRoleByName(name string) (*model.Role, error) {
 	var role model.Role
 	query := "SELECT * FROM roles WHERE name = $1"
 	err := r.db.QueryRow(query, name).Scan(&role.ID, &role.Name, &role.CreatedAt, &role.UpdatedAt)
+	if err != nil {
+		return nil, err
+	}
+	// get the resources
+	query = "SELECT r.id, r.name FROM resources r JOIN role_to_resources rr ON r.id = rr.resource_id WHERE rr.role_id = $1"
+	rows, err := r.db.Query(query, role.ID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var resource model.Resource
+		err = rows.Scan(&resource.ID, &resource.Name)
+		if err != nil {
+			return nil, err
+		}
+		role.Resources = append(role.Resources, resource)
+	}
 	return &role, err
 }
 
@@ -47,6 +76,24 @@ func (r *RoleRepository) GetRoleByID(id int64) (*model.Role, error) {
 	var role model.Role
 	query := "SELECT * FROM roles WHERE id = $1"
 	err := r.db.QueryRow(query, id).Scan(&role.ID, &role.Name, &role.CreatedAt, &role.UpdatedAt)
+	if err != nil {
+		return nil, err
+	}
+	// get the resources
+	query = "SELECT r.id, r.name FROM resources r JOIN role_to_resources rr ON r.id = rr.resource_id WHERE rr.role_id = $1"
+	rows, err := r.db.Query(query, role.ID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var resource model.Resource
+		err = rows.Scan(&resource.ID, &resource.Name)
+		if err != nil {
+			return nil, err
+		}
+		role.Resources = append(role.Resources, resource)
+	}
 	return &role, err
 }
 
