@@ -62,7 +62,7 @@ func (c *Controller) userViewData(r *http.Request) (*model.User, int, error) {
 
 // UserCreateViewController is the controller for the user create view.
 // On case of get request, it returns the user create page.
-// On case of put request, it creates the user and redirects to the list page.
+// On case of post request, it creates the user and redirects to the list page.
 func (c *Controller) UserCreateViewController(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
 		template := c.renderer.BuildTemplate("user-create", []string{c.renderer.GetTemplateDirectoryPath() + "/user/create.html.tmpl"})
@@ -108,7 +108,9 @@ func (c *Controller) UserCreateViewController(w http.ResponseWriter, r *http.Req
 // It is responsible for creating a new user.
 // It returns the created user as JSON.
 // Example request:
-// curl -X POST http://localhost:8090/api/user/create -d "name=Bob&email=bob@bob"
+// curl -X POST http://localhost:8090/api/user/create -d "name=Admin&email=system@admin&password=admin"
+// Example response:
+// {"ID":1,"Name":"Admin","Email":"system@admin","CreatedAt":"2024-05-27T15:12:24.894037Z","UpdatedAt":"2024-05-27T15:12:24.894037Z","Password":"$2a$10$8QIzpaZqZEEI3RVKKjGnh.GJ3DqLEIewuuRMGGCnRD3VW3v7ZodUW"}
 func (c *Controller) UserCreateAPIController(w http.ResponseWriter, r *http.Request) {
 	name := r.FormValue("name")
 	email := r.FormValue("email")
@@ -130,7 +132,7 @@ func (c *Controller) UserCreateAPIController(w http.ResponseWriter, r *http.Requ
 
 // UserUpdateViewController is the controller for the user update view.
 // On case of get request, it returns the user update page.
-// On case of put request, it updates the user and redirects to the list page.
+// On case of post request, it updates the user and redirects to the list page.
 func (c *Controller) UserUpdateViewController(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	userIDVariable := vars["userId"]
