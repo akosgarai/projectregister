@@ -6,6 +6,14 @@
 				<label for="name">Name</label>
 				<input type="text" class="form-control" id="name" name="name" value="{{.Role.Name}}" required>
 			</div>
+			<div class="form-group">
+			{{range .Resources}}
+				<div>
+					<label for="{{.ID}}">{{.Name}}</label>
+					<input type="checkbox" id="{{.ID}}" name="resources" value="{{.ID}}" {{if  $.Role.HasResource .Name}} checked {{end}}>
+				</div>
+			{{end}}
+			</div>
 			<input type="submit" value="Update">
 		</form>
 	</div>

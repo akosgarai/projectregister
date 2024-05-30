@@ -6,6 +6,12 @@
 				<label for="name">Name</label>
 				<input type="text" class="form-control" id="name" name="name" value="" required>
 			</div>
+			{{range .Resources}}
+				<div>
+					<label for="{{.ID}}">{{.Name}}</label>
+					<input type="checkbox" id="{{.ID}}" name="resources" value="{{.ID}}">
+				</div>
+			{{end}}
 			<input type="submit" value="Create">
 		</form>
 	</div>

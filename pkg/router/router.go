@@ -12,9 +12,15 @@ import (
 // I want the router creation to be here.
 
 // New creates a new instance of the router gorilla/mux router.
-func New(userRepository model.UserRepository, roleRepository model.RoleRepository, sessionStore *session.Store, renderer *render.Renderer) *mux.Router {
+func New(
+	userRepository model.UserRepository,
+	roleRepository model.RoleRepository,
+	resourceRepository model.ResourceRepository,
+	sessionStore *session.Store,
+	renderer *render.Renderer,
+) *mux.Router {
 	r := mux.NewRouter()
-	routerController := controller.New(userRepository, roleRepository, sessionStore, renderer)
+	routerController := controller.New(userRepository, roleRepository, resourceRepository, sessionStore, renderer)
 	r.HandleFunc("/health", routerController.HealthController)
 	r.HandleFunc("/login", routerController.LoginPageController)
 	r.HandleFunc("/auth/login", routerController.LoginActionController).Methods("POST")

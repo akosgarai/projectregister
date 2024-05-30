@@ -8,5 +8,5 @@ type Resource struct {
 
 // ResourceRepository interface
 type ResourceRepository interface {
-	GetResources() ([]Resource, error)
+	GetResources() ([]*Resource, error)
 }

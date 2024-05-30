@@ -9,8 +9,9 @@ import (
 // Controller type for controller
 // it holds the dependencies for the controller
 type Controller struct {
-	userRepository model.UserRepository
-	roleRepository model.RoleRepository
+	userRepository     model.UserRepository
+	roleRepository     model.RoleRepository
+	resourceRepository model.ResourceRepository
 
 	sessionStore *session.Store
 
@@ -18,10 +19,17 @@ type Controller struct {
 }
 
 // New creates a new controller
-func New(userRepository model.UserRepository, roleRepository model.RoleRepository, sessionStore *session.Store, renderer *render.Renderer) *Controller {
+func New(
+	userRepository model.UserRepository,
+	roleRepository model.RoleRepository,
+	resourceRepository model.ResourceRepository,
+	sessionStore *session.Store,
+	renderer *render.Renderer,
+) *Controller {
 	return &Controller{
-		userRepository: userRepository,
-		roleRepository: roleRepository,
+		userRepository:     userRepository,
+		roleRepository:     roleRepository,
+		resourceRepository: resourceRepository,
 
 		sessionStore: sessionStore,
 

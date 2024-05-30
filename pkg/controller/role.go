@@ -54,12 +54,19 @@ func (c *Controller) roleViewData(r *http.Request) (*model.Role, int, error) {
 func (c *Controller) RoleCreateViewController(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
 		template := c.renderer.BuildTemplate("role-create", []string{c.renderer.GetTemplateDirectoryPath() + "/role/create.html.tmpl"})
-		content := struct {
-			Title string
-		}{
-			Title: "Role Create",
+		resources, err := c.resourceRepository.GetResources()
+		if err != nil {
+			http.Error(w, "Failed to get resource data "+err.Error(), http.StatusInternalServerError)
+			return
 		}
-		err := template.ExecuteTemplate(w, "base.html", content)
+		content := struct {
+			Title     string
+			Resources []*model.Resource
+		}{
+			Title:     "Role Create",
+			Resources: resources,
+		}
+		err = template.ExecuteTemplate(w, "base.html", content)
 		if err != nil {
 			panic(err)
 		}
@@ -74,8 +81,19 @@ func (c *Controller) RoleCreateViewController(w http.ResponseWriter, r *http.Req
 			http.Error(w, "Name is required", http.StatusBadRequest)
 			return
 		}
+		resources := r.Form["resources"]
+		// transform the resources to int64
+		var resourceIDs []int64
+		for _, resource := range resources {
+			resourceID, err := strconv.ParseInt(resource, 10, 64)
+			if err != nil {
+				http.Error(w, "Invalid resource id "+err.Error(), http.StatusBadRequest)
+				return
+			}
+			resourceIDs = append(resourceIDs, resourceID)
+		}
 
-		_, err := c.roleRepository.CreateRole(name, []int64{})
+		_, err := c.roleRepository.CreateRole(name, resourceIDs)
 		if err != nil {
 			http.Error(w, "Internal server error - failed to create the role "+err.Error(), http.StatusInternalServerError)
 			return
@@ -107,12 +125,15 @@ func (c *Controller) RoleUpdateViewController(w http.ResponseWriter, r *http.Req
 
 	if r.Method == http.MethodGet {
 		template := c.renderer.BuildTemplate("user-role", []string{c.renderer.GetTemplateDirectoryPath() + "/role/update.html.tmpl"})
+		resources, err := c.resourceRepository.GetResources()
 		content := struct {
-			Title string
-			Role  *model.Role
+			Title     string
+			Role      *model.Role
+			Resources []*model.Resource
 		}{
-			Title: "Role Update",
-			Role:  role,
+			Title:     "Role Update",
+			Role:      role,
+			Resources: resources,
 		}
 		err = template.ExecuteTemplate(w, "base.html", content)
 		if err != nil {
@@ -130,9 +151,20 @@ func (c *Controller) RoleUpdateViewController(w http.ResponseWriter, r *http.Req
 			return
 		}
 
-		// update the us
+		// update the role
 		role.Name = name
-		err = c.roleRepository.UpdateRole(role)
+		resources := r.Form["resources"]
+		// transform the resources to int64
+		var resourceIDs []int64
+		for _, resource := range resources {
+			resourceID, err := strconv.ParseInt(resource, 10, 64)
+			if err != nil {
+				http.Error(w, "Invalid resource id "+err.Error(), http.StatusBadRequest)
+				return
+			}
+			resourceIDs = append(resourceIDs, resourceID)
+		}
+		err = c.roleRepository.UpdateRole(role, resourceIDs)
 		if err != nil {
 			http.Error(w, "Internal server error - failed to update the role "+err.Error(), http.StatusInternalServerError)
 			return

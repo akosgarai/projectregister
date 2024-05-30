@@ -31,7 +31,7 @@ func (r *RoleRepository) CreateRole(name string, resourceIDs []int64) (*model.Ro
 	}
 	// insert the role_to_resource records
 	for _, resourceID := range resourceIDs {
-		query = "INSERT INTO role_to_resource (role_id, resource_id) VALUES ($1, $2)"
+		query = "INSERT INTO role_to_resources (role_id, resource_id) VALUES ($1, $2)"
 		_, err = r.db.Exec(query, role.ID, resourceID)
 		if err != nil {
 			return nil, err
@@ -100,11 +100,28 @@ func (r *RoleRepository) GetRoleByID(id int64) (*model.Role, error) {
 // UpdateRole updates a role
 // the input parameter is the role
 // it returns an error
-func (r *RoleRepository) UpdateRole(role *model.Role) error {
+func (r *RoleRepository) UpdateRole(role *model.Role, resources []int64) error {
 	query := "UPDATE roles SET name = $1, updated_at = $2 WHERE id = $3"
 	now := time.Now().Format("2006-01-02 15:04:05.999999-07:00")
 	_, err := r.db.Exec(query, role.Name, now, role.ID)
-	return err
+	if err != nil {
+		return err
+	}
+	// delete the role_to_resources records
+	query = "DELETE FROM role_to_resources WHERE role_id = $1"
+	_, err = r.db.Exec(query, role.ID)
+	if err != nil {
+		return err
+	}
+	// insert the role_to_resources records
+	for _, resourceID := range resources {
+		query = "INSERT INTO role_to_resources (role_id, resource_id) VALUES ($1, $2)"
+		_, err = r.db.Exec(query, role.ID, resourceID)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // DeleteRole deletes a role
