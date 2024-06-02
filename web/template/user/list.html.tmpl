@@ -7,6 +7,7 @@
 				<th>ID</th>
 				<th>Name</th>
 				<th>Email</th>
+				<th>Role</th>
 				<th>Actions</th>
 			</tr>
 			{{ range .Users }}
@@ -14,6 +15,7 @@
 					<td>{{.ID}}</td>
 					<td>{{.Name}}</td>
 					<td>{{.Email}}</td>
+					<td>{{.Role.Name}}</td>
 					<td>
 						<a href="/admin/user/view/{{.ID}}">View</a>
 						<a href="/admin/user/update/{{.ID}}">Edit</a>

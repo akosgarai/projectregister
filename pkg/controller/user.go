@@ -66,12 +66,20 @@ func (c *Controller) userViewData(r *http.Request) (*model.User, int, error) {
 func (c *Controller) UserCreateViewController(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
 		template := c.renderer.BuildTemplate("user-create", []string{c.renderer.GetTemplateDirectoryPath() + "/user/create.html.tmpl"})
+		// get all roles
+		roles, err := c.roleRepository.GetRoles()
+		if err != nil {
+			http.Error(w, "Failed to get role data "+err.Error(), http.StatusInternalServerError)
+			return
+		}
 		content := struct {
 			Title string
+			Roles []*model.Role
 		}{
 			Title: "User Create",
+			Roles: roles,
 		}
-		err := template.ExecuteTemplate(w, "base.html", content)
+		err = template.ExecuteTemplate(w, "base.html", content)
 		if err != nil {
 			panic(err)
 		}
@@ -82,9 +90,10 @@ func (c *Controller) UserCreateViewController(w http.ResponseWriter, r *http.Req
 		name := r.FormValue("name")
 		email := r.FormValue("email")
 		password := r.FormValue("password")
+		roleIDRaw := r.FormValue("role")
 
 		// if the name or email is empty, return an error
-		if name == "" || email == "" || password == "" {
+		if name == "" || email == "" || password == "" || roleIDRaw == "" {
 			http.Error(w, "Name and email and password are required", http.StatusBadRequest)
 			return
 		}
@@ -94,7 +103,13 @@ func (c *Controller) UserCreateViewController(w http.ResponseWriter, r *http.Req
 			http.Error(w, "Internal server error - failed to encrypt the password "+err.Error(), http.StatusInternalServerError)
 			return
 		}
-		_, err = c.userRepository.CreateUser(name, email, string(password))
+		// it has to be converted to int64
+		roleID, err := strconv.ParseInt(roleIDRaw, 10, 64)
+		if err != nil {
+			http.Error(w, "Invalid role id "+err.Error(), http.StatusBadRequest)
+			return
+		}
+		_, err = c.userRepository.CreateUser(name, email, string(password), roleID)
 		if err != nil {
 			http.Error(w, "Internal server error - failed to create the user "+err.Error(), http.StatusInternalServerError)
 			return
@@ -115,13 +130,20 @@ func (c *Controller) UserCreateAPIController(w http.ResponseWriter, r *http.Requ
 	name := r.FormValue("name")
 	email := r.FormValue("email")
 	password := r.FormValue("password")
+	roleIDRaw := r.FormValue("role")
 	hashedPassword, err := passwd.HashPassword(password)
 	if err != nil {
 		http.Error(w, "Internal server error - failed to encrypt the password "+err.Error(), http.StatusInternalServerError)
 		return
 	}
+	// it has to be converted to int64
+	roleID, err := strconv.ParseInt(roleIDRaw, 10, 64)
+	if err != nil {
+		http.Error(w, "Invalid role id "+err.Error(), http.StatusBadRequest)
+		return
+	}
 	// create the user
-	user, err := c.userRepository.CreateUser(name, email, string(hashedPassword))
+	user, err := c.userRepository.CreateUser(name, email, string(hashedPassword), roleID)
 	if err != nil {
 		http.Error(w, "Internal server error - failed to insert data to the database "+err.Error(), http.StatusInternalServerError)
 		return
@@ -152,12 +174,20 @@ func (c *Controller) UserUpdateViewController(w http.ResponseWriter, r *http.Req
 
 	if r.Method == http.MethodGet {
 		template := c.renderer.BuildTemplate("user-update", []string{c.renderer.GetTemplateDirectoryPath() + "/user/update.html.tmpl"})
+		// get all roles
+		roles, err := c.roleRepository.GetRoles()
+		if err != nil {
+			http.Error(w, "Failed to get role data "+err.Error(), http.StatusInternalServerError)
+			return
+		}
 		content := struct {
 			Title string
 			User  *model.User
+			Roles []*model.Role
 		}{
 			Title: "User Update",
 			User:  user,
+			Roles: roles,
 		}
 		err = template.ExecuteTemplate(w, "base.html", content)
 		if err != nil {
@@ -170,9 +200,10 @@ func (c *Controller) UserUpdateViewController(w http.ResponseWriter, r *http.Req
 		name := r.FormValue("name")
 		email := r.FormValue("email")
 		password := r.FormValue("password")
+		roleIDRaw := r.FormValue("role")
 
 		// if the name or email is empty, return an error
-		if name == "" || email == "" {
+		if name == "" || email == "" || roleIDRaw == "" {
 			http.Error(w, "Name and email are required", http.StatusBadRequest)
 			return
 		}
@@ -189,6 +220,13 @@ func (c *Controller) UserUpdateViewController(w http.ResponseWriter, r *http.Req
 		// update the user
 		user.Name = name
 		user.Email = email
+		// roleID has to be converted to int64
+		roleID, err := strconv.ParseInt(roleIDRaw, 10, 64)
+		if err != nil {
+			http.Error(w, "Invalid role id "+err.Error(), http.StatusBadRequest)
+			return
+		}
+		user.Role.ID = roleID
 		err = c.userRepository.UpdateUser(user)
 		if err != nil {
 			http.Error(w, "Internal server error - failed to update the user "+err.Error(), http.StatusInternalServerError)
@@ -216,6 +254,7 @@ func (c *Controller) UserUpdateAPIController(w http.ResponseWriter, r *http.Requ
 	name := r.FormValue("name")
 	email := r.FormValue("email")
 	password := r.FormValue("password")
+	roleIDRaw := r.FormValue("role")
 	// get the user
 	user, err := c.userRepository.GetUserByID(userID)
 	if err != nil {
@@ -231,6 +270,13 @@ func (c *Controller) UserUpdateAPIController(w http.ResponseWriter, r *http.Requ
 	user.Name = name
 	user.Email = email
 	user.Password = hashedPassword
+	// roleID has to be converted to int64
+	roleID, err := strconv.ParseInt(roleIDRaw, 10, 64)
+	if err != nil {
+		http.Error(w, "Invalid role id "+err.Error(), http.StatusBadRequest)
+		return
+	}
+	user.Role.ID = roleID
 	err = c.userRepository.UpdateUser(user)
 	if err != nil {
 		http.Error(w, "Internal server error - failed to update the user "+err.Error(), http.StatusInternalServerError)

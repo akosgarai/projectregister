@@ -7,13 +7,14 @@ type User struct {
 	Email     string
 	CreatedAt string
 	UpdatedAt string
+	Role      *Role
 
 	Password string
 }
 
 // UserRepository interface
 type UserRepository interface {
-	CreateUser(username, email, password string) (*User, error)
+	CreateUser(username, email, password string, roleID int64) (*User, error)
 	GetUserByEmail(email string) (*User, error)
 	GetUserByID(id int64) (*User, error)
 	UpdateUser(user *User) error
