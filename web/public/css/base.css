@@ -33,6 +33,7 @@ label {
 	margin-bottom: 4px;
 }
 
+select,
 input {
 	width: 100%;
 	border: 1.5px solid grey;
@@ -191,6 +192,7 @@ table {
 .panel-left.closed .navigation li:not(.nav-toggle) {
 	display: none;
 }
+.form-page,
 .listing-page {
 	width: 100%;
 	height: 100%;
