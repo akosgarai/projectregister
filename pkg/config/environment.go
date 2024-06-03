@@ -26,6 +26,8 @@ type Environment struct {
 
 	renderTemplateDirectoryPath string
 	renderBaseTemplate          string
+
+	staticDirectoryPath string
 }
 
 // DefaultEnvironment creates a new instance of the environment with default values.
@@ -51,6 +53,8 @@ func DefaultEnvironment() *Environment {
 
 		renderTemplateDirectoryPath: DefaultRenderTemplateDirectoryPath,
 		renderBaseTemplate:          DefaultRenderBaseTemplate,
+
+		staticDirectoryPath: DefaultStaticDirectoryPath,
 	}
 }
 
@@ -134,6 +138,11 @@ func (e *Environment) GetRenderBaseTemplate() string {
 	return e.renderBaseTemplate
 }
 
+// GetStaticDirectoryPath returns the static directory path.
+func (e *Environment) GetStaticDirectoryPath() string {
+	return e.staticDirectoryPath
+}
+
 // NewEnvironment creates a new instance of the environment.
 func NewEnvironment(envConfig map[string]string) *Environment {
 	env := DefaultEnvironment()
@@ -184,6 +193,9 @@ func NewEnvironment(envConfig map[string]string) *Environment {
 	}
 	if val, ok := envConfig[RenderBaseTemplateEnvName]; ok {
 		env.renderBaseTemplate = val
+	}
+	if val, ok := envConfig[StaticDirectoryPathEnvName]; ok {
+		env.staticDirectoryPath = val
 	}
 
 	return env

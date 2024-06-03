@@ -20,6 +20,9 @@ type Renderer struct {
 
 	// templateDirectoryPath is the path to the template directory.
 	templateDirectoryPath string
+
+	// staticDirectoryPath is the path to the static directory.
+	staticDirectoryPath string
 }
 
 // NewRenderer creates a new renderer.
@@ -28,12 +31,19 @@ func NewRenderer(envConfig *config.Environment) *Renderer {
 		baseTemplate: envConfig.GetRenderTemplateDirectoryPath() + "/" + envConfig.GetRenderBaseTemplate(),
 
 		templateDirectoryPath: envConfig.GetRenderTemplateDirectoryPath(),
+
+		staticDirectoryPath: envConfig.GetStaticDirectoryPath(),
 	}
 }
 
 // GetTemplateDirectoryPath returns the template directory path.
 func (r *Renderer) GetTemplateDirectoryPath() string {
 	return r.templateDirectoryPath
+}
+
+// GetStaticDirectoryPath returns the static directory path.
+func (r *Renderer) GetStaticDirectoryPath() string {
+	return r.staticDirectoryPath
 }
 
 // BuildTemplate builds a template.

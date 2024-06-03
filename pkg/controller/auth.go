@@ -17,7 +17,7 @@ func (c *Controller) LoginPageController(w http.ResponseWriter, r *http.Request)
 	if err == nil {
 		_, err = c.sessionStore.Get(sessionKey.Value)
 		if err == nil {
-			http.Redirect(w, r, "/adin/dashboard", http.StatusSeeOther)
+			http.Redirect(w, r, "/admin/dashboard", http.StatusSeeOther)
 			return
 		}
 	}

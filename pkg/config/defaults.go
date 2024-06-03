@@ -33,6 +33,8 @@ const (
 	DefaultRenderTemplateDirectoryPath = "./web/template"
 	// DefaultRenderBaseTemplate is the default render base template.
 	DefaultRenderBaseTemplate = "base.html.tmpl"
+	// DefaultStaticDirectoryPath is the default render static directory path.
+	DefaultStaticDirectoryPath = "./web/public"
 
 	// environment variables
 
@@ -68,4 +70,6 @@ const (
 	RenderTemplateDirectoryPathEnvName = "RENDER_TEMPLATE_DIRECTORY_PATH"
 	// RenderBaseTemplateEnvName is the render base template environment variable name.
 	RenderBaseTemplateEnvName = "RENDER_BASE_TEMPLATE"
+	// StaticDirectoryPathEnvName is the static directory path environment variable name.
+	StaticDirectoryPathEnvName = "STATIC_DIRECTORY_PATH"
 )

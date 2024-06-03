@@ -1,6 +1,8 @@
 package router
 
 import (
+	"net/http"
+
 	"github.com/gorilla/mux"
 
 	"github.com/akosgarai/projectregister/pkg/controller"
@@ -20,6 +22,8 @@ func New(
 	renderer *render.Renderer,
 ) *mux.Router {
 	r := mux.NewRouter()
+	// handle the static files
+	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir(renderer.GetStaticDirectoryPath()))))
 	routerController := controller.New(userRepository, roleRepository, resourceRepository, sessionStore, renderer)
 	r.HandleFunc("/health", routerController.HealthController)
 	r.HandleFunc("/login", routerController.LoginPageController)
