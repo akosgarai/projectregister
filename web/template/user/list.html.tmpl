@@ -1,30 +1,30 @@
 {{define "content"}}
-	<div class="container">
-		<h1>{{.Title}}</h1>
-		<a href="/admin/user/create">Create User</a>
-		<table >
+<div class="listing-page">
+	<h1>{{.Title}}</h1>
+	<a class="button-link" href="/admin/user/create">Create User</a>
+	<table >
+		<tr>
+			<th>ID</th>
+			<th>Name</th>
+			<th>Email</th>
+			<th>Role</th>
+			<th>Actions</th>
+		</tr>
+		{{ range .Users }}
 			<tr>
-				<th>ID</th>
-				<th>Name</th>
-				<th>Email</th>
-				<th>Role</th>
-				<th>Actions</th>
+				<td>{{.ID}}</td>
+				<td>{{.Name}}</td>
+				<td>{{.Email}}</td>
+				<td>{{.Role.Name}}</td>
+				<td>
+					<a href="/admin/user/view/{{.ID}}">View</a>
+					<a href="/admin/user/update/{{.ID}}">Edit</a>
+					<form action="/admin/user/delete/{{.ID}}" method="post">
+						<input type="submit" value="Delete">
+					</form>
+				</td>
 			</tr>
-			{{ range .Users }}
-				<tr>
-					<td>{{.ID}}</td>
-					<td>{{.Name}}</td>
-					<td>{{.Email}}</td>
-					<td>{{.Role.Name}}</td>
-					<td>
-						<a href="/admin/user/view/{{.ID}}">View</a>
-						<a href="/admin/user/update/{{.ID}}">Edit</a>
-						<form action="/admin/user/delete/{{.ID}}" method="post">
-							<input type="submit" value="Delete">
-						</form>
-					</td>
-				</tr>
-			{{end}}
-		</table>
-	</div>
+		{{end}}
+	</table>
+</div>
 {{end}}
