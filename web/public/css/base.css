@@ -63,6 +63,10 @@ input[type="submit"] {
 	background-color: var(--panel-left-background);
 }
 
+.panel-left.closed {
+	width: 50px;
+}
+
 .panel-right {
 	display: flex;
 	flex-direction: column;
@@ -171,4 +175,11 @@ input[type="submit"] {
 .navigation li a:hover {
 	background-color: #555;
 	color: white;
+}
+.navigation li.nav-toggle a {
+	text-align: end;
+}
+/* Hide the li navigation items except the toggle li*/
+.panel-left.closed .navigation li:not(.nav-toggle) {
+	display: none;
 }
