@@ -8,7 +8,20 @@
 		<link rel="stylesheet" type="text/css" href="/static/css/base.css">
 	</head>
 	<body>
-		{{template "content" .}}
+		<div class="container">
+			<div class="panel-left">
+				<div class="loader">
+					<div class="electrons">
+						<div class="electron-pair"></div>
+						<div class="electron-pair"></div>
+						<div class="electron-pair"></div>
+					</div>
+				</div>
+			</div>
+			<div class="panel-right">
+				{{template "content" .}}
+			</div>
+		</div>
 	</body>
 </html>
 {{end}}
