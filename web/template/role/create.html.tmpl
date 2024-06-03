@@ -1,18 +1,18 @@
 {{define "content"}}
-	<div class="container">
-		<h1>{{.Title}}</h1>
-		<form action="/admin/role/create" method="post">
-			<div class="form-group">
-				<label for="name">Name</label>
-				<input type="text" class="form-control" id="name" name="name" value="" required>
+<div class="form-page">
+	<h1>{{.Title}}</h1>
+	<form action="/admin/role/create" method="post">
+		<div class="form-group">
+			<label for="name">Name</label>
+			<input type="text" class="form-control" id="name" name="name" value="" required>
+		</div>
+		{{range .Resources}}
+			<div class="checkbox">
+				<input type="checkbox" id="{{.ID}}" name="resources" value="{{.ID}}">
+				<label for="{{.ID}}">{{.Name}}</label>
 			</div>
-			{{range .Resources}}
-				<div>
-					<label for="{{.ID}}">{{.Name}}</label>
-					<input type="checkbox" id="{{.ID}}" name="resources" value="{{.ID}}">
-				</div>
-			{{end}}
-			<input type="submit" value="Create">
-		</form>
-	</div>
+		{{end}}
+		<input type="submit" value="Create">
+	</form>
+</div>
 {{end}}
