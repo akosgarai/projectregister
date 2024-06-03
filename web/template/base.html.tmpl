@@ -10,6 +10,7 @@
 	<body>
 		<div class="container">
 			<div class="panel-left">
+			{{if eq .Title "Login"}}
 				<div class="loader">
 					<div class="electrons">
 						<div class="electron-pair"></div>
@@ -17,6 +18,15 @@
 						<div class="electron-pair"></div>
 					</div>
 				</div>
+			{{else}}
+				<div class="navigation">
+					<ul>
+						<li><a href="/admin/dashboard">Dashboard</a></li>
+						<li><a href="/admin/user/list">Users</a></li>
+						<li><a href="/admin/role/list">Roles</a></li>
+					</ul>
+				</div>
+			{{end}}
 			</div>
 			<div class="panel-right">
 				{{template "content" .}}
