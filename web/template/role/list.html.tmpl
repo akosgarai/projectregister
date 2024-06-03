@@ -1,26 +1,26 @@
 {{define "content"}}
-	<div class="container">
-		<h1>{{.Title}}</h1>
-		<a href="/admin/role/create">Create Role</a>
-		<table >
+<div class="listing-page">
+	<h1>{{.Title}}</h1>
+	<a class="button-link" href="/admin/role/create">Create Role</a>
+	<table >
+		<tr>
+			<th>ID</th>
+			<th>Name</th>
+			<th>Actions</th>
+		</tr>
+		{{ range .Roles }}
 			<tr>
-				<th>ID</th>
-				<th>Name</th>
-				<th>Actions</th>
+				<td>{{.ID}}</td>
+				<td>{{.Name}}</td>
+				<td>
+					<a href="/admin/role/view/{{.ID}}">View</a>
+					<a href="/admin/role/update/{{.ID}}">Edit</a>
+					<form action="/admin/role/delete/{{.ID}}" method="post">
+						<input type="submit" value="Delete">
+					</form>
+				</td>
 			</tr>
-			{{ range .Roles }}
-				<tr>
-					<td>{{.ID}}</td>
-					<td>{{.Name}}</td>
-					<td>
-						<a href="/admin/role/view/{{.ID}}">View</a>
-						<a href="/admin/role/update/{{.ID}}">Edit</a>
-						<form action="/admin/role/delete/{{.ID}}" method="post">
-							<input type="submit" value="Delete">
-						</form>
-					</td>
-				</tr>
-			{{end}}
-		</table>
-	</div>
+		{{end}}
+	</table>
+</div>
 {{end}}

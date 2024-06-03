@@ -209,7 +209,7 @@ func (c *Controller) RoleListViewController(w http.ResponseWriter, r *http.Reque
 		Title string
 		Roles []*model.Role
 	}{
-		Title: "User List",
+		Title: "Role List",
 		Roles: roles,
 	}
 	err = template.ExecuteTemplate(w, "base.html", content)
