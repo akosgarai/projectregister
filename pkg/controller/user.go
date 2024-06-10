@@ -12,6 +12,11 @@ import (
 
 // UserViewController is the controller for the user view page.
 func (c *Controller) UserViewController(w http.ResponseWriter, r *http.Request) {
+	currentUser := c.CurrentUser(r)
+	if !currentUser.HasPrivilege("users.view") {
+		http.Error(w, "Forbidden", http.StatusForbidden)
+		return
+	}
 	template := c.renderer.BuildTemplate("login", []string{c.renderer.GetTemplateDirectoryPath() + "/user/view.html.tmpl"})
 	u, statusCode, err := c.userViewData(r)
 	if err != nil {
@@ -19,11 +24,13 @@ func (c *Controller) UserViewController(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 	content := struct {
-		Title string
-		User  *model.User
+		Title       string
+		User        *model.User
+		CurrentUser *model.User
 	}{
-		Title: "User View",
-		User:  u,
+		Title:       "User View",
+		User:        u,
+		CurrentUser: currentUser,
 	}
 	err = template.ExecuteTemplate(w, "base.html", content)
 	if err != nil {
@@ -64,6 +71,11 @@ func (c *Controller) userViewData(r *http.Request) (*model.User, int, error) {
 // On case of get request, it returns the user create page.
 // On case of post request, it creates the user and redirects to the list page.
 func (c *Controller) UserCreateViewController(w http.ResponseWriter, r *http.Request) {
+	currentUser := c.CurrentUser(r)
+	if !currentUser.HasPrivilege("users.create") {
+		http.Error(w, "Forbidden", http.StatusForbidden)
+		return
+	}
 	if r.Method == http.MethodGet {
 		template := c.renderer.BuildTemplate("user-create", []string{c.renderer.GetTemplateDirectoryPath() + "/user/create.html.tmpl"})
 		// get all roles
@@ -73,11 +85,13 @@ func (c *Controller) UserCreateViewController(w http.ResponseWriter, r *http.Req
 			return
 		}
 		content := struct {
-			Title string
-			Roles []*model.Role
+			Title       string
+			Roles       []*model.Role
+			CurrentUser *model.User
 		}{
-			Title: "User Create",
-			Roles: roles,
+			Title:       "User Create",
+			Roles:       roles,
+			CurrentUser: currentUser,
 		}
 		err = template.ExecuteTemplate(w, "base.html", content)
 		if err != nil {
@@ -156,6 +170,11 @@ func (c *Controller) UserCreateAPIController(w http.ResponseWriter, r *http.Requ
 // On case of get request, it returns the user update page.
 // On case of post request, it updates the user and redirects to the list page.
 func (c *Controller) UserUpdateViewController(w http.ResponseWriter, r *http.Request) {
+	currentUser := c.CurrentUser(r)
+	if !currentUser.HasPrivilege("users.update") {
+		http.Error(w, "Forbidden", http.StatusForbidden)
+		return
+	}
 	vars := mux.Vars(r)
 	userIDVariable := vars["userId"]
 	// it has to be converted to int64
@@ -181,13 +200,15 @@ func (c *Controller) UserUpdateViewController(w http.ResponseWriter, r *http.Req
 			return
 		}
 		content := struct {
-			Title string
-			User  *model.User
-			Roles []*model.Role
+			Title       string
+			User        *model.User
+			Roles       []*model.Role
+			CurrentUser *model.User
 		}{
-			Title: "User Update",
-			User:  user,
-			Roles: roles,
+			Title:       "User Update",
+			User:        user,
+			Roles:       roles,
+			CurrentUser: currentUser,
 		}
 		err = template.ExecuteTemplate(w, "base.html", content)
 		if err != nil {
@@ -290,6 +311,11 @@ func (c *Controller) UserUpdateAPIController(w http.ResponseWriter, r *http.Requ
 // It is responsible for deleting a user.
 // It redirects to the user list page.
 func (c *Controller) UserDeleteViewController(w http.ResponseWriter, r *http.Request) {
+	currentUser := c.CurrentUser(r)
+	if !currentUser.HasPrivilege("users.delete") {
+		http.Error(w, "Forbidden", http.StatusForbidden)
+		return
+	}
 	vars := mux.Vars(r)
 	userIDVariable := vars["userId"]
 	// it has to be converted to int64
@@ -333,6 +359,11 @@ func (c *Controller) UserDeleteAPIController(w http.ResponseWriter, r *http.Requ
 
 // UserListViewController is the controller for the user list view.
 func (c *Controller) UserListViewController(w http.ResponseWriter, r *http.Request) {
+	currentUser := c.CurrentUser(r)
+	if !currentUser.HasPrivilege("users.view") {
+		http.Error(w, "Forbidden", http.StatusForbidden)
+		return
+	}
 	// get all users
 	users, err := c.userRepository.GetUsers()
 	if err != nil {
@@ -341,11 +372,13 @@ func (c *Controller) UserListViewController(w http.ResponseWriter, r *http.Reque
 	}
 	template := c.renderer.BuildTemplate("user-list", []string{c.renderer.GetTemplateDirectoryPath() + "/user/list.html.tmpl"})
 	content := struct {
-		Title string
-		Users []*model.User
+		Title       string
+		Users       []*model.User
+		CurrentUser *model.User
 	}{
-		Title: "User List",
-		Users: users,
+		Title:       "User List",
+		Users:       users,
+		CurrentUser: currentUser,
 	}
 	err = template.ExecuteTemplate(w, "base.html", content)
 	if err != nil {

@@ -1,7 +1,9 @@
 {{define "content"}}
 <div class="listing-page">
 	<h1>{{.Title}}</h1>
-	<a class="button-link" href="/admin/user/create">Create User</a>
+	{{if .CurrentUser.HasPrivilege "users.create"}}
+		<a class="button-link" href="/admin/user/create">Create User</a>
+	{{end}}
 	<table >
 		<tr>
 			<th>ID</th>
@@ -18,10 +20,14 @@
 				<td>{{.Role.Name}}</td>
 				<td>
 					<a href="/admin/user/view/{{.ID}}">View</a>
-					<a href="/admin/user/update/{{.ID}}">Edit</a>
-					<form action="/admin/user/delete/{{.ID}}" method="post">
-						<input type="submit" value="Delete">
-					</form>
+					{{if $.CurrentUser.HasPrivilege "users.update"}}
+						<a href="/admin/user/update/{{.ID}}">Edit</a>
+					{{end}}
+					{{if $.CurrentUser.HasPrivilege "users.delete"}}
+						<form action="/admin/user/delete/{{.ID}}" method="post">
+							<input type="submit" value="Delete">
+						</form>
+					{{end}}
 				</td>
 			</tr>
 		{{end}}
