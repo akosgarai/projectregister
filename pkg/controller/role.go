@@ -13,6 +13,11 @@ import (
 // GET /admin/role/view/{roleId}
 // It renders the role view page.
 func (c *Controller) RoleViewController(w http.ResponseWriter, r *http.Request) {
+	currentUser := c.CurrentUser(r)
+	if !currentUser.HasPrivilege("roles.view") {
+		http.Error(w, "Forbidden", http.StatusForbidden)
+		return
+	}
 	template := c.renderer.BuildTemplate("role-view", []string{c.renderer.GetTemplateDirectoryPath() + "/role/view.html.tmpl"})
 	role, statusCode, err := c.roleViewData(r)
 	if err != nil {
@@ -20,11 +25,13 @@ func (c *Controller) RoleViewController(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 	content := struct {
-		Title string
-		Role  *model.Role
+		Title       string
+		Role        *model.Role
+		CurrentUser *model.User
 	}{
-		Title: "Role View",
-		Role:  role,
+		Title:       "Role View",
+		Role:        role,
+		CurrentUser: currentUser,
 	}
 	err = template.ExecuteTemplate(w, "base.html", content)
 	if err != nil {
@@ -52,6 +59,11 @@ func (c *Controller) roleViewData(r *http.Request) (*model.Role, int, error) {
 // On case of get request, it returns the role create page.
 // On case of post request, it creates the role and redirects to the list page.
 func (c *Controller) RoleCreateViewController(w http.ResponseWriter, r *http.Request) {
+	currentUser := c.CurrentUser(r)
+	if !currentUser.HasPrivilege("roles.create") {
+		http.Error(w, "Forbidden", http.StatusForbidden)
+		return
+	}
 	if r.Method == http.MethodGet {
 		template := c.renderer.BuildTemplate("role-create", []string{c.renderer.GetTemplateDirectoryPath() + "/role/create.html.tmpl"})
 		resources, err := c.resourceRepository.GetResources()
@@ -59,12 +71,18 @@ func (c *Controller) RoleCreateViewController(w http.ResponseWriter, r *http.Req
 			http.Error(w, "Failed to get resource data "+err.Error(), http.StatusInternalServerError)
 			return
 		}
+		if err != nil {
+			http.Error(w, "Failed to get current user data "+err.Error(), http.StatusInternalServerError)
+			return
+		}
 		content := struct {
-			Title     string
-			Resources []*model.Resource
+			Title       string
+			Resources   []*model.Resource
+			CurrentUser *model.User
 		}{
-			Title:     "Role Create",
-			Resources: resources,
+			Title:       "Role Create",
+			Resources:   resources,
+			CurrentUser: currentUser,
 		}
 		err = template.ExecuteTemplate(w, "base.html", content)
 		if err != nil {
@@ -107,6 +125,11 @@ func (c *Controller) RoleCreateViewController(w http.ResponseWriter, r *http.Req
 // On case of get request, it returns the role update page.
 // On case of post request, it updates the role and redirects to the list page.
 func (c *Controller) RoleUpdateViewController(w http.ResponseWriter, r *http.Request) {
+	currentUser := c.CurrentUser(r)
+	if !currentUser.HasPrivilege("roles.update") {
+		http.Error(w, "Forbidden", http.StatusForbidden)
+		return
+	}
 	vars := mux.Vars(r)
 	roleIDVariable := vars["roleId"]
 	// it has to be converted to int64
@@ -127,13 +150,15 @@ func (c *Controller) RoleUpdateViewController(w http.ResponseWriter, r *http.Req
 		template := c.renderer.BuildTemplate("user-role", []string{c.renderer.GetTemplateDirectoryPath() + "/role/update.html.tmpl"})
 		resources, err := c.resourceRepository.GetResources()
 		content := struct {
-			Title     string
-			Role      *model.Role
-			Resources []*model.Resource
+			Title       string
+			Role        *model.Role
+			Resources   []*model.Resource
+			CurrentUser *model.User
 		}{
-			Title:     "Role Update",
-			Role:      role,
-			Resources: resources,
+			Title:       "Role Update",
+			Role:        role,
+			Resources:   resources,
+			CurrentUser: currentUser,
 		}
 		err = template.ExecuteTemplate(w, "base.html", content)
 		if err != nil {
@@ -178,6 +203,11 @@ func (c *Controller) RoleUpdateViewController(w http.ResponseWriter, r *http.Req
 // It is responsible for deleting a role.
 // It redirects to the role list page.
 func (c *Controller) RoleDeleteViewController(w http.ResponseWriter, r *http.Request) {
+	currentUser := c.CurrentUser(r)
+	if !currentUser.HasPrivilege("roles.delete") {
+		http.Error(w, "Forbidden", http.StatusForbidden)
+		return
+	}
 	vars := mux.Vars(r)
 	roleIDVariable := vars["roleId"]
 	// it has to be converted to int64
@@ -198,6 +228,11 @@ func (c *Controller) RoleDeleteViewController(w http.ResponseWriter, r *http.Req
 
 // RoleListViewController is the controller for the role list view.
 func (c *Controller) RoleListViewController(w http.ResponseWriter, r *http.Request) {
+	currentUser := c.CurrentUser(r)
+	if !currentUser.HasPrivilege("roles.view") {
+		http.Error(w, "Forbidden", http.StatusForbidden)
+		return
+	}
 	// get all roles
 	roles, err := c.roleRepository.GetRoles()
 	if err != nil {
@@ -206,11 +241,13 @@ func (c *Controller) RoleListViewController(w http.ResponseWriter, r *http.Reque
 	}
 	template := c.renderer.BuildTemplate("role-list", []string{c.renderer.GetTemplateDirectoryPath() + "/role/list.html.tmpl"})
 	content := struct {
-		Title string
-		Roles []*model.Role
+		Title       string
+		Roles       []*model.Role
+		CurrentUser *model.User
 	}{
-		Title: "Role List",
-		Roles: roles,
+		Title:       "Role List",
+		Roles:       roles,
+		CurrentUser: currentUser,
 	}
 	err = template.ExecuteTemplate(w, "base.html", content)
 	if err != nil {

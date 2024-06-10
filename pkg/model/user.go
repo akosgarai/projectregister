@@ -12,6 +12,11 @@ type User struct {
 	Password string
 }
 
+// HasPrivilege checks if the user has the privilege
+func (u *User) HasPrivilege(resource string) bool {
+	return u.Role.HasResource(resource)
+}
+
 // UserRepository interface
 type UserRepository interface {
 	CreateUser(username, email, password string, roleID int64) (*User, error)

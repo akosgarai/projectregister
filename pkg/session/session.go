@@ -24,6 +24,11 @@ func New(user *model.User) *Session {
 	}
 }
 
+// GetUser returns the user from the session
+func (s *Session) GetUser() *model.User {
+	return s.user
+}
+
 // Store type a simple in memory session store
 type Store struct {
 	sessions  map[string]*Session

@@ -3,6 +3,7 @@ package controller
 import (
 	"net/http"
 
+	"github.com/akosgarai/projectregister/pkg/model"
 	"github.com/akosgarai/projectregister/pkg/passwd"
 	"github.com/akosgarai/projectregister/pkg/session"
 )
@@ -88,4 +89,17 @@ func (c *Controller) AuthMiddleware(next http.Handler) http.Handler {
 		}
 		next.ServeHTTP(w, r)
 	})
+}
+
+// CurrentUser returns the current user.
+func (c *Controller) CurrentUser(r *http.Request) *model.User {
+	sessionKey, err := r.Cookie("session")
+	if err != nil {
+		panic(err)
+	}
+	session, err := c.sessionStore.Get(sessionKey.Value)
+	if err != nil {
+		panic(err)
+	}
+	return session.GetUser()
 }
