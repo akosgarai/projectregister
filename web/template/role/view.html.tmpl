@@ -1,6 +1,8 @@
 {{define "content"}}
-	<div class="container">
-		<p>View Role</p>
+<div class="detail-page">
+	<h1>{{.Title}}</h1>
+	<a class="button-link" href="/admin/role/update/{{.Role.ID}}">Edit Role</a>
+	<div>
 		<p>ID: {{.Role.ID}}</p>
 		<p>Name: {{.Role.Name}}</p>
 		<p>Created at: {{.Role.CreatedAt}}</p>
@@ -12,4 +14,5 @@
 			{{end}}
 		</ul>
 	</div>
+</div>
 {{end}}
