@@ -4,41 +4,23 @@ import (
 	"testing"
 
 	"github.com/akosgarai/projectregister/pkg/config"
-	"github.com/akosgarai/projectregister/pkg/model"
 	"github.com/akosgarai/projectregister/pkg/render"
 	"github.com/akosgarai/projectregister/pkg/session"
+	"github.com/akosgarai/projectregister/pkg/testhelper"
 )
-
-// UserRepositoryMock is a mock for the UserRepository
-type UserRepositoryMock struct{}
-
-func (u *UserRepositoryMock) CreateUser(username, email, password string) (*model.User, error) {
-	return &model.User{}, nil
-}
-func (u *UserRepositoryMock) GetUserByEmail(email string) (*model.User, error) {
-	return &model.User{}, nil
-}
-func (u *UserRepositoryMock) GetUserByID(id int64) (*model.User, error) {
-	return &model.User{}, nil
-}
-func (u *UserRepositoryMock) UpdateUser(user *model.User) error {
-	return nil
-}
-func (u *UserRepositoryMock) DeleteUser(id int64) error {
-	return nil
-}
-func (u *UserRepositoryMock) GetUsers() ([]*model.User, error) {
-	return []*model.User{}, nil
-}
 
 // TestNew Tests the New function
 // It has to return a new router
 // The router has to have the given routes
 // The router has to have the given controller
 func TestNew(t *testing.T) {
-	userRepository := &UserRepositoryMock{}
 	sessionStore := session.NewStore(config.DefaultEnvironment())
-	router := New(userRepository, sessionStore, render.NewRenderer(config.DefaultEnvironment()))
+	router := New(
+		&testhelper.UserRepositoryMock{},
+		&testhelper.RoleRepositoryMock{},
+		&testhelper.ResourceRepositoryMock{},
+		sessionStore,
+		render.NewRenderer(config.DefaultEnvironment()))
 	if router == nil {
 		t.Error("New router is nil")
 	}
@@ -49,7 +31,17 @@ func TestNew(t *testing.T) {
 		"/auth/login",
 
 		"/admin/dashboard",
+		"/admin/user/create",
 		"/admin/user/view/{userId}",
+		"/admin/user/update/{userId}",
+		"/admin/user/delete/{userId}",
+		"/admin/user/list",
+
+		"/admin/role/create",
+		"/admin/role/view/{roleId}",
+		"/admin/role/update/{roleId}",
+		"/admin/role/delete/{roleId}",
+		"/admin/role/list",
 
 		"/api/user/create",
 		"/api/user/view/{userId}",
