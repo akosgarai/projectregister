@@ -55,6 +55,9 @@ func TestDefaultEnvironment(t *testing.T) {
 	if env.GetRenderBaseTemplate() != DefaultRenderBaseTemplate {
 		t.Errorf("Expected %s, got %s", DefaultRenderBaseTemplate, env.GetRenderBaseTemplate())
 	}
+	if env.GetStaticDirectoryPath() != DefaultStaticDirectoryPath {
+		t.Errorf("Expected %s, got %s", DefaultStaticDirectoryPath, env.GetStaticDirectoryPath())
+	}
 }
 
 // TestNewEnvironmentWithEmptyValues tests the NewEnvironment function with empty values.
@@ -111,6 +114,9 @@ func TestNewEnvironmentWithEmptyValues(t *testing.T) {
 	}
 	if env.GetRenderBaseTemplate() != DefaultRenderBaseTemplate {
 		t.Errorf("Expected %s, got %s", DefaultRenderBaseTemplate, env.GetRenderBaseTemplate())
+	}
+	if env.GetStaticDirectoryPath() != DefaultStaticDirectoryPath {
+		t.Errorf("Expected %s, got %s", DefaultStaticDirectoryPath, env.GetStaticDirectoryPath())
 	}
 }
 
@@ -284,6 +290,17 @@ func TestNewEnvironmentRenderBaseTemplate(t *testing.T) {
 	env := NewEnvironment(envList)
 	if env.GetRenderBaseTemplate() != renderBaseTemplate {
 		t.Errorf("Expected %s, got %s", renderBaseTemplate, env.GetRenderBaseTemplate())
+	}
+}
+
+// TestNewEnvironmentStaticDirectoryPath tests the NewEnvironment function with a static directory path value.
+func TestNewEnvironmentStaticDirectoryPath(t *testing.T) {
+	envList := make(map[string]string)
+	staticDirectoryPath := "web/static/updated/path"
+	envList[StaticDirectoryPathEnvName] = staticDirectoryPath
+	env := NewEnvironment(envList)
+	if env.GetStaticDirectoryPath() != staticDirectoryPath {
+		t.Errorf("Expected %s, got %s", staticDirectoryPath, env.GetStaticDirectoryPath())
 	}
 }
 
