@@ -11,6 +11,10 @@ var (
 	TestSessionCookieName = "session"
 	// TestSessionCookieValue is the value of the session cookie that we use for testing.
 	TestSessionCookieValue = "test"
+	// TestConfigData is the test configuration data with the minimal setup to render pages.
+	TestConfigData = map[string]string{
+		"RENDER_TEMPLATE_DIRECTORY_PATH": "../../web/template",
+	}
 )
 
 // UserRepositoryMock is a mock for the UserRepository interface.

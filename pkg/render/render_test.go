@@ -7,17 +7,12 @@ import (
 	"testing"
 
 	"github.com/akosgarai/projectregister/pkg/config"
-)
-
-var (
-	testConfigData = map[string]string{
-		"RENDER_TEMPLATE_DIRECTORY_PATH": "../../web/template",
-	}
+	"github.com/akosgarai/projectregister/pkg/testhelper"
 )
 
 // TestNewRenderer is a test function for the NewRenderer function.
 func TestNewRenderer(t *testing.T) {
-	testConfig := config.NewEnvironment(testConfigData)
+	testConfig := config.NewEnvironment(testhelper.TestConfigData)
 	renderer := NewRenderer(testConfig)
 	if renderer == nil {
 		t.Error("The renderer is nil.")
@@ -29,17 +24,26 @@ func TestNewRenderer(t *testing.T) {
 
 // TestGetTemplateDirectoryPath is a test function for the GetTemplateDirectoryPath function.
 func TestGetTemplateDirectoryPath(t *testing.T) {
-	testConfig := config.NewEnvironment(testConfigData)
+	testConfig := config.NewEnvironment(testhelper.TestConfigData)
 	renderer := NewRenderer(testConfig)
 	if renderer.GetTemplateDirectoryPath() != testConfig.GetRenderTemplateDirectoryPath() {
 		t.Errorf("The template directory path is not correct. Expected: %s, got: %s", testConfig.GetRenderTemplateDirectoryPath(), renderer.GetTemplateDirectoryPath())
 	}
 }
 
+// TestGetStaticDirectoryPath is a test function for the GetStaticDirectoryPath function.
+func TestGetStaticDirectoryPath(t *testing.T) {
+	testConfig := config.NewEnvironment(testhelper.TestConfigData)
+	renderer := NewRenderer(testConfig)
+	if renderer.GetStaticDirectoryPath() != testConfig.GetStaticDirectoryPath() {
+		t.Errorf("The static directory path is not correct. Expected: %s, got: %s", testConfig.GetStaticDirectoryPath(), renderer.GetStaticDirectoryPath())
+	}
+}
+
 // TestBuildTemplate is a test function for the BuildTemplate function.
 func TestBuildTemplate(t *testing.T) {
 	// Test the template building with empty file list.
-	testConfig := config.NewEnvironment(testConfigData)
+	testConfig := config.NewEnvironment(testhelper.TestConfigData)
 	renderer := NewRenderer(testConfig)
 	emptyList := []string{}
 	templateName := "test"
@@ -55,7 +59,7 @@ func TestBuildTemplate(t *testing.T) {
 
 // TestJSON is a test function for the JSON function.
 func TestJSON(t *testing.T) {
-	testConfig := config.NewEnvironment(testConfigData)
+	testConfig := config.NewEnvironment(testhelper.TestConfigData)
 	renderer := NewRenderer(testConfig)
 	// Test the JSON function with a nil value.
 	// The function should return an error.
@@ -88,7 +92,7 @@ func TestJSON(t *testing.T) {
 
 // TestStatus is a test function for the Status function.
 func TestStatus(t *testing.T) {
-	testConfig := config.NewEnvironment(testConfigData)
+	testConfig := config.NewEnvironment(testhelper.TestConfigData)
 	renderer := NewRenderer(testConfig)
 	// Test the Status function with different status codes.
 	httpStatusCodes := []int{200, 201, 202, 203, 204, 205, 206, 207, 208, 226, 300, 301, 302, 303, 304, 305, 306, 307, 308}
@@ -107,7 +111,7 @@ func TestStatus(t *testing.T) {
 
 // TestErrorWithoutDetails is a test function for the Error function.
 func TestErrorWithoutDetails(t *testing.T) {
-	testConfig := config.NewEnvironment(testConfigData)
+	testConfig := config.NewEnvironment(testhelper.TestConfigData)
 	renderer := NewRenderer(testConfig)
 	// Test the Error function with different status codes and messages.
 	httpStatusCodes := []int{200, 201, 202, 203, 204, 205, 206, 207, 208, 226, 300, 301, 302, 303, 304, 305, 306, 307, 308}
@@ -126,7 +130,7 @@ func TestErrorWithoutDetails(t *testing.T) {
 
 // TestErrorWithDetails is a test function for the Error function.
 func TestErrorWithDetails(t *testing.T) {
-	testConfig := config.NewEnvironment(testConfigData)
+	testConfig := config.NewEnvironment(testhelper.TestConfigData)
 	renderer := NewRenderer(testConfig)
 	// Test the Error function with different status codes and messages.
 	httpStatusCodes := []int{200, 201, 202, 203, 204, 205, 206, 207, 208, 226, 300, 301, 302, 303, 304, 305, 306, 307, 308}

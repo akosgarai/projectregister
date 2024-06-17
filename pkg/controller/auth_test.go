@@ -15,14 +15,8 @@ import (
 	"github.com/akosgarai/projectregister/pkg/testhelper"
 )
 
-var (
-	testConfigData = map[string]string{
-		"RENDER_TEMPLATE_DIRECTORY_PATH": "../../web/template",
-	}
-)
-
 func getNewAuthController() *Controller {
-	testConfig := config.NewEnvironment(testConfigData)
+	testConfig := config.NewEnvironment(testhelper.TestConfigData)
 	sessionStore := session.NewStore(testConfig)
 	renderer := render.NewRenderer(testConfig)
 	return New(
@@ -139,7 +133,7 @@ func TestLoginActionControllerNoInput(t *testing.T) {
 func TestLoginActionControllerNoUser(t *testing.T) {
 	userRepository := &testhelper.UserRepositoryMock{}
 	userRepository.Error = sql.ErrNoRows
-	testConfig := config.NewEnvironment(testConfigData)
+	testConfig := config.NewEnvironment(testhelper.TestConfigData)
 	sessionStore := session.NewStore(testConfig)
 	renderer := render.NewRenderer(testConfig)
 	c := New(
@@ -188,7 +182,7 @@ func TestLoginActionControllerWrongPassword(t *testing.T) {
 		Email:    "test-email@address.com",
 		Password: passwordHash,
 	}
-	testConfig := config.NewEnvironment(testConfigData)
+	testConfig := config.NewEnvironment(testhelper.TestConfigData)
 	sessionStore := session.NewStore(testConfig)
 	renderer := render.NewRenderer(testConfig)
 	c := New(
@@ -235,7 +229,7 @@ func TestLoginActionController(t *testing.T) {
 		Email:    email,
 		Password: passwordHash,
 	}
-	testConfig := config.NewEnvironment(testConfigData)
+	testConfig := config.NewEnvironment(testhelper.TestConfigData)
 	sessionStore := session.NewStore(testConfig)
 	renderer := render.NewRenderer(testConfig)
 	c := New(

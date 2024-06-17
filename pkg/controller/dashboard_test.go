@@ -18,7 +18,7 @@ import (
 // The test creates a new controller, a new request with a new response recorder.
 // It calls the DashboardController function with the recorder and the request.
 func TestDashboardController(t *testing.T) {
-	testConfig := config.NewEnvironment(testConfigData)
+	testConfig := config.NewEnvironment(testhelper.TestConfigData)
 	sessionStore := session.NewStore(testConfig)
 	renderer := render.NewRenderer(testConfig)
 	c := New(

@@ -40,18 +40,15 @@ func getViewController() *Controller {
 	testUser := getStaticViewUser()
 	userRepository := &testhelper.UserRepositoryMock{}
 	userRepository.LatestUser = testUser
-	resourceRepository := &testhelper.ResourceRepositoryMock{}
-	roleRepository := &testhelper.RoleRepositoryMock{}
-	roleRepository.LatestRole = testUser.Role
-	testConfig := config.NewEnvironment(testConfigData)
+	testConfig := config.NewEnvironment(testhelper.TestConfigData)
 	sessionStore := session.NewStore(testConfig)
 	// Add the user to the session store.
 	sessionStore.Set(testhelper.TestSessionCookieValue, session.New(testUser))
 	renderer := render.NewRenderer(testConfig)
 	return New(
 		userRepository,
-		roleRepository,
-		resourceRepository,
+		&testhelper.RoleRepositoryMock{},
+		&testhelper.ResourceRepositoryMock{},
 		sessionStore,
 		renderer,
 	)
@@ -259,7 +256,7 @@ func getCreateController() *Controller {
 	resourceRepository := &testhelper.ResourceRepositoryMock{}
 	roleRepository := &testhelper.RoleRepositoryMock{}
 	roleRepository.LatestRole = testUser.Role
-	testConfig := config.NewEnvironment(testConfigData)
+	testConfig := config.NewEnvironment(testhelper.TestConfigData)
 	sessionStore := session.NewStore(testConfig)
 	// Add the user to the session store.
 	sessionStore.Set(testhelper.TestSessionCookieValue, session.New(testUser))
@@ -575,7 +572,7 @@ func getUpdateController() *Controller {
 	resourceRepository := &testhelper.ResourceRepositoryMock{}
 	roleRepository := &testhelper.RoleRepositoryMock{}
 	roleRepository.LatestRole = testUpdateUser.Role
-	testConfig := config.NewEnvironment(testConfigData)
+	testConfig := config.NewEnvironment(testhelper.TestConfigData)
 	sessionStore := session.NewStore(testConfig)
 	// Add the user to the session store.
 	sessionStore.Set("test", session.New(testUpdateUser))
@@ -986,7 +983,7 @@ func getDeleteController() *Controller {
 	resourceRepository := &testhelper.ResourceRepositoryMock{}
 	roleRepository := &testhelper.RoleRepositoryMock{}
 	roleRepository.LatestRole = testDeleteUser.Role
-	testConfig := config.NewEnvironment(testConfigData)
+	testConfig := config.NewEnvironment(testhelper.TestConfigData)
 	sessionStore := session.NewStore(testConfig)
 	// Add the user to the session store.
 	sessionStore.Set(testhelper.TestSessionCookieValue, session.New(testDeleteUser))
@@ -1221,7 +1218,7 @@ func getListController() *Controller {
 	resourceRepository := &testhelper.ResourceRepositoryMock{}
 	roleRepository := &testhelper.RoleRepositoryMock{}
 	roleRepository.LatestRole = testUser.Role
-	testConfig := config.NewEnvironment(testConfigData)
+	testConfig := config.NewEnvironment(testhelper.TestConfigData)
 	sessionStore := session.NewStore(testConfig)
 	// Add the user to the session store.
 	sessionStore.Set(testhelper.TestSessionCookieValue, session.New(testUser))
