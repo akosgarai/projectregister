@@ -56,7 +56,7 @@ func (r *Renderer) JSON(w http.ResponseWriter, status int, v interface{}) {
 	// check that v is marshalable
 	_, err := json.Marshal(v)
 	if err != nil {
-		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		r.Error(w, http.StatusInternalServerError, "Internal server error", err)
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")

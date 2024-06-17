@@ -3,6 +3,7 @@ package render
 import (
 	"errors"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/akosgarai/projectregister/pkg/config"
@@ -78,8 +79,10 @@ func TestJSON(t *testing.T) {
 	if w.Code != 500 {
 		t.Errorf("The status is not correct. Expected: %d, got: %d", 500, w.Code)
 	}
-	if w.Body.String() != "Internal server error\n" {
-		t.Errorf("The body is not correct. Expected: 'Internal server error\n', got: '%s'", w.Body.String())
+	body := w.Body.String()
+	expected := "Internal server error"
+	if !strings.Contains(body, expected) {
+		t.Errorf("The body is not correct. Expected: '%s', got: '%s'", expected, body)
 	}
 }
 
