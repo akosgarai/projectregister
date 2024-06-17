@@ -15,13 +15,13 @@ import (
 func (c *Controller) RoleViewController(w http.ResponseWriter, r *http.Request) {
 	currentUser := c.CurrentUser(r)
 	if !currentUser.HasPrivilege("roles.view") {
-		http.Error(w, "Forbidden", http.StatusForbidden)
+		c.renderer.Error(w, http.StatusForbidden, "Forbidden", nil)
 		return
 	}
 	template := c.renderer.BuildTemplate("role-view", []string{c.renderer.GetTemplateDirectoryPath() + "/role/view.html.tmpl"})
 	role, statusCode, err := c.roleViewData(r)
 	if err != nil {
-		http.Error(w, "Failed to get role data "+err.Error(), statusCode)
+		c.renderer.Error(w, statusCode, RoleFailedToGetRoleErrorMessage, err)
 		return
 	}
 	content := struct {
@@ -61,18 +61,14 @@ func (c *Controller) roleViewData(r *http.Request) (*model.Role, int, error) {
 func (c *Controller) RoleCreateViewController(w http.ResponseWriter, r *http.Request) {
 	currentUser := c.CurrentUser(r)
 	if !currentUser.HasPrivilege("roles.create") {
-		http.Error(w, "Forbidden", http.StatusForbidden)
+		c.renderer.Error(w, http.StatusForbidden, "Forbidden", nil)
 		return
 	}
 	if r.Method == http.MethodGet {
 		template := c.renderer.BuildTemplate("role-create", []string{c.renderer.GetTemplateDirectoryPath() + "/role/create.html.tmpl"})
 		resources, err := c.resourceRepository.GetResources()
 		if err != nil {
-			http.Error(w, "Failed to get resource data "+err.Error(), http.StatusInternalServerError)
-			return
-		}
-		if err != nil {
-			http.Error(w, "Failed to get current user data "+err.Error(), http.StatusInternalServerError)
+			c.renderer.Error(w, http.StatusInternalServerError, RoleFailedToGetResourcesErrorMessage, err)
 			return
 		}
 		content := struct {
@@ -96,7 +92,7 @@ func (c *Controller) RoleCreateViewController(w http.ResponseWriter, r *http.Req
 
 		// if the name is empty, return an error
 		if name == "" {
-			http.Error(w, "Name is required", http.StatusBadRequest)
+			c.renderer.Error(w, http.StatusBadRequest, RoleCreateRequiredFieldMissing, nil)
 			return
 		}
 		resources := r.Form["resources"]
@@ -105,7 +101,7 @@ func (c *Controller) RoleCreateViewController(w http.ResponseWriter, r *http.Req
 		for _, resource := range resources {
 			resourceID, err := strconv.ParseInt(resource, 10, 64)
 			if err != nil {
-				http.Error(w, "Invalid resource id "+err.Error(), http.StatusBadRequest)
+				c.renderer.Error(w, http.StatusBadRequest, RoleResourceIDInvalidErrorMessage, err)
 				return
 			}
 			resourceIDs = append(resourceIDs, resourceID)
@@ -113,7 +109,7 @@ func (c *Controller) RoleCreateViewController(w http.ResponseWriter, r *http.Req
 
 		_, err := c.roleRepository.CreateRole(name, resourceIDs)
 		if err != nil {
-			http.Error(w, "Internal server error - failed to create the role "+err.Error(), http.StatusInternalServerError)
+			c.renderer.Error(w, http.StatusInternalServerError, RoleCreateCreateRoleErrorMessage, err)
 			return
 		}
 		http.Redirect(w, r, "/admin/role/list", http.StatusSeeOther)
@@ -127,7 +123,7 @@ func (c *Controller) RoleCreateViewController(w http.ResponseWriter, r *http.Req
 func (c *Controller) RoleUpdateViewController(w http.ResponseWriter, r *http.Request) {
 	currentUser := c.CurrentUser(r)
 	if !currentUser.HasPrivilege("roles.update") {
-		http.Error(w, "Forbidden", http.StatusForbidden)
+		c.renderer.Error(w, http.StatusForbidden, "Forbidden", nil)
 		return
 	}
 	vars := mux.Vars(r)
@@ -135,14 +131,14 @@ func (c *Controller) RoleUpdateViewController(w http.ResponseWriter, r *http.Req
 	// it has to be converted to int64
 	roleID, err := strconv.ParseInt(roleIDVariable, 10, 64)
 	if err != nil {
-		http.Error(w, "Invalid role id "+err.Error(), http.StatusBadRequest)
+		c.renderer.Error(w, http.StatusBadRequest, RoleRoleIDInvalidErrorMessage, err)
 		return
 	}
 
 	// get the role
 	role, err := c.roleRepository.GetRoleByID(roleID)
 	if err != nil {
-		http.Error(w, "Internal server error - failed to get the role "+err.Error(), http.StatusInternalServerError)
+		c.renderer.Error(w, http.StatusInternalServerError, RoleFailedToGetRoleErrorMessage, err)
 		return
 	}
 
@@ -172,7 +168,7 @@ func (c *Controller) RoleUpdateViewController(w http.ResponseWriter, r *http.Req
 
 		// if the name is empty, return an error
 		if name == "" {
-			http.Error(w, "Name is required", http.StatusBadRequest)
+			c.renderer.Error(w, http.StatusBadRequest, RoleUpdateRequiredFieldMissing, nil)
 			return
 		}
 
@@ -184,14 +180,14 @@ func (c *Controller) RoleUpdateViewController(w http.ResponseWriter, r *http.Req
 		for _, resource := range resources {
 			resourceID, err := strconv.ParseInt(resource, 10, 64)
 			if err != nil {
-				http.Error(w, "Invalid resource id "+err.Error(), http.StatusBadRequest)
+				c.renderer.Error(w, http.StatusBadRequest, RoleResourceIDInvalidErrorMessage, err)
 				return
 			}
 			resourceIDs = append(resourceIDs, resourceID)
 		}
 		err = c.roleRepository.UpdateRole(role, resourceIDs)
 		if err != nil {
-			http.Error(w, "Internal server error - failed to update the role "+err.Error(), http.StatusInternalServerError)
+			c.renderer.Error(w, http.StatusInternalServerError, RoleUpdateUpdateRoleErrorMessage, err)
 			return
 		}
 		http.Redirect(w, r, "/admin/role/list", http.StatusSeeOther)
@@ -205,7 +201,7 @@ func (c *Controller) RoleUpdateViewController(w http.ResponseWriter, r *http.Req
 func (c *Controller) RoleDeleteViewController(w http.ResponseWriter, r *http.Request) {
 	currentUser := c.CurrentUser(r)
 	if !currentUser.HasPrivilege("roles.delete") {
-		http.Error(w, "Forbidden", http.StatusForbidden)
+		c.renderer.Error(w, http.StatusForbidden, "Forbidden", nil)
 		return
 	}
 	vars := mux.Vars(r)
@@ -213,13 +209,13 @@ func (c *Controller) RoleDeleteViewController(w http.ResponseWriter, r *http.Req
 	// it has to be converted to int64
 	roleID, err := strconv.ParseInt(roleIDVariable, 10, 64)
 	if err != nil {
-		http.Error(w, "Invalid role id "+err.Error(), http.StatusBadRequest)
+		c.renderer.Error(w, http.StatusBadRequest, RoleRoleIDInvalidErrorMessage, err)
 		return
 	}
 	// delete the role
 	err = c.roleRepository.DeleteRole(roleID)
 	if err != nil {
-		http.Error(w, "Internal server error - failed to delete the role "+err.Error(), http.StatusInternalServerError)
+		c.renderer.Error(w, http.StatusInternalServerError, RoleDeleteFailedToDeleteErrorMessage, err)
 		return
 	}
 	// redirect to the role list
@@ -230,13 +226,13 @@ func (c *Controller) RoleDeleteViewController(w http.ResponseWriter, r *http.Req
 func (c *Controller) RoleListViewController(w http.ResponseWriter, r *http.Request) {
 	currentUser := c.CurrentUser(r)
 	if !currentUser.HasPrivilege("roles.view") {
-		http.Error(w, "Forbidden", http.StatusForbidden)
+		c.renderer.Error(w, http.StatusForbidden, "Forbidden", nil)
 		return
 	}
 	// get all roles
 	roles, err := c.roleRepository.GetRoles()
 	if err != nil {
-		http.Error(w, "Failed to get role data "+err.Error(), http.StatusInternalServerError)
+		c.renderer.Error(w, http.StatusInternalServerError, RoleListFailedToGetRolesErrorMessage, err)
 		return
 	}
 	template := c.renderer.BuildTemplate("role-list", []string{c.renderer.GetTemplateDirectoryPath() + "/role/list.html.tmpl"})

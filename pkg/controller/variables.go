@@ -3,6 +3,26 @@ package controller
 var (
 	// AuthFailedToGenerateSessionKeyErrorMessage is the error message for the failed session key generation.
 	AuthFailedToGenerateSessionKeyErrorMessage = "Failed to generate session key"
+	// RoleFailedToGetRoleErrorMessage is the error message for the failed role get.
+	RoleFailedToGetRoleErrorMessage = "Failed to get role data"
+	// RoleFailedToGetResourcesErrorMessage is the error message for the failed resources get.
+	RoleFailedToGetResourcesErrorMessage = "Failed to get resources"
+	// RoleRoleIDInvalidErrorMessage is the error message prefix for the invalid role id.
+	RoleRoleIDInvalidErrorMessage = "Invalid role id"
+	// RoleResourceIDInvalidErrorMessage is the error message for the invalid resource id in the role form.
+	RoleResourceIDInvalidErrorMessage = "Invalid resource id"
+	// RoleCreateRequiredFieldMissing is the error message for the required fields in the role create.
+	RoleCreateRequiredFieldMissing = "Name is required"
+	// RoleCreateCreateRoleErrorMessage is the error message for the failed role creation.
+	RoleCreateCreateRoleErrorMessage = "Failed to create the role"
+	// RoleDeleteFailedToDeleteErrorMessage is the error message for the failed role deletion.
+	RoleDeleteFailedToDeleteErrorMessage = "Failed to delete the role"
+	// RoleUpdateRequiredFieldMissing is the error message for the required fields in the role update.
+	RoleUpdateRequiredFieldMissing = "Name is required"
+	// RoleUpdateUpdateRoleErrorMessage is the error message for the failed role update.
+	RoleUpdateUpdateRoleErrorMessage = "Failed to update the role"
+	// RoleListFailedToGetRolesErrorMessage is the error message for the failed roles get.
+	RoleListFailedToGetRolesErrorMessage = "Failed to get roles"
 	// UserCreateRequiredFieldMissing is the error message for the required fields in the user create.
 	UserCreateRequiredFieldMissing = "Name, email, password and role are required"
 	// UserCreateCreateUserErrorMessagePrefix is the error message prefix for the failed user creation.
@@ -25,4 +45,6 @@ var (
 	UserUserIDInvalidErrorMessagePrefix = "Invalid user id"
 	// UserFailedToGetUserErrorMessage is the error message for the failed user get.
 	UserFailedToGetUserErrorMessage = "Failed to get user data"
+	// UserFailedToGetRolesErrorMessage is the error message for the failed roles get.
+	UserFailedToGetRolesErrorMessage = "Failed to get roles"
 )

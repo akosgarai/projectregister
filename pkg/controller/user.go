@@ -81,7 +81,7 @@ func (c *Controller) UserCreateViewController(w http.ResponseWriter, r *http.Req
 		// get all roles
 		roles, err := c.roleRepository.GetRoles()
 		if err != nil {
-			c.renderer.Error(w, http.StatusInternalServerError, "Failed to get role data", err)
+			c.renderer.Error(w, http.StatusInternalServerError, UserFailedToGetRolesErrorMessage, err)
 			return
 		}
 		content := struct {
@@ -196,7 +196,7 @@ func (c *Controller) UserUpdateViewController(w http.ResponseWriter, r *http.Req
 		// get all roles
 		roles, err := c.roleRepository.GetRoles()
 		if err != nil {
-			c.renderer.Error(w, http.StatusInternalServerError, "Failed to get role data", err)
+			c.renderer.Error(w, http.StatusInternalServerError, UserFailedToGetRolesErrorMessage, err)
 			return
 		}
 		content := struct {
