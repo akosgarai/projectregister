@@ -171,8 +171,8 @@ func TestLoginActionControllerNoUser(t *testing.T) {
 			status, http.StatusInternalServerError)
 	}
 	body := rr.Body.String()
-	if !strings.Contains(body, "Failed to get user data") {
-		t.Errorf("handler returned unexpected body: got %v want %v", body, "Failed to get user data")
+	if !strings.Contains(body, UserFailedToGetUserErrorMessage) {
+		t.Errorf("handler returned unexpected body: got %v want %s", body, UserFailedToGetUserErrorMessage)
 	}
 }
 
