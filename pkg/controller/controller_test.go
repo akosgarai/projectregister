@@ -13,11 +13,25 @@ import (
 // It creates a new controller and checks the fields.
 func TestNew(t *testing.T) {
 	userRepository := &testhelper.UserRepositoryMock{}
+	roleRepository := &testhelper.RoleRepositoryMock{}
+	resourceRepository := &testhelper.ResourceRepositoryMock{}
 	sessionStore := session.NewStore(config.DefaultEnvironment())
 	renderer := render.NewRenderer(config.DefaultEnvironment())
-	c := New(userRepository, sessionStore, renderer)
+	c := New(
+		userRepository,
+		roleRepository,
+		resourceRepository,
+		sessionStore,
+		renderer,
+	)
 	if c.userRepository != userRepository {
 		t.Errorf("UserRepository field is not the same as the input.")
+	}
+	if c.roleRepository != roleRepository {
+		t.Errorf("RoleRepository field is not the same as the input.")
+	}
+	if c.resourceRepository != resourceRepository {
+		t.Errorf("ResourceRepository field is not the same as the input.")
 	}
 	if c.sessionStore != sessionStore {
 		t.Errorf("SessionStore field is not the same as the input.")

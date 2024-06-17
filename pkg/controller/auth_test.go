@@ -21,16 +21,24 @@ var (
 	}
 )
 
+func getNewAuthController() *Controller {
+	testConfig := config.NewEnvironment(testConfigData)
+	sessionStore := session.NewStore(testConfig)
+	renderer := render.NewRenderer(testConfig)
+	return New(
+		&testhelper.UserRepositoryMock{},
+		&testhelper.RoleRepositoryMock{},
+		&testhelper.ResourceRepositoryMock{},
+		sessionStore,
+		renderer)
+}
+
 // TestLoginPageControllerWithoutSession tests the LoginPageController function without session.
 // It creates a new controller, and a new request with a new response recorder.
 // It calls the LoginPageController function with the recorder and the request.
 // It checks the status code of the response.
 func TestLoginPageControllerWithoutSession(t *testing.T) {
-	userRepository := &testhelper.UserRepositoryMock{}
-	testConfig := config.NewEnvironment(testConfigData)
-	sessionStore := session.NewStore(testConfig)
-	renderer := render.NewRenderer(testConfig)
-	c := New(userRepository, sessionStore, renderer)
+	c := getNewAuthController()
 
 	req, err := http.NewRequest("GET", "/login", nil)
 	if err != nil {
@@ -70,11 +78,7 @@ func TestLoginPageControllerWithoutSession(t *testing.T) {
 // It calls the LoginPageController function with the recorder and the request.
 // It checks the status code of the response.
 func TestLoginPageControllerWithSession(t *testing.T) {
-	userRepository := &testhelper.UserRepositoryMock{}
-	testConfig := config.NewEnvironment(testConfigData)
-	sessionStore := session.NewStore(testConfig)
-	renderer := render.NewRenderer(testConfig)
-	c := New(userRepository, sessionStore, renderer)
+	c := getNewAuthController()
 	sessionKey := "my-session-key"
 
 	// Set the session key in the session store.
@@ -109,11 +113,7 @@ func TestLoginPageControllerWithSession(t *testing.T) {
 // It calls the LoginActionController function with the recorder and the request.
 // It checks the status code of the response.
 func TestLoginActionControllerNoInput(t *testing.T) {
-	userRepository := &testhelper.UserRepositoryMock{}
-	testConfig := config.NewEnvironment(testConfigData)
-	sessionStore := session.NewStore(testConfig)
-	renderer := render.NewRenderer(testConfig)
-	c := New(userRepository, sessionStore, renderer)
+	c := getNewAuthController()
 
 	req, err := http.NewRequest("POST", "/auth/login", nil)
 	if err != nil {
@@ -142,7 +142,13 @@ func TestLoginActionControllerNoUser(t *testing.T) {
 	testConfig := config.NewEnvironment(testConfigData)
 	sessionStore := session.NewStore(testConfig)
 	renderer := render.NewRenderer(testConfig)
-	c := New(userRepository, sessionStore, renderer)
+	c := New(
+		userRepository,
+		&testhelper.RoleRepositoryMock{},
+		&testhelper.ResourceRepositoryMock{},
+		sessionStore,
+		renderer,
+	)
 
 	// Send request with the username and password.
 	// The user db is empty, so that the user is not found.
@@ -185,7 +191,12 @@ func TestLoginActionControllerWrongPassword(t *testing.T) {
 	testConfig := config.NewEnvironment(testConfigData)
 	sessionStore := session.NewStore(testConfig)
 	renderer := render.NewRenderer(testConfig)
-	c := New(userRepository, sessionStore, renderer)
+	c := New(
+		userRepository,
+		&testhelper.RoleRepositoryMock{},
+		&testhelper.ResourceRepositoryMock{},
+		sessionStore,
+		renderer)
 
 	// Send request with the username and password.
 	// The user db is not empty, but the password is wrong.
@@ -227,7 +238,12 @@ func TestLoginActionController(t *testing.T) {
 	testConfig := config.NewEnvironment(testConfigData)
 	sessionStore := session.NewStore(testConfig)
 	renderer := render.NewRenderer(testConfig)
-	c := New(userRepository, sessionStore, renderer)
+	c := New(
+		userRepository,
+		&testhelper.RoleRepositoryMock{},
+		&testhelper.ResourceRepositoryMock{},
+		sessionStore,
+		renderer)
 
 	// Send request with the username and password.
 	// The user db is not empty, and the password is correct.

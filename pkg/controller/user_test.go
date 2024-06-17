@@ -17,26 +17,74 @@ import (
 	"github.com/akosgarai/projectregister/pkg/testhelper"
 )
 
+var (
+	testSessionCookieName  = "session"
+	testSessionCookieValue = "test"
+)
+
+// getNewRequestWithSessionCookie creates a new request with the session cookie.
+func getNewRequestWithSessionCookie(method, url string) (*http.Request, error) {
+	req, err := http.NewRequest(method, url, nil)
+	if err != nil {
+		return nil, err
+	}
+	// set the session cookie
+	req.AddCookie(&http.Cookie{
+		Name:  testSessionCookieName,
+		Value: testSessionCookieValue,
+	})
+	return req, nil
+}
+func getStaticViewUser() *model.User {
+	return &model.User{
+		ID:    1,
+		Email: "test@email.com",
+		Name:  "Test User",
+		Role: &model.Role{
+			ID:   1,
+			Name: "Test Role",
+			Resources: []model.Resource{
+				model.Resource{
+					ID:   1,
+					Name: "users.view",
+				},
+			},
+		},
+	}
+}
+
+// getViewController
+func getViewController() *Controller {
+	testUser := getStaticViewUser()
+	userRepository := &testhelper.UserRepositoryMock{}
+	userRepository.LatestUser = testUser
+	resourceRepository := &testhelper.ResourceRepositoryMock{}
+	roleRepository := &testhelper.RoleRepositoryMock{}
+	roleRepository.LatestRole = testUser.Role
+	testConfig := config.NewEnvironment(testConfigData)
+	sessionStore := session.NewStore(testConfig)
+	// Add the user to the session store.
+	sessionStore.Set(testSessionCookieValue, session.New(testUser))
+	renderer := render.NewRenderer(testConfig)
+	return New(
+		userRepository,
+		roleRepository,
+		resourceRepository,
+		sessionStore,
+		renderer,
+	)
+}
+
 // TestUserViewControllerUserFound tests the UserViewController function.
 // It creates a new controller, and calls the UserViewController function.
 // The test checks the status code of the response.
 // The test creates a new request with a new response recorder.
 // It calls the UserViewController function with the recorder and the request.
 func TestUserViewControllerUserFound(t *testing.T) {
-	userRepository := &testhelper.UserRepositoryMock{}
-	// Set the user data for the mock.
-	testUser := &model.User{
-		ID:    1,
-		Email: "test@email.com",
-		Name:  "Test User",
-	}
-	userRepository.LatestUser = testUser
-	testConfig := config.NewEnvironment(testConfigData)
-	sessionStore := session.NewStore(testConfig)
-	renderer := render.NewRenderer(testConfig)
-	c := New(userRepository, sessionStore, renderer)
+	testUser := getStaticViewUser()
+	c := getViewController()
 
-	req, err := http.NewRequest("GET", "/admin/user/view/1", nil)
+	req, err := getNewRequestWithSessionCookie("GET", "/admin/user/view/1")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -53,10 +101,11 @@ func TestUserViewControllerUserFound(t *testing.T) {
 	}
 	needles := []string{
 		"<title>User View</title>",
-		"<p>View User</p>",
+		"<h1>User View</h1>",
 		"<p>ID: " + strconv.Itoa((int)(testUser.ID)) + "</p>",
 		"<p>Email: " + testUser.Email + "</p>",
 		"<p>Name: " + testUser.Name + "</p>",
+		"<p>Role: " + testUser.Role.Name + "</p>",
 	}
 	body := rr.Body.String()
 	for _, needle := range needles {
@@ -72,20 +121,9 @@ func TestUserViewControllerUserFound(t *testing.T) {
 // The test creates a new request with a new response recorder.
 // It calls the UserViewController function with the recorder and the request.
 func TestUserViewControllerBadUserId(t *testing.T) {
-	userRepository := &testhelper.UserRepositoryMock{}
-	// Set the user data for the mock.
-	testUser := &model.User{
-		ID:    1,
-		Email: "test@email.com",
-		Name:  "Test User",
-	}
-	userRepository.LatestUser = testUser
-	testConfig := config.NewEnvironment(testConfigData)
-	sessionStore := session.NewStore(testConfig)
-	renderer := render.NewRenderer(testConfig)
-	c := New(userRepository, sessionStore, renderer)
+	c := getViewController()
 
-	req, err := http.NewRequest("GET", "/admin/user/view/Wrong", nil)
+	req, err := getNewRequestWithSessionCookie("GET", "/admin/user/view/Wrong")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -108,20 +146,9 @@ func TestUserViewControllerBadUserId(t *testing.T) {
 // The test creates a new request with a new response recorder.
 // It calls the UserViewController function with the recorder and the request.
 func TestUserViewControllerMissingUserId(t *testing.T) {
-	userRepository := &testhelper.UserRepositoryMock{}
-	// Set the user data for the mock.
-	testUser := &model.User{
-		ID:    1,
-		Email: "test@email.com",
-		Name:  "Test User",
-	}
-	userRepository.LatestUser = testUser
-	testConfig := config.NewEnvironment(testConfigData)
-	sessionStore := session.NewStore(testConfig)
-	renderer := render.NewRenderer(testConfig)
-	c := New(userRepository, sessionStore, renderer)
+	c := getViewController()
 
-	req, err := http.NewRequest("GET", "/admin/user/view/", nil)
+	req, err := getNewRequestWithSessionCookie("GET", "/admin/user/view/")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -145,21 +172,13 @@ func TestUserViewControllerMissingUserId(t *testing.T) {
 // It calls the UserViewController function with the recorder and the request.
 func TestUserViewControllerRepositoryError(t *testing.T) {
 	userRepository := &testhelper.UserRepositoryMock{}
-	// Set the user data for the mock.
-	testUser := &model.User{
-		ID:    1,
-		Email: "test@email.com",
-		Name:  "Test User",
-	}
+	userRepository.LatestUser = getStaticViewUser()
 	missingDataError := "Missing data error"
 	userRepository.Error = errors.New(missingDataError)
-	userRepository.LatestUser = testUser
-	testConfig := config.NewEnvironment(testConfigData)
-	sessionStore := session.NewStore(testConfig)
-	renderer := render.NewRenderer(testConfig)
-	c := New(userRepository, sessionStore, renderer)
+	c := getViewController()
+	c.userRepository = userRepository
 
-	req, err := http.NewRequest("GET", "/admin/user/view/2", nil)
+	req, err := getNewRequestWithSessionCookie("GET", "/admin/user/view/2")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -183,21 +202,13 @@ func TestUserViewControllerRepositoryError(t *testing.T) {
 // It calls the UserViewAPIController function with the recorder and the request.
 func TestUserViewAPIControllerError(t *testing.T) {
 	userRepository := &testhelper.UserRepositoryMock{}
-	// Set the user data for the mock.
-	testUser := &model.User{
-		ID:    1,
-		Email: "test@email.com",
-		Name:  "Test User",
-	}
 	missingDataError := "Missing data error"
 	userRepository.Error = errors.New(missingDataError)
-	userRepository.LatestUser = testUser
-	testConfig := config.NewEnvironment(testConfigData)
-	sessionStore := session.NewStore(testConfig)
-	renderer := render.NewRenderer(testConfig)
-	c := New(userRepository, sessionStore, renderer)
+	userRepository.LatestUser = getStaticViewUser()
+	c := getViewController()
+	c.userRepository = userRepository
 
-	req, err := http.NewRequest("GET", "/api/user/view/2", nil)
+	req, err := getNewRequestWithSessionCookie("GET", "/api/user/view/2")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -220,20 +231,9 @@ func TestUserViewAPIControllerError(t *testing.T) {
 // The test creates a new request with a new response recorder.
 // It calls the UserViewAPIController function with the recorder and the request.
 func TestUserViewAPIController(t *testing.T) {
-	userRepository := &testhelper.UserRepositoryMock{}
-	// Set the user data for the mock.
-	testUser := &model.User{
-		ID:    1,
-		Email: "test@email.com",
-		Name:  "Test User",
-	}
-	userRepository.LatestUser = testUser
-	testConfig := config.NewEnvironment(testConfigData)
-	sessionStore := session.NewStore(testConfig)
-	renderer := render.NewRenderer(testConfig)
-	c := New(userRepository, sessionStore, renderer)
+	c := getViewController()
 
-	req, err := http.NewRequest("GET", "/api/user/view/1", nil)
+	req, err := getNewRequestWithSessionCookie("GET", "/api/user/view/1")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -250,25 +250,56 @@ func TestUserViewAPIController(t *testing.T) {
 	}
 }
 
+// getCreateController
+func getCreateController() *Controller {
+	userRepository := &testhelper.UserRepositoryMock{}
+	// Set the user data for the mock.
+	testUser := &model.User{
+		ID:    1,
+		Email: "test@email.com",
+		Name:  "Test User",
+		Role: &model.Role{
+			ID:   1,
+			Name: "Test Role",
+			Resources: []model.Resource{
+				model.Resource{
+					ID:   1,
+					Name: "users.view",
+				},
+				model.Resource{
+					ID:   2,
+					Name: "users.create",
+				},
+			},
+		},
+	}
+	userRepository.LatestUser = testUser
+	resourceRepository := &testhelper.ResourceRepositoryMock{}
+	roleRepository := &testhelper.RoleRepositoryMock{}
+	roleRepository.LatestRole = testUser.Role
+	testConfig := config.NewEnvironment(testConfigData)
+	sessionStore := session.NewStore(testConfig)
+	// Add the user to the session store.
+	sessionStore.Set(testSessionCookieValue, session.New(testUser))
+	renderer := render.NewRenderer(testConfig)
+	return New(
+		userRepository,
+		roleRepository,
+		resourceRepository,
+		sessionStore,
+		renderer,
+	)
+}
+
 // TestUserCreateViewControllerRendersTemplate tests the UserCreateViewController function.
 // It creates a new controller, and calls the UserCreateViewController function.
 // The test checks the status code of the response.
 // The test creates a new request with a new response recorder.
 // It calls the UserCreateViewController function with the recorder and the request.
 func TestUserCreateViewControllerRendersTemplate(t *testing.T) {
-	userRepository := &testhelper.UserRepositoryMock{}
-	testUser := &model.User{
-		ID:    1,
-		Email: "test@email.com",
-		Name:  "Test User",
-	}
-	userRepository.LatestUser = testUser
-	testConfig := config.NewEnvironment(testConfigData)
-	sessionStore := session.NewStore(testConfig)
-	renderer := render.NewRenderer(testConfig)
-	c := New(userRepository, sessionStore, renderer)
+	c := getCreateController()
 
-	req, err := http.NewRequest("GET", "/admin/user/create", nil)
+	req, err := getNewRequestWithSessionCookie("GET", "/admin/user/create")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -305,20 +336,9 @@ func TestUserCreateViewControllerRendersTemplate(t *testing.T) {
 // The test creates a new request with a new response recorder.
 // It calls the UserCreateViewController function with the recorder and the request.
 func TestUserCreateViewControllerEmptyNameError(t *testing.T) {
-	userRepository := &testhelper.UserRepositoryMock{}
-	// Set the user data for the mock.
-	testUser := &model.User{
-		ID:    1,
-		Email: "email@address.com",
-		Name:  "Test User",
-	}
-	userRepository.LatestUser = testUser
-	testConfig := config.NewEnvironment(testConfigData)
-	sessionStore := session.NewStore(testConfig)
-	renderer := render.NewRenderer(testConfig)
-	c := New(userRepository, sessionStore, renderer)
+	c := getCreateController()
 
-	req, err := http.NewRequest("POST", "/admin/user/create", nil)
+	req, err := getNewRequestWithSessionCookie("POST", "/admin/user/create")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -326,6 +346,7 @@ func TestUserCreateViewControllerEmptyNameError(t *testing.T) {
 		"email":    []string{"email@address.com"},
 		"name":     []string{""},
 		"password": []string{"password"},
+		"role":     []string{"1"},
 	}
 	rr := httptest.NewRecorder()
 	router := mux.NewRouter()
@@ -344,20 +365,9 @@ func TestUserCreateViewControllerEmptyNameError(t *testing.T) {
 // The test creates a new request with a new response recorder.
 // It calls the UserCreateViewController function with the recorder and the request.
 func TestUserCreateViewControllerLongPasswd(t *testing.T) {
-	userRepository := &testhelper.UserRepositoryMock{}
-	// Set the user data for the mock.
-	testUser := &model.User{
-		ID:    1,
-		Email: "email@address.com",
-		Name:  "Test User",
-	}
-	userRepository.LatestUser = testUser
-	testConfig := config.NewEnvironment(testConfigData)
-	sessionStore := session.NewStore(testConfig)
-	renderer := render.NewRenderer(testConfig)
-	c := New(userRepository, sessionStore, renderer)
+	c := getCreateController()
 
-	req, err := http.NewRequest("POST", "/admin/user/create", nil)
+	req, err := getNewRequestWithSessionCookie("POST", "/admin/user/create")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -365,6 +375,7 @@ func TestUserCreateViewControllerLongPasswd(t *testing.T) {
 		"email":    []string{"email@address.com"},
 		"name":     []string{"Test User update"},
 		"password": []string{"passwordpasswordpasswordpasswordpasswordpasswordpasswordpasswordpasswordpasswordpasswordpassword"},
+		"role":     []string{"1"},
 	}
 	rr := httptest.NewRecorder()
 	router := mux.NewRouter()
@@ -383,20 +394,9 @@ func TestUserCreateViewControllerLongPasswd(t *testing.T) {
 // The test creates a new request with a new response recorder.
 // It calls the UserCreateViewController function with the recorder and the request.
 func TestUserCreateViewControllerSave(t *testing.T) {
-	userRepository := &testhelper.UserRepositoryMock{}
-	// Set the user data for the mock.
-	testUser := &model.User{
-		ID:    1,
-		Email: "email@address.com",
-		Name:  "Test User",
-	}
-	userRepository.LatestUser = testUser
-	testConfig := config.NewEnvironment(testConfigData)
-	sessionStore := session.NewStore(testConfig)
-	renderer := render.NewRenderer(testConfig)
-	c := New(userRepository, sessionStore, renderer)
+	c := getCreateController()
 
-	req, err := http.NewRequest("POST", "/admin/user/create", nil)
+	req, err := getNewRequestWithSessionCookie("POST", "/admin/user/create")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -404,6 +404,7 @@ func TestUserCreateViewControllerSave(t *testing.T) {
 		"email":    []string{"email@address.com"},
 		"name":     []string{"Test User update"},
 		"password": []string{"password"},
+		"role":     []string{"1"},
 	}
 	rr := httptest.NewRecorder()
 	router := mux.NewRouter()
@@ -423,20 +424,12 @@ func TestUserCreateViewControllerSave(t *testing.T) {
 // It calls the UserCreateViewController function with the recorder and the request.
 func TestUserCreateViewControllerCreateError(t *testing.T) {
 	userRepository := &testhelper.UserRepositoryMock{}
-	// Set the user data for the mock.
-	testUser := &model.User{
-		ID:    1,
-		Email: "email@address.com",
-		Name:  "Test User",
-	}
-	userRepository.LatestUser = testUser
+	userRepository.LatestUser = getStaticUpdateUser()
 	userRepository.Error = errors.New("Create error")
-	testConfig := config.NewEnvironment(testConfigData)
-	sessionStore := session.NewStore(testConfig)
-	renderer := render.NewRenderer(testConfig)
-	c := New(userRepository, sessionStore, renderer)
+	c := getCreateController()
+	c.userRepository = userRepository
 
-	req, err := http.NewRequest("POST", "/admin/user/create", nil)
+	req, err := getNewRequestWithSessionCookie("POST", "/admin/user/create")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -444,6 +437,7 @@ func TestUserCreateViewControllerCreateError(t *testing.T) {
 		"email":    []string{"email@address.com"},
 		"name":     []string{"Test User update"},
 		"password": []string{"password"},
+		"role":     []string{"1"},
 	}
 	rr := httptest.NewRecorder()
 	router := mux.NewRouter()
@@ -462,20 +456,9 @@ func TestUserCreateViewControllerCreateError(t *testing.T) {
 // The test creates a new request with a new response recorder.
 // It calls the UserCreateAPIController function with the recorder and the request.
 func TestUserCreateAPIController(t *testing.T) {
-	userRepository := &testhelper.UserRepositoryMock{}
-	// Set the user data for the mock.
-	testUser := &model.User{
-		ID:    1,
-		Email: "email@address.com",
-		Name:  "Test User",
-	}
-	userRepository.LatestUser = testUser
-	testConfig := config.NewEnvironment(testConfigData)
-	sessionStore := session.NewStore(testConfig)
-	renderer := render.NewRenderer(testConfig)
-	c := New(userRepository, sessionStore, renderer)
+	c := getCreateController()
 
-	req, err := http.NewRequest("POST", "/api/user/create", nil)
+	req, err := getNewRequestWithSessionCookie("POST", "/api/user/create")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -483,6 +466,7 @@ func TestUserCreateAPIController(t *testing.T) {
 		"email":    []string{"email@address.com"},
 		"name":     []string{"Test User"},
 		"password": []string{"password"},
+		"role":     []string{"1"},
 	}
 	rr := httptest.NewRecorder()
 	// To add the vars to the context,
@@ -504,20 +488,12 @@ func TestUserCreateAPIController(t *testing.T) {
 // It calls the UserCreateAPIController function with the recorder and the request.
 func TestUserCreateAPIControllerCreateError(t *testing.T) {
 	userRepository := &testhelper.UserRepositoryMock{}
-	// Set the user data for the mock.
-	testUser := &model.User{
-		ID:    1,
-		Email: "email@address.com",
-		Name:  "Test User",
-	}
-	userRepository.LatestUser = testUser
+	userRepository.LatestUser = getStaticUpdateUser()
 	userRepository.Error = errors.New("Create error")
-	testConfig := config.NewEnvironment(testConfigData)
-	sessionStore := session.NewStore(testConfig)
-	renderer := render.NewRenderer(testConfig)
-	c := New(userRepository, sessionStore, renderer)
+	c := getCreateController()
+	c.userRepository = userRepository
 
-	req, err := http.NewRequest("POST", "/api/user/create", nil)
+	req, err := getNewRequestWithSessionCookie("POST", "/api/user/create")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -525,6 +501,7 @@ func TestUserCreateAPIControllerCreateError(t *testing.T) {
 		"email":    []string{"email@address.com"},
 		"name":     []string{"Test User"},
 		"password": []string{"password"},
+		"role":     []string{"1"},
 	}
 	rr := httptest.NewRecorder()
 	// To add the vars to the context,
@@ -545,21 +522,9 @@ func TestUserCreateAPIControllerCreateError(t *testing.T) {
 // The test creates a new request with a new response recorder.
 // It calls the UserCreateAPIController function with the recorder and the request.
 func TestUserCreateAPIControllerCreateErrorLongPwd(t *testing.T) {
-	userRepository := &testhelper.UserRepositoryMock{}
-	// Set the user data for the mock.
-	testUser := &model.User{
-		ID:    1,
-		Email: "email@address.com",
-		Name:  "Test User",
-	}
-	userRepository.LatestUser = testUser
-	userRepository.Error = errors.New("Create error")
-	testConfig := config.NewEnvironment(testConfigData)
-	sessionStore := session.NewStore(testConfig)
-	renderer := render.NewRenderer(testConfig)
-	c := New(userRepository, sessionStore, renderer)
+	c := getCreateController()
 
-	req, err := http.NewRequest("POST", "/api/user/create", nil)
+	req, err := getNewRequestWithSessionCookie("POST", "/api/user/create")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -567,6 +532,7 @@ func TestUserCreateAPIControllerCreateErrorLongPwd(t *testing.T) {
 		"email":    []string{"email@address.com"},
 		"name":     []string{"Test User"},
 		"password": []string{"passwordpasswordpasswordpasswordpasswordpasswordpasswordpasswordpasswordpassword"},
+		"role":     []string{"1"},
 	}
 	rr := httptest.NewRecorder()
 	// To add the vars to the context,
@@ -581,19 +547,63 @@ func TestUserCreateAPIControllerCreateErrorLongPwd(t *testing.T) {
 	}
 }
 
+func getStaticUpdateUser() *model.User {
+	return &model.User{
+		ID:    1,
+		Email: "test@email.com",
+		Name:  "Test User",
+		Role: &model.Role{
+			ID:   1,
+			Name: "Test Role",
+			Resources: []model.Resource{
+				model.Resource{
+					ID:   1,
+					Name: "users.view",
+				},
+				model.Resource{
+					ID:   2,
+					Name: "users.create",
+				},
+				model.Resource{
+					ID:   3,
+					Name: "users.update",
+				},
+			},
+		},
+	}
+}
+
+// getUpdateController
+func getUpdateController() *Controller {
+	testUpdateUser := getStaticUpdateUser()
+	userRepository := &testhelper.UserRepositoryMock{}
+	userRepository.LatestUser = testUpdateUser
+	resourceRepository := &testhelper.ResourceRepositoryMock{}
+	roleRepository := &testhelper.RoleRepositoryMock{}
+	roleRepository.LatestRole = testUpdateUser.Role
+	testConfig := config.NewEnvironment(testConfigData)
+	sessionStore := session.NewStore(testConfig)
+	// Add the user to the session store.
+	sessionStore.Set("test", session.New(testUpdateUser))
+	renderer := render.NewRenderer(testConfig)
+	return New(
+		userRepository,
+		roleRepository,
+		resourceRepository,
+		sessionStore,
+		renderer,
+	)
+}
+
 // TestUserUpdateViewControllerInvalidUserId tests the UserUpdateViewController function.
 // It creates a new controller, and calls the UserUpdateViewController function.
 // The test checks the status code of the response.
 // The test creates a new request with a new response recorder.
 // It calls the UserUpdateViewController function with the recorder and the request.
 func TestUserUpdateViewControllerInvalidUserId(t *testing.T) {
-	userRepository := &testhelper.UserRepositoryMock{}
-	testConfig := config.NewEnvironment(testConfigData)
-	sessionStore := session.NewStore(testConfig)
-	renderer := render.NewRenderer(testConfig)
-	c := New(userRepository, sessionStore, renderer)
+	c := getUpdateController()
 
-	req, err := http.NewRequest("GET", "/admin/user/update/Wrong", nil)
+	req, err := getNewRequestWithSessionCookie("GET", "/admin/user/update/Wrong")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -616,12 +626,10 @@ func TestUserUpdateViewControllerInvalidUserId(t *testing.T) {
 func TestUserUpdateViewControllerMissingUserId(t *testing.T) {
 	userRepository := &testhelper.UserRepositoryMock{}
 	userRepository.Error = errors.New("Missing data error")
-	testConfig := config.NewEnvironment(testConfigData)
-	sessionStore := session.NewStore(testConfig)
-	renderer := render.NewRenderer(testConfig)
-	c := New(userRepository, sessionStore, renderer)
+	c := getUpdateController()
+	c.userRepository = userRepository
 
-	req, err := http.NewRequest("GET", "/admin/user/update/2", nil)
+	req, err := getNewRequestWithSessionCookie("GET", "/admin/user/update/2")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -642,19 +650,9 @@ func TestUserUpdateViewControllerMissingUserId(t *testing.T) {
 // The test creates a new request with a new response recorder.
 // It calls the UserUpdateViewController function with the recorder and the request.
 func TestUserUpdateViewControllerRendersTemplate(t *testing.T) {
-	userRepository := &testhelper.UserRepositoryMock{}
-	testUser := &model.User{
-		ID:    1,
-		Email: "test@email.com",
-		Name:  "Test User",
-	}
-	userRepository.LatestUser = testUser
-	testConfig := config.NewEnvironment(testConfigData)
-	sessionStore := session.NewStore(testConfig)
-	renderer := render.NewRenderer(testConfig)
-	c := New(userRepository, sessionStore, renderer)
+	c := getUpdateController()
 
-	req, err := http.NewRequest("GET", "/admin/user/update/1", nil)
+	req, err := getNewRequestWithSessionCookie("GET", "/admin/user/update/1")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -667,6 +665,7 @@ func TestUserUpdateViewControllerRendersTemplate(t *testing.T) {
 		t.Errorf("handler returned wrong status code: got %v want %v",
 			status, http.StatusOK)
 	}
+	testUser := getStaticUpdateUser()
 	needles := []string{
 		"<title>User Update</title>",
 		"<h1>User Update</h1>",
@@ -691,26 +690,17 @@ func TestUserUpdateViewControllerRendersTemplate(t *testing.T) {
 // The test creates a new request with a new response recorder.
 // It calls the UserUpdateViewController function with the recorder and the request.
 func TestUserUpdateViewControllerEmptyNameError(t *testing.T) {
-	userRepository := &testhelper.UserRepositoryMock{}
-	// Set the user data for the mock.
-	testUser := &model.User{
-		ID:    1,
-		Email: "email@address.com",
-		Name:  "Test User",
-	}
-	userRepository.LatestUser = testUser
-	testConfig := config.NewEnvironment(testConfigData)
-	sessionStore := session.NewStore(testConfig)
-	renderer := render.NewRenderer(testConfig)
-	c := New(userRepository, sessionStore, renderer)
+	c := getUpdateController()
 
-	req, err := http.NewRequest("POST", "/admin/user/update/1", nil)
+	req, err := getNewRequestWithSessionCookie("POST", "/admin/user/update/1")
 	if err != nil {
 		t.Fatal(err)
 	}
 	req.Form = map[string][]string{
-		"email": []string{"email@address.com"},
-		"name":  []string{""},
+		"email":    []string{"email@address.com"},
+		"name":     []string{""},
+		"password": []string{"password"},
+		"role":     []string{"1"},
 	}
 	rr := httptest.NewRecorder()
 	router := mux.NewRouter()
@@ -729,20 +719,9 @@ func TestUserUpdateViewControllerEmptyNameError(t *testing.T) {
 // The test creates a new request with a new response recorder.
 // It calls the UserUpdateViewController function with the recorder and the request.
 func TestUserUpdateViewControllerLongPasswd(t *testing.T) {
-	userRepository := &testhelper.UserRepositoryMock{}
-	// Set the user data for the mock.
-	testUser := &model.User{
-		ID:    1,
-		Email: "email@address.com",
-		Name:  "Test User",
-	}
-	userRepository.LatestUser = testUser
-	testConfig := config.NewEnvironment(testConfigData)
-	sessionStore := session.NewStore(testConfig)
-	renderer := render.NewRenderer(testConfig)
-	c := New(userRepository, sessionStore, renderer)
+	c := getUpdateController()
 
-	req, err := http.NewRequest("POST", "/admin/user/update/1", nil)
+	req, err := getNewRequestWithSessionCookie("POST", "/admin/user/update/1")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -750,6 +729,7 @@ func TestUserUpdateViewControllerLongPasswd(t *testing.T) {
 		"email":    []string{"email@address.com"},
 		"name":     []string{"Test User update"},
 		"password": []string{"passwordpasswordpasswordpasswordpasswordpasswordpasswordpasswordpasswordpasswordpasswordpassword"},
+		"role":     []string{"1"},
 	}
 	rr := httptest.NewRecorder()
 	router := mux.NewRouter()
@@ -768,20 +748,9 @@ func TestUserUpdateViewControllerLongPasswd(t *testing.T) {
 // The test creates a new request with a new response recorder.
 // It calls the UserUpdateViewController function with the recorder and the request.
 func TestUserUpdateViewControllerSave(t *testing.T) {
-	userRepository := &testhelper.UserRepositoryMock{}
-	// Set the user data for the mock.
-	testUser := &model.User{
-		ID:    1,
-		Email: "email@address.com",
-		Name:  "Test User",
-	}
-	userRepository.LatestUser = testUser
-	testConfig := config.NewEnvironment(testConfigData)
-	sessionStore := session.NewStore(testConfig)
-	renderer := render.NewRenderer(testConfig)
-	c := New(userRepository, sessionStore, renderer)
+	c := getUpdateController()
 
-	req, err := http.NewRequest("POST", "/admin/user/update/1", nil)
+	req, err := getNewRequestWithSessionCookie("POST", "/admin/user/update/1")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -789,6 +758,7 @@ func TestUserUpdateViewControllerSave(t *testing.T) {
 		"email":    []string{"email@address.com"},
 		"name":     []string{"Test User update"},
 		"password": []string{"password"},
+		"role":     []string{"1"},
 	}
 	rr := httptest.NewRecorder()
 	router := mux.NewRouter()
@@ -808,20 +778,12 @@ func TestUserUpdateViewControllerSave(t *testing.T) {
 // It calls the UserUpdateViewController function with the recorder and the request.
 func TestUserUpdateViewControllerUpdateError(t *testing.T) {
 	userRepository := &testhelper.UserRepositoryMock{}
-	// Set the user data for the mock.
-	testUser := &model.User{
-		ID:    1,
-		Email: "email@address.com",
-		Name:  "Test User",
-	}
-	userRepository.LatestUser = testUser
+	userRepository.LatestUser = getStaticUpdateUser()
 	userRepository.UpdateUserError = errors.New("Update error")
-	testConfig := config.NewEnvironment(testConfigData)
-	sessionStore := session.NewStore(testConfig)
-	renderer := render.NewRenderer(testConfig)
-	c := New(userRepository, sessionStore, renderer)
+	c := getUpdateController()
+	c.userRepository = userRepository
 
-	req, err := http.NewRequest("POST", "/admin/user/update/1", nil)
+	req, err := getNewRequestWithSessionCookie("POST", "/admin/user/update/1")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -829,6 +791,7 @@ func TestUserUpdateViewControllerUpdateError(t *testing.T) {
 		"email":    []string{"email@address.com"},
 		"name":     []string{"Test User update"},
 		"password": []string{"password"},
+		"role":     []string{"1"},
 	}
 	rr := httptest.NewRecorder()
 	router := mux.NewRouter()
@@ -847,20 +810,9 @@ func TestUserUpdateViewControllerUpdateError(t *testing.T) {
 // The test creates a new request with a new response recorder.
 // It calls the UserUpdateAPIController function with the recorder and the request.
 func TestUserUpdateAPIControllerBadUserId(t *testing.T) {
-	userRepository := &testhelper.UserRepositoryMock{}
-	// Set the user data for the mock.
-	testUser := &model.User{
-		ID:    1,
-		Email: "test@email.com",
-		Name:  "Test User",
-	}
-	userRepository.LatestUser = testUser
-	testConfig := config.NewEnvironment(testConfigData)
-	sessionStore := session.NewStore(testConfig)
-	renderer := render.NewRenderer(testConfig)
-	c := New(userRepository, sessionStore, renderer)
+	c := getUpdateController()
 
-	req, err := http.NewRequest("POST", "/admin/user/update/Wrong", nil)
+	req, err := getNewRequestWithSessionCookie("POST", "/admin/user/update/Wrong")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -884,20 +836,12 @@ func TestUserUpdateAPIControllerBadUserId(t *testing.T) {
 // It calls the UserUpdateAPIController function with the recorder and the request.
 func TestUserUpdateAPIControllerMissingUserId(t *testing.T) {
 	userRepository := &testhelper.UserRepositoryMock{}
-	// Set the user data for the mock.
-	testUser := &model.User{
-		ID:    1,
-		Email: "test@email.com",
-		Name:  "Test User",
-	}
-	userRepository.LatestUser = testUser
+	userRepository.LatestUser = getStaticUpdateUser()
 	userRepository.Error = errors.New("Missing data error")
-	testConfig := config.NewEnvironment(testConfigData)
-	sessionStore := session.NewStore(testConfig)
-	renderer := render.NewRenderer(testConfig)
-	c := New(userRepository, sessionStore, renderer)
+	c := getUpdateController()
+	c.userRepository = userRepository
 
-	req, err := http.NewRequest("POST", "/admin/user/update/2", nil)
+	req, err := getNewRequestWithSessionCookie("POST", "/admin/user/update/2")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -920,20 +864,9 @@ func TestUserUpdateAPIControllerMissingUserId(t *testing.T) {
 // The test creates a new request with a new response recorder.
 // It calls the UserUpdateAPIController function with the recorder and the request.
 func TestUserUpdateAPIControllerWrongNewPassword(t *testing.T) {
-	userRepository := &testhelper.UserRepositoryMock{}
-	// Set the user data for the mock.
-	testUser := &model.User{
-		ID:    1,
-		Email: "test@email.com",
-		Name:  "Test User",
-	}
-	userRepository.LatestUser = testUser
-	testConfig := config.NewEnvironment(testConfigData)
-	sessionStore := session.NewStore(testConfig)
-	renderer := render.NewRenderer(testConfig)
-	c := New(userRepository, sessionStore, renderer)
+	c := getUpdateController()
 
-	req, err := http.NewRequest("POST", "/admin/user/update/1", nil)
+	req, err := getNewRequestWithSessionCookie("POST", "/admin/user/update/1")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -941,6 +874,7 @@ func TestUserUpdateAPIControllerWrongNewPassword(t *testing.T) {
 		"email":    []string{"email@address.com"},
 		"name":     []string{"Test User"},
 		"password": []string{"passwordpasswordpasswordpasswordpasswordpasswordpasswordpasswordpasswordpassword"},
+		"role":     []string{"1"},
 	}
 	rr := httptest.NewRecorder()
 	// To add the vars to the context,
@@ -961,20 +895,9 @@ func TestUserUpdateAPIControllerWrongNewPassword(t *testing.T) {
 // The test creates a new request with a new response recorder.
 // It calls the UserUpdateAPIController function with the recorder and the request.
 func TestUserUpdateAPIControllerSave(t *testing.T) {
-	userRepository := &testhelper.UserRepositoryMock{}
-	// Set the user data for the mock.
-	testUser := &model.User{
-		ID:    1,
-		Email: "test@email.com",
-		Name:  "Test User",
-	}
-	userRepository.LatestUser = testUser
-	testConfig := config.NewEnvironment(testConfigData)
-	sessionStore := session.NewStore(testConfig)
-	renderer := render.NewRenderer(testConfig)
-	c := New(userRepository, sessionStore, renderer)
+	c := getUpdateController()
 
-	req, err := http.NewRequest("POST", "/admin/user/update/1", nil)
+	req, err := getNewRequestWithSessionCookie("POST", "/admin/user/update/1")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -982,6 +905,7 @@ func TestUserUpdateAPIControllerSave(t *testing.T) {
 		"email":    []string{"email@address.com"},
 		"name":     []string{"Test User"},
 		"password": []string{"password"},
+		"role":     []string{"1"},
 	}
 	rr := httptest.NewRecorder()
 	// To add the vars to the context,
@@ -1003,20 +927,12 @@ func TestUserUpdateAPIControllerSave(t *testing.T) {
 // It calls the UserUpdateAPIController function with the recorder and the request.
 func TestUserUpdateAPIControllerSaveError(t *testing.T) {
 	userRepository := &testhelper.UserRepositoryMock{}
-	// Set the user data for the mock.
-	testUser := &model.User{
-		ID:    1,
-		Email: "test@email.com",
-		Name:  "Test User",
-	}
-	userRepository.LatestUser = testUser
+	userRepository.LatestUser = getStaticUpdateUser()
 	userRepository.UpdateUserError = errors.New("Save error")
-	testConfig := config.NewEnvironment(testConfigData)
-	sessionStore := session.NewStore(testConfig)
-	renderer := render.NewRenderer(testConfig)
-	c := New(userRepository, sessionStore, renderer)
+	c := getUpdateController()
+	c.userRepository = userRepository
 
-	req, err := http.NewRequest("POST", "/admin/user/update/1", nil)
+	req, err := getNewRequestWithSessionCookie("POST", "/admin/user/update/1")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1024,6 +940,7 @@ func TestUserUpdateAPIControllerSaveError(t *testing.T) {
 		"email":    []string{"email@address.com"},
 		"name":     []string{"Test User"},
 		"password": []string{"password"},
+		"role":     []string{"1"},
 	}
 	rr := httptest.NewRecorder()
 	// To add the vars to the context,
@@ -1037,6 +954,57 @@ func TestUserUpdateAPIControllerSaveError(t *testing.T) {
 			status, http.StatusInternalServerError)
 	}
 }
+func getStaticDeleteUser() *model.User {
+	return &model.User{
+		ID:    1,
+		Email: "test@email.com",
+		Name:  "Test User",
+		Role: &model.Role{
+			ID:   1,
+			Name: "Test Role",
+			Resources: []model.Resource{
+				model.Resource{
+					ID:   1,
+					Name: "users.view",
+				},
+				model.Resource{
+					ID:   2,
+					Name: "users.create",
+				},
+				model.Resource{
+					ID:   3,
+					Name: "users.update",
+				},
+				model.Resource{
+					ID:   4,
+					Name: "users.delete",
+				},
+			},
+		},
+	}
+}
+
+// getDeleteController
+func getDeleteController() *Controller {
+	testDeleteUser := getStaticDeleteUser()
+	userRepository := &testhelper.UserRepositoryMock{}
+	userRepository.LatestUser = testDeleteUser
+	resourceRepository := &testhelper.ResourceRepositoryMock{}
+	roleRepository := &testhelper.RoleRepositoryMock{}
+	roleRepository.LatestRole = testDeleteUser.Role
+	testConfig := config.NewEnvironment(testConfigData)
+	sessionStore := session.NewStore(testConfig)
+	// Add the user to the session store.
+	sessionStore.Set(testSessionCookieValue, session.New(testDeleteUser))
+	renderer := render.NewRenderer(testConfig)
+	return New(
+		userRepository,
+		roleRepository,
+		resourceRepository,
+		sessionStore,
+		renderer,
+	)
+}
 
 // TestUserDeleteViewControllerWrongUserId tests the UserDeleteViewController function.
 // It creates a new controller, and calls the UserDeleteViewController function.
@@ -1044,12 +1012,8 @@ func TestUserUpdateAPIControllerSaveError(t *testing.T) {
 // The test creates a new request with a new response recorder.
 // It calls the UserDeleteViewController function with the recorder and the request.
 func TestUserDeleteViewControllerWrongUserId(t *testing.T) {
-	userRepository := &testhelper.UserRepositoryMock{}
-	testConfig := config.NewEnvironment(testConfigData)
-	sessionStore := session.NewStore(testConfig)
-	renderer := render.NewRenderer(testConfig)
-	c := New(userRepository, sessionStore, renderer)
-	req, err := http.NewRequest("GET", "/admin/user/delete/Wrong", nil)
+	c := getDeleteController()
+	req, err := getNewRequestWithSessionCookie("GET", "/admin/user/delete/Wrong")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1072,11 +1036,9 @@ func TestUserDeleteViewControllerWrongUserId(t *testing.T) {
 func TestUserDeleteViewControllerMissingUserId(t *testing.T) {
 	userRepository := &testhelper.UserRepositoryMock{}
 	userRepository.Error = errors.New("Missing data error")
-	testConfig := config.NewEnvironment(testConfigData)
-	sessionStore := session.NewStore(testConfig)
-	renderer := render.NewRenderer(testConfig)
-	c := New(userRepository, sessionStore, renderer)
-	req, err := http.NewRequest("GET", "/admin/user/delete/2", nil)
+	c := getDeleteController()
+	c.userRepository = userRepository
+	req, err := getNewRequestWithSessionCookie("GET", "/admin/user/delete/2")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1097,18 +1059,8 @@ func TestUserDeleteViewControllerMissingUserId(t *testing.T) {
 // The test creates a new request with a new response recorder.
 // It calls the UserDeleteViewController function with the recorder and the request.
 func TestUserDeleteViewControllerRedirects(t *testing.T) {
-	userRepository := &testhelper.UserRepositoryMock{}
-	testUser := &model.User{
-		ID:    1,
-		Email: "test@email.com",
-		Name:  "Test User",
-	}
-	userRepository.LatestUser = testUser
-	testConfig := config.NewEnvironment(testConfigData)
-	sessionStore := session.NewStore(testConfig)
-	renderer := render.NewRenderer(testConfig)
-	c := New(userRepository, sessionStore, renderer)
-	req, err := http.NewRequest("GET", "/admin/user/delete/1", nil)
+	c := getDeleteController()
+	req, err := getNewRequestWithSessionCookie("GET", "/admin/user/delete/1")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1130,18 +1082,11 @@ func TestUserDeleteViewControllerRedirects(t *testing.T) {
 // It calls the UserDeleteViewController function with the recorder and the request.
 func TestUserDeleteViewControllerDeleteError(t *testing.T) {
 	userRepository := &testhelper.UserRepositoryMock{}
-	testUser := &model.User{
-		ID:    1,
-		Email: "test@email.com",
-		Name:  "Test User",
-	}
-	userRepository.LatestUser = testUser
+	userRepository.LatestUser = getStaticDeleteUser()
 	userRepository.Error = errors.New("Delete error")
-	testConfig := config.NewEnvironment(testConfigData)
-	sessionStore := session.NewStore(testConfig)
-	renderer := render.NewRenderer(testConfig)
-	c := New(userRepository, sessionStore, renderer)
-	req, err := http.NewRequest("GET", "/admin/user/delete/1", nil)
+	c := getDeleteController()
+	c.userRepository = userRepository
+	req, err := getNewRequestWithSessionCookie("GET", "/admin/user/delete/1")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1163,20 +1108,12 @@ func TestUserDeleteViewControllerDeleteError(t *testing.T) {
 // It calls the UserDeleteAPIController function with the recorder and the request.
 func TestUserDeleteAPIControllerBadUserId(t *testing.T) {
 	userRepository := &testhelper.UserRepositoryMock{}
-	// Set the user data for the mock.
-	testUser := &model.User{
-		ID:    1,
-		Email: "test@email.com",
-		Name:  "Test User",
-	}
-	userRepository.LatestUser = testUser
+	userRepository.LatestUser = getStaticDeleteUser()
 	userRepository.Error = errors.New("Missing data error")
-	testConfig := config.NewEnvironment(testConfigData)
-	sessionStore := session.NewStore(testConfig)
-	renderer := render.NewRenderer(testConfig)
-	c := New(userRepository, sessionStore, renderer)
+	c := getDeleteController()
+	c.userRepository = userRepository
 
-	req, err := http.NewRequest("DELETE", "/admin/user/delete/Wrong", nil)
+	req, err := getNewRequestWithSessionCookie("DELETE", "/admin/user/delete/Wrong")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1200,20 +1137,12 @@ func TestUserDeleteAPIControllerBadUserId(t *testing.T) {
 // It calls the UserDeleteAPIController function with the recorder and the request.
 func TestUserDeleteAPIControllerMissingUserId(t *testing.T) {
 	userRepository := &testhelper.UserRepositoryMock{}
-	// Set the user data for the mock.
-	testUser := &model.User{
-		ID:    1,
-		Email: "test@email.com",
-		Name:  "Test User",
-	}
-	userRepository.LatestUser = testUser
+	userRepository.LatestUser = getStaticDeleteUser()
 	userRepository.Error = errors.New("Missing data error")
-	testConfig := config.NewEnvironment(testConfigData)
-	sessionStore := session.NewStore(testConfig)
-	renderer := render.NewRenderer(testConfig)
-	c := New(userRepository, sessionStore, renderer)
+	c := getDeleteController()
+	c.userRepository = userRepository
 
-	req, err := http.NewRequest("DELETE", "/admin/user/delete/2", nil)
+	req, err := getNewRequestWithSessionCookie("DELETE", "/admin/user/delete/2")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1236,20 +1165,9 @@ func TestUserDeleteAPIControllerMissingUserId(t *testing.T) {
 // The test creates a new request with a new response recorder.
 // It calls the UserDeleteAPIController function with the recorder and the request.
 func TestUserDeleteAPIControllerDelete(t *testing.T) {
-	userRepository := &testhelper.UserRepositoryMock{}
-	// Set the user data for the mock.
-	testUser := &model.User{
-		ID:    1,
-		Email: "test@email.com",
-		Name:  "Test User",
-	}
-	userRepository.LatestUser = testUser
-	testConfig := config.NewEnvironment(testConfigData)
-	sessionStore := session.NewStore(testConfig)
-	renderer := render.NewRenderer(testConfig)
-	c := New(userRepository, sessionStore, renderer)
+	c := getDeleteController()
 
-	req, err := http.NewRequest("DELETE", "/admin/user/delete/1", nil)
+	req, err := getNewRequestWithSessionCookie("DELETE", "/admin/user/delete/1")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1266,6 +1184,63 @@ func TestUserDeleteAPIControllerDelete(t *testing.T) {
 	}
 }
 
+func getStaticListUsers() []*model.User {
+	return []*model.User{
+		&model.User{
+			ID:    1,
+			Email: "one@email.com",
+			Name:  "Test User 01",
+			Role: &model.Role{
+				ID:   1,
+				Name: "Test Role",
+				Resources: []model.Resource{
+					model.Resource{
+						ID:   1,
+						Name: "users.view",
+					},
+				},
+			},
+		},
+		&model.User{
+			ID:    2,
+			Email: "two@email.com",
+			Name:  "Test User 02",
+			Role: &model.Role{
+				ID:   1,
+				Name: "Test Role",
+				Resources: []model.Resource{
+					model.Resource{
+						ID:   1,
+						Name: "users.view",
+					},
+				},
+			},
+		},
+	}
+}
+
+// getListController
+func getListController() *Controller {
+	testUser := getStaticUpdateUser()
+	userRepository := &testhelper.UserRepositoryMock{}
+	userRepository.AllUsers = getStaticListUsers()
+	resourceRepository := &testhelper.ResourceRepositoryMock{}
+	roleRepository := &testhelper.RoleRepositoryMock{}
+	roleRepository.LatestRole = testUser.Role
+	testConfig := config.NewEnvironment(testConfigData)
+	sessionStore := session.NewStore(testConfig)
+	// Add the user to the session store.
+	sessionStore.Set(testSessionCookieValue, session.New(testUser))
+	renderer := render.NewRenderer(testConfig)
+	return New(
+		userRepository,
+		roleRepository,
+		resourceRepository,
+		sessionStore,
+		renderer,
+	)
+}
+
 // TestUserListViewControllerError tests the UserListViewController function.
 // It creates a new controller, and calls the UserListViewController function.
 // The test checks the status code of the response.
@@ -1274,11 +1249,9 @@ func TestUserDeleteAPIControllerDelete(t *testing.T) {
 func TestUserListViewControllerError(t *testing.T) {
 	userRepository := &testhelper.UserRepositoryMock{}
 	userRepository.Error = errors.New("List error")
-	testConfig := config.NewEnvironment(testConfigData)
-	sessionStore := session.NewStore(testConfig)
-	renderer := render.NewRenderer(testConfig)
-	c := New(userRepository, sessionStore, renderer)
-	req, err := http.NewRequest("GET", "/admin/user/list", nil)
+	c := getListController()
+	c.userRepository = userRepository
+	req, err := getNewRequestWithSessionCookie("GET", "/admin/user/list")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1299,23 +1272,8 @@ func TestUserListViewControllerError(t *testing.T) {
 // The test creates a new request with a new response recorder.
 // It calls the UserListViewController function with the recorder and the request.
 func TestUserListViewController(t *testing.T) {
-	userRepository := &testhelper.UserRepositoryMock{}
-	testUser := &model.User{
-		ID:    1,
-		Email: "one@email.com",
-		Name:  "Test User 01",
-	}
-	testUser2 := &model.User{
-		ID:    2,
-		Email: "two@email.com",
-		Name:  "Test User 02",
-	}
-	userRepository.AllUsers = []*model.User{testUser, testUser2}
-	testConfig := config.NewEnvironment(testConfigData)
-	sessionStore := session.NewStore(testConfig)
-	renderer := render.NewRenderer(testConfig)
-	c := New(userRepository, sessionStore, renderer)
-	req, err := http.NewRequest("GET", "/admin/user/list", nil)
+	c := getListController()
+	req, err := getNewRequestWithSessionCookie("GET", "/admin/user/list")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1328,19 +1286,17 @@ func TestUserListViewController(t *testing.T) {
 		t.Errorf("handler returned wrong status code: got %v want %v",
 			status, http.StatusOK)
 	}
+	userList := getStaticListUsers()
 	needles := []string{
 		"<title>User List</title>",
 		"<h1>User List</h1>",
-		"<td>" + strconv.Itoa((int)(testUser.ID)) + "</td>",
-		"<td>" + testUser.Email + "</td>",
-		"<td>" + testUser.Name + "</td>",
-		"<td>" + strconv.Itoa((int)(testUser2.ID)) + "</td>",
-		"<td>" + testUser2.Email + "</td>",
-		"<td>" + testUser2.Name + "</td>",
-		"<a href=\"/admin/user/update/" + strconv.Itoa((int)(testUser.ID)) + "\">Edit</a>",
-		"<a href=\"/admin/user/update/" + strconv.Itoa((int)(testUser2.ID)) + "\">Edit</a>",
-		"<a href=\"/admin/user/view/" + strconv.Itoa((int)(testUser.ID)) + "\">View</a>",
-		"<a href=\"/admin/user/view/" + strconv.Itoa((int)(testUser2.ID)) + "\">View</a>",
+	}
+	for _, user := range userList {
+		needles = append(needles, "<td>"+strconv.Itoa((int)(user.ID))+"</td>")
+		needles = append(needles, "<td>"+user.Email+"</td>")
+		needles = append(needles, "<td>"+user.Name+"</td>")
+		needles = append(needles, "<a href=\"/admin/user/update/"+strconv.Itoa((int)(user.ID))+"\">Edit</a>")
+		needles = append(needles, "<a href=\"/admin/user/view/"+strconv.Itoa((int)(user.ID))+"\">View</a>")
 	}
 	body := rr.Body.String()
 	for _, needle := range needles {
@@ -1358,11 +1314,9 @@ func TestUserListViewController(t *testing.T) {
 func TestUserListAPIControllerError(t *testing.T) {
 	userRepository := &testhelper.UserRepositoryMock{}
 	userRepository.Error = errors.New("List error")
-	testConfig := config.NewEnvironment(testConfigData)
-	sessionStore := session.NewStore(testConfig)
-	renderer := render.NewRenderer(testConfig)
-	c := New(userRepository, sessionStore, renderer)
-	req, err := http.NewRequest("GET", "/api/user/list", nil)
+	c := getListController()
+	c.userRepository = userRepository
+	req, err := getNewRequestWithSessionCookie("GET", "/api/user/list")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1383,23 +1337,8 @@ func TestUserListAPIControllerError(t *testing.T) {
 // The test creates a new request with a new response recorder.
 // It calls the UserListAPIController function with the recorder and the request.
 func TestUserListAPIController(t *testing.T) {
-	userRepository := &testhelper.UserRepositoryMock{}
-	testUser := &model.User{
-		ID:    1,
-		Email: "01@email.com",
-		Name:  "Test User 01",
-	}
-	testUser2 := &model.User{
-		ID:    2,
-		Email: "02@email.com",
-		Name:  "Test User 02",
-	}
-	userRepository.AllUsers = []*model.User{testUser, testUser2}
-	testConfig := config.NewEnvironment(testConfigData)
-	sessionStore := session.NewStore(testConfig)
-	renderer := render.NewRenderer(testConfig)
-	c := New(userRepository, sessionStore, renderer)
-	req, err := http.NewRequest("GET", "/api/user/list", nil)
+	c := getListController()
+	req, err := getNewRequestWithSessionCookie("GET", "/api/user/list")
 	if err != nil {
 		t.Fatal(err)
 	}
