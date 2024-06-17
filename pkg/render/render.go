@@ -70,6 +70,9 @@ func (r *Renderer) Status(w http.ResponseWriter, status int) {
 }
 
 // Error renders an error response.
-func (r *Renderer) Error(w http.ResponseWriter, status int, message string) {
+func (r *Renderer) Error(w http.ResponseWriter, status int, message string, details error) {
+	if details != nil {
+		message += " " + details.Error()
+	}
 	http.Error(w, message, status)
 }

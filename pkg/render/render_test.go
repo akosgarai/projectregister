@@ -1,6 +1,7 @@
 package render
 
 import (
+	"errors"
 	"net/http/httptest"
 	"testing"
 
@@ -101,8 +102,8 @@ func TestStatus(t *testing.T) {
 	}
 }
 
-// TestError is a test function for the Error function.
-func TestError(t *testing.T) {
+// TestErrorWithoutDetails is a test function for the Error function.
+func TestErrorWithoutDetails(t *testing.T) {
 	testConfig := config.NewEnvironment(testConfigData)
 	renderer := NewRenderer(testConfig)
 	// Test the Error function with different status codes and messages.
@@ -110,12 +111,33 @@ func TestError(t *testing.T) {
 	for _, code := range httpStatusCodes {
 		w := httptest.NewRecorder()
 		testMessage := "test message"
-		renderer.Error(w, code, testMessage)
+		renderer.Error(w, code, testMessage, nil)
 		if w.Code != code {
 			t.Errorf("The status is not correct. Expected: %d, got: %d", code, w.Code)
 		}
 		if w.Body.String() != testMessage+"\n" {
 			t.Errorf("The body is not correct. Expected: '%s', got: '%s'", testMessage, w.Body.String())
+		}
+	}
+}
+
+// TestErrorWithDetails is a test function for the Error function.
+func TestErrorWithDetails(t *testing.T) {
+	testConfig := config.NewEnvironment(testConfigData)
+	renderer := NewRenderer(testConfig)
+	// Test the Error function with different status codes and messages.
+	httpStatusCodes := []int{200, 201, 202, 203, 204, 205, 206, 207, 208, 226, 300, 301, 302, 303, 304, 305, 306, 307, 308}
+	for _, code := range httpStatusCodes {
+		w := httptest.NewRecorder()
+		testMessage := "test message"
+		details := errors.New("test error")
+		renderer.Error(w, code, testMessage, details)
+		if w.Code != code {
+			t.Errorf("The status is not correct. Expected: %d, got: %d", code, w.Code)
+		}
+		expected := testMessage + " " + details.Error()
+		if w.Body.String() != expected+"\n" {
+			t.Errorf("The body is not correct. Expected: '%s', got: '%s'", expected, w.Body.String())
 		}
 	}
 }
