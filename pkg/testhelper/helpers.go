@@ -1,7 +1,16 @@
 package testhelper
 
 import (
+	"net/http"
+
 	"github.com/akosgarai/projectregister/pkg/model"
+)
+
+var (
+	// TestSessionCookieName is the name of the session cookie that we use for testing.
+	TestSessionCookieName = "session"
+	// TestSessionCookieValue is the value of the session cookie that we use for testing.
+	TestSessionCookieValue = "test"
 )
 
 // UserRepositoryMock is a mock for the UserRepository interface.
@@ -134,4 +143,18 @@ func (r *ResourceRepositoryMock) DeleteResource(id int64) error {
 // GetResources mocks the GetResources method.
 func (r *ResourceRepositoryMock) GetResources() ([]*model.Resource, error) {
 	return r.AllResources, r.Error
+}
+
+// NewRequestWithSessionCookie creates a new request with the session cookie.
+func NewRequestWithSessionCookie(method, url string) (*http.Request, error) {
+	req, err := http.NewRequest(method, url, nil)
+	if err != nil {
+		return nil, err
+	}
+	// set the session cookie
+	req.AddCookie(&http.Cookie{
+		Name:  TestSessionCookieName,
+		Value: TestSessionCookieValue,
+	})
+	return req, nil
 }

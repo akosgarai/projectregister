@@ -17,24 +17,6 @@ import (
 	"github.com/akosgarai/projectregister/pkg/testhelper"
 )
 
-var (
-	testSessionCookieName  = "session"
-	testSessionCookieValue = "test"
-)
-
-// getNewRequestWithSessionCookie creates a new request with the session cookie.
-func getNewRequestWithSessionCookie(method, url string) (*http.Request, error) {
-	req, err := http.NewRequest(method, url, nil)
-	if err != nil {
-		return nil, err
-	}
-	// set the session cookie
-	req.AddCookie(&http.Cookie{
-		Name:  testSessionCookieName,
-		Value: testSessionCookieValue,
-	})
-	return req, nil
-}
 func getStaticViewUser() *model.User {
 	return &model.User{
 		ID:    1,
@@ -64,7 +46,7 @@ func getViewController() *Controller {
 	testConfig := config.NewEnvironment(testConfigData)
 	sessionStore := session.NewStore(testConfig)
 	// Add the user to the session store.
-	sessionStore.Set(testSessionCookieValue, session.New(testUser))
+	sessionStore.Set(testhelper.TestSessionCookieValue, session.New(testUser))
 	renderer := render.NewRenderer(testConfig)
 	return New(
 		userRepository,
@@ -84,7 +66,7 @@ func TestUserViewControllerUserFound(t *testing.T) {
 	testUser := getStaticViewUser()
 	c := getViewController()
 
-	req, err := getNewRequestWithSessionCookie("GET", "/admin/user/view/1")
+	req, err := testhelper.NewRequestWithSessionCookie("GET", "/admin/user/view/1")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -123,7 +105,7 @@ func TestUserViewControllerUserFound(t *testing.T) {
 func TestUserViewControllerBadUserId(t *testing.T) {
 	c := getViewController()
 
-	req, err := getNewRequestWithSessionCookie("GET", "/admin/user/view/Wrong")
+	req, err := testhelper.NewRequestWithSessionCookie("GET", "/admin/user/view/Wrong")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -148,7 +130,7 @@ func TestUserViewControllerBadUserId(t *testing.T) {
 func TestUserViewControllerMissingUserId(t *testing.T) {
 	c := getViewController()
 
-	req, err := getNewRequestWithSessionCookie("GET", "/admin/user/view/")
+	req, err := testhelper.NewRequestWithSessionCookie("GET", "/admin/user/view/")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -178,7 +160,7 @@ func TestUserViewControllerRepositoryError(t *testing.T) {
 	c := getViewController()
 	c.userRepository = userRepository
 
-	req, err := getNewRequestWithSessionCookie("GET", "/admin/user/view/2")
+	req, err := testhelper.NewRequestWithSessionCookie("GET", "/admin/user/view/2")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -208,7 +190,7 @@ func TestUserViewAPIControllerError(t *testing.T) {
 	c := getViewController()
 	c.userRepository = userRepository
 
-	req, err := getNewRequestWithSessionCookie("GET", "/api/user/view/2")
+	req, err := testhelper.NewRequestWithSessionCookie("GET", "/api/user/view/2")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -233,7 +215,7 @@ func TestUserViewAPIControllerError(t *testing.T) {
 func TestUserViewAPIController(t *testing.T) {
 	c := getViewController()
 
-	req, err := getNewRequestWithSessionCookie("GET", "/api/user/view/1")
+	req, err := testhelper.NewRequestWithSessionCookie("GET", "/api/user/view/1")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -280,7 +262,7 @@ func getCreateController() *Controller {
 	testConfig := config.NewEnvironment(testConfigData)
 	sessionStore := session.NewStore(testConfig)
 	// Add the user to the session store.
-	sessionStore.Set(testSessionCookieValue, session.New(testUser))
+	sessionStore.Set(testhelper.TestSessionCookieValue, session.New(testUser))
 	renderer := render.NewRenderer(testConfig)
 	return New(
 		userRepository,
@@ -299,7 +281,7 @@ func getCreateController() *Controller {
 func TestUserCreateViewControllerRendersTemplate(t *testing.T) {
 	c := getCreateController()
 
-	req, err := getNewRequestWithSessionCookie("GET", "/admin/user/create")
+	req, err := testhelper.NewRequestWithSessionCookie("GET", "/admin/user/create")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -338,7 +320,7 @@ func TestUserCreateViewControllerRendersTemplate(t *testing.T) {
 func TestUserCreateViewControllerEmptyNameError(t *testing.T) {
 	c := getCreateController()
 
-	req, err := getNewRequestWithSessionCookie("POST", "/admin/user/create")
+	req, err := testhelper.NewRequestWithSessionCookie("POST", "/admin/user/create")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -371,7 +353,7 @@ func TestUserCreateViewControllerEmptyNameError(t *testing.T) {
 func TestUserCreateViewControllerLongPasswd(t *testing.T) {
 	c := getCreateController()
 
-	req, err := getNewRequestWithSessionCookie("POST", "/admin/user/create")
+	req, err := testhelper.NewRequestWithSessionCookie("POST", "/admin/user/create")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -404,7 +386,7 @@ func TestUserCreateViewControllerLongPasswd(t *testing.T) {
 func TestUserCreateViewControllerSave(t *testing.T) {
 	c := getCreateController()
 
-	req, err := getNewRequestWithSessionCookie("POST", "/admin/user/create")
+	req, err := testhelper.NewRequestWithSessionCookie("POST", "/admin/user/create")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -437,7 +419,7 @@ func TestUserCreateViewControllerCreateError(t *testing.T) {
 	c := getCreateController()
 	c.userRepository = userRepository
 
-	req, err := getNewRequestWithSessionCookie("POST", "/admin/user/create")
+	req, err := testhelper.NewRequestWithSessionCookie("POST", "/admin/user/create")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -470,7 +452,7 @@ func TestUserCreateViewControllerCreateError(t *testing.T) {
 func TestUserCreateAPIController(t *testing.T) {
 	c := getCreateController()
 
-	req, err := getNewRequestWithSessionCookie("POST", "/api/user/create")
+	req, err := testhelper.NewRequestWithSessionCookie("POST", "/api/user/create")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -505,7 +487,7 @@ func TestUserCreateAPIControllerCreateError(t *testing.T) {
 	c := getCreateController()
 	c.userRepository = userRepository
 
-	req, err := getNewRequestWithSessionCookie("POST", "/api/user/create")
+	req, err := testhelper.NewRequestWithSessionCookie("POST", "/api/user/create")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -536,7 +518,7 @@ func TestUserCreateAPIControllerCreateError(t *testing.T) {
 func TestUserCreateAPIControllerCreateErrorLongPwd(t *testing.T) {
 	c := getCreateController()
 
-	req, err := getNewRequestWithSessionCookie("POST", "/api/user/create")
+	req, err := testhelper.NewRequestWithSessionCookie("POST", "/api/user/create")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -615,7 +597,7 @@ func getUpdateController() *Controller {
 func TestUserUpdateViewControllerInvalidUserId(t *testing.T) {
 	c := getUpdateController()
 
-	req, err := getNewRequestWithSessionCookie("GET", "/admin/user/update/Wrong")
+	req, err := testhelper.NewRequestWithSessionCookie("GET", "/admin/user/update/Wrong")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -641,7 +623,7 @@ func TestUserUpdateViewControllerMissingUserId(t *testing.T) {
 	c := getUpdateController()
 	c.userRepository = userRepository
 
-	req, err := getNewRequestWithSessionCookie("GET", "/admin/user/update/2")
+	req, err := testhelper.NewRequestWithSessionCookie("GET", "/admin/user/update/2")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -664,7 +646,7 @@ func TestUserUpdateViewControllerMissingUserId(t *testing.T) {
 func TestUserUpdateViewControllerRendersTemplate(t *testing.T) {
 	c := getUpdateController()
 
-	req, err := getNewRequestWithSessionCookie("GET", "/admin/user/update/1")
+	req, err := testhelper.NewRequestWithSessionCookie("GET", "/admin/user/update/1")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -704,7 +686,7 @@ func TestUserUpdateViewControllerRendersTemplate(t *testing.T) {
 func TestUserUpdateViewControllerEmptyNameError(t *testing.T) {
 	c := getUpdateController()
 
-	req, err := getNewRequestWithSessionCookie("POST", "/admin/user/update/1")
+	req, err := testhelper.NewRequestWithSessionCookie("POST", "/admin/user/update/1")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -733,7 +715,7 @@ func TestUserUpdateViewControllerEmptyNameError(t *testing.T) {
 func TestUserUpdateViewControllerLongPasswd(t *testing.T) {
 	c := getUpdateController()
 
-	req, err := getNewRequestWithSessionCookie("POST", "/admin/user/update/1")
+	req, err := testhelper.NewRequestWithSessionCookie("POST", "/admin/user/update/1")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -762,7 +744,7 @@ func TestUserUpdateViewControllerLongPasswd(t *testing.T) {
 func TestUserUpdateViewControllerSave(t *testing.T) {
 	c := getUpdateController()
 
-	req, err := getNewRequestWithSessionCookie("POST", "/admin/user/update/1")
+	req, err := testhelper.NewRequestWithSessionCookie("POST", "/admin/user/update/1")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -795,7 +777,7 @@ func TestUserUpdateViewControllerUpdateError(t *testing.T) {
 	c := getUpdateController()
 	c.userRepository = userRepository
 
-	req, err := getNewRequestWithSessionCookie("POST", "/admin/user/update/1")
+	req, err := testhelper.NewRequestWithSessionCookie("POST", "/admin/user/update/1")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -824,7 +806,7 @@ func TestUserUpdateViewControllerUpdateError(t *testing.T) {
 func TestUserUpdateAPIControllerBadUserId(t *testing.T) {
 	c := getUpdateController()
 
-	req, err := getNewRequestWithSessionCookie("POST", "/admin/user/update/Wrong")
+	req, err := testhelper.NewRequestWithSessionCookie("POST", "/admin/user/update/Wrong")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -853,7 +835,7 @@ func TestUserUpdateAPIControllerMissingUserId(t *testing.T) {
 	c := getUpdateController()
 	c.userRepository = userRepository
 
-	req, err := getNewRequestWithSessionCookie("POST", "/admin/user/update/2")
+	req, err := testhelper.NewRequestWithSessionCookie("POST", "/admin/user/update/2")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -878,7 +860,7 @@ func TestUserUpdateAPIControllerMissingUserId(t *testing.T) {
 func TestUserUpdateAPIControllerWrongNewPassword(t *testing.T) {
 	c := getUpdateController()
 
-	req, err := getNewRequestWithSessionCookie("POST", "/admin/user/update/1")
+	req, err := testhelper.NewRequestWithSessionCookie("POST", "/admin/user/update/1")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -909,7 +891,7 @@ func TestUserUpdateAPIControllerWrongNewPassword(t *testing.T) {
 func TestUserUpdateAPIControllerSave(t *testing.T) {
 	c := getUpdateController()
 
-	req, err := getNewRequestWithSessionCookie("POST", "/admin/user/update/1")
+	req, err := testhelper.NewRequestWithSessionCookie("POST", "/admin/user/update/1")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -944,7 +926,7 @@ func TestUserUpdateAPIControllerSaveError(t *testing.T) {
 	c := getUpdateController()
 	c.userRepository = userRepository
 
-	req, err := getNewRequestWithSessionCookie("POST", "/admin/user/update/1")
+	req, err := testhelper.NewRequestWithSessionCookie("POST", "/admin/user/update/1")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1007,7 +989,7 @@ func getDeleteController() *Controller {
 	testConfig := config.NewEnvironment(testConfigData)
 	sessionStore := session.NewStore(testConfig)
 	// Add the user to the session store.
-	sessionStore.Set(testSessionCookieValue, session.New(testDeleteUser))
+	sessionStore.Set(testhelper.TestSessionCookieValue, session.New(testDeleteUser))
 	renderer := render.NewRenderer(testConfig)
 	return New(
 		userRepository,
@@ -1025,7 +1007,7 @@ func getDeleteController() *Controller {
 // It calls the UserDeleteViewController function with the recorder and the request.
 func TestUserDeleteViewControllerWrongUserId(t *testing.T) {
 	c := getDeleteController()
-	req, err := getNewRequestWithSessionCookie("GET", "/admin/user/delete/Wrong")
+	req, err := testhelper.NewRequestWithSessionCookie("GET", "/admin/user/delete/Wrong")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1050,7 +1032,7 @@ func TestUserDeleteViewControllerMissingUserId(t *testing.T) {
 	userRepository.Error = errors.New("Missing data error")
 	c := getDeleteController()
 	c.userRepository = userRepository
-	req, err := getNewRequestWithSessionCookie("GET", "/admin/user/delete/2")
+	req, err := testhelper.NewRequestWithSessionCookie("GET", "/admin/user/delete/2")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1072,7 +1054,7 @@ func TestUserDeleteViewControllerMissingUserId(t *testing.T) {
 // It calls the UserDeleteViewController function with the recorder and the request.
 func TestUserDeleteViewControllerRedirects(t *testing.T) {
 	c := getDeleteController()
-	req, err := getNewRequestWithSessionCookie("GET", "/admin/user/delete/1")
+	req, err := testhelper.NewRequestWithSessionCookie("GET", "/admin/user/delete/1")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1098,7 +1080,7 @@ func TestUserDeleteViewControllerDeleteError(t *testing.T) {
 	userRepository.Error = errors.New("Delete error")
 	c := getDeleteController()
 	c.userRepository = userRepository
-	req, err := getNewRequestWithSessionCookie("GET", "/admin/user/delete/1")
+	req, err := testhelper.NewRequestWithSessionCookie("GET", "/admin/user/delete/1")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1125,7 +1107,7 @@ func TestUserDeleteAPIControllerBadUserId(t *testing.T) {
 	c := getDeleteController()
 	c.userRepository = userRepository
 
-	req, err := getNewRequestWithSessionCookie("DELETE", "/admin/user/delete/Wrong")
+	req, err := testhelper.NewRequestWithSessionCookie("DELETE", "/admin/user/delete/Wrong")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1154,7 +1136,7 @@ func TestUserDeleteAPIControllerMissingUserId(t *testing.T) {
 	c := getDeleteController()
 	c.userRepository = userRepository
 
-	req, err := getNewRequestWithSessionCookie("DELETE", "/admin/user/delete/2")
+	req, err := testhelper.NewRequestWithSessionCookie("DELETE", "/admin/user/delete/2")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1179,7 +1161,7 @@ func TestUserDeleteAPIControllerMissingUserId(t *testing.T) {
 func TestUserDeleteAPIControllerDelete(t *testing.T) {
 	c := getDeleteController()
 
-	req, err := getNewRequestWithSessionCookie("DELETE", "/admin/user/delete/1")
+	req, err := testhelper.NewRequestWithSessionCookie("DELETE", "/admin/user/delete/1")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1242,7 +1224,7 @@ func getListController() *Controller {
 	testConfig := config.NewEnvironment(testConfigData)
 	sessionStore := session.NewStore(testConfig)
 	// Add the user to the session store.
-	sessionStore.Set(testSessionCookieValue, session.New(testUser))
+	sessionStore.Set(testhelper.TestSessionCookieValue, session.New(testUser))
 	renderer := render.NewRenderer(testConfig)
 	return New(
 		userRepository,
@@ -1263,7 +1245,7 @@ func TestUserListViewControllerError(t *testing.T) {
 	userRepository.Error = errors.New("List error")
 	c := getListController()
 	c.userRepository = userRepository
-	req, err := getNewRequestWithSessionCookie("GET", "/admin/user/list")
+	req, err := testhelper.NewRequestWithSessionCookie("GET", "/admin/user/list")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1285,7 +1267,7 @@ func TestUserListViewControllerError(t *testing.T) {
 // It calls the UserListViewController function with the recorder and the request.
 func TestUserListViewController(t *testing.T) {
 	c := getListController()
-	req, err := getNewRequestWithSessionCookie("GET", "/admin/user/list")
+	req, err := testhelper.NewRequestWithSessionCookie("GET", "/admin/user/list")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1328,7 +1310,7 @@ func TestUserListAPIControllerError(t *testing.T) {
 	userRepository.Error = errors.New("List error")
 	c := getListController()
 	c.userRepository = userRepository
-	req, err := getNewRequestWithSessionCookie("GET", "/api/user/list")
+	req, err := testhelper.NewRequestWithSessionCookie("GET", "/api/user/list")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1350,7 +1332,7 @@ func TestUserListAPIControllerError(t *testing.T) {
 // It calls the UserListAPIController function with the recorder and the request.
 func TestUserListAPIController(t *testing.T) {
 	c := getListController()
-	req, err := getNewRequestWithSessionCookie("GET", "/api/user/list")
+	req, err := testhelper.NewRequestWithSessionCookie("GET", "/api/user/list")
 	if err != nil {
 		t.Fatal(err)
 	}
