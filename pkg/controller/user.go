@@ -39,13 +39,13 @@ var (
 func (c *Controller) UserViewController(w http.ResponseWriter, r *http.Request) {
 	currentUser := c.CurrentUser(r)
 	if !currentUser.HasPrivilege("users.view") {
-		http.Error(w, "Forbidden", http.StatusForbidden)
+		c.renderer.Error(w, http.StatusForbidden, "Forbidden", nil)
 		return
 	}
 	template := c.renderer.BuildTemplate("login", []string{c.renderer.GetTemplateDirectoryPath() + "/user/view.html.tmpl"})
 	u, statusCode, err := c.userViewData(r)
 	if err != nil {
-		http.Error(w, UserFailedToGetUserErrorMessage+err.Error(), statusCode)
+		c.renderer.Error(w, statusCode, UserFailedToGetUserErrorMessage, err)
 		return
 	}
 	content := struct {
@@ -70,7 +70,7 @@ func (c *Controller) UserViewController(w http.ResponseWriter, r *http.Request) 
 func (c *Controller) UserViewAPIController(w http.ResponseWriter, r *http.Request) {
 	u, statusCode, err := c.userViewData(r)
 	if err != nil {
-		http.Error(w, UserFailedToGetUserErrorMessage+err.Error(), statusCode)
+		c.renderer.Error(w, statusCode, UserFailedToGetUserErrorMessage, err)
 		return
 	}
 	c.renderer.JSON(w, statusCode, u)
@@ -98,7 +98,7 @@ func (c *Controller) userViewData(r *http.Request) (*model.User, int, error) {
 func (c *Controller) UserCreateViewController(w http.ResponseWriter, r *http.Request) {
 	currentUser := c.CurrentUser(r)
 	if !currentUser.HasPrivilege("users.create") {
-		http.Error(w, "Forbidden", http.StatusForbidden)
+		c.renderer.Error(w, http.StatusForbidden, "Forbidden", nil)
 		return
 	}
 	if r.Method == http.MethodGet {
@@ -106,7 +106,7 @@ func (c *Controller) UserCreateViewController(w http.ResponseWriter, r *http.Req
 		// get all roles
 		roles, err := c.roleRepository.GetRoles()
 		if err != nil {
-			http.Error(w, "Failed to get role data "+err.Error(), http.StatusInternalServerError)
+			c.renderer.Error(w, http.StatusInternalServerError, "Failed to get role data", err)
 			return
 		}
 		content := struct {
@@ -133,24 +133,24 @@ func (c *Controller) UserCreateViewController(w http.ResponseWriter, r *http.Req
 
 		// if the name or email is empty, return an error
 		if name == "" || email == "" || password == "" || roleIDRaw == "" {
-			http.Error(w, UserCreateRequiredFieldMissing, http.StatusBadRequest)
+			c.renderer.Error(w, http.StatusBadRequest, UserCreateRequiredFieldMissing, nil)
 			return
 		}
 
 		password, err := passwd.HashPassword(password)
 		if err != nil {
-			http.Error(w, UserPasswordEncriptionFailedErrorMessage+err.Error(), http.StatusInternalServerError)
+			c.renderer.Error(w, http.StatusInternalServerError, UserPasswordEncriptionFailedErrorMessage, err)
 			return
 		}
 		// it has to be converted to int64
 		roleID, err := strconv.ParseInt(roleIDRaw, 10, 64)
 		if err != nil {
-			http.Error(w, UserRoleIDInvalidErrorMessagePrefix+err.Error(), http.StatusBadRequest)
+			c.renderer.Error(w, http.StatusBadRequest, UserRoleIDInvalidErrorMessagePrefix, err)
 			return
 		}
 		_, err = c.userRepository.CreateUser(name, email, string(password), roleID)
 		if err != nil {
-			http.Error(w, UserCreateCreateUserErrorMessagePrefix+err.Error(), http.StatusInternalServerError)
+			c.renderer.Error(w, http.StatusInternalServerError, UserCreateCreateUserErrorMessagePrefix, err)
 			return
 		}
 		http.Redirect(w, r, "/admin/user/list", http.StatusSeeOther)
@@ -172,19 +172,19 @@ func (c *Controller) UserCreateAPIController(w http.ResponseWriter, r *http.Requ
 	roleIDRaw := r.FormValue("role")
 	hashedPassword, err := passwd.HashPassword(password)
 	if err != nil {
-		http.Error(w, UserPasswordEncriptionFailedErrorMessage+err.Error(), http.StatusInternalServerError)
+		c.renderer.Error(w, http.StatusInternalServerError, UserPasswordEncriptionFailedErrorMessage, err)
 		return
 	}
 	// it has to be converted to int64
 	roleID, err := strconv.ParseInt(roleIDRaw, 10, 64)
 	if err != nil {
-		http.Error(w, UserRoleIDInvalidErrorMessagePrefix+err.Error(), http.StatusBadRequest)
+		c.renderer.Error(w, http.StatusBadRequest, UserRoleIDInvalidErrorMessagePrefix, err)
 		return
 	}
 	// create the user
 	user, err := c.userRepository.CreateUser(name, email, string(hashedPassword), roleID)
 	if err != nil {
-		http.Error(w, UserCreateCreateUserErrorMessagePrefix+err.Error(), http.StatusInternalServerError)
+		c.renderer.Error(w, http.StatusInternalServerError, UserCreateCreateUserErrorMessagePrefix, err)
 		return
 	}
 	// return the user as JSON
@@ -197,7 +197,7 @@ func (c *Controller) UserCreateAPIController(w http.ResponseWriter, r *http.Requ
 func (c *Controller) UserUpdateViewController(w http.ResponseWriter, r *http.Request) {
 	currentUser := c.CurrentUser(r)
 	if !currentUser.HasPrivilege("users.update") {
-		http.Error(w, "Forbidden", http.StatusForbidden)
+		c.renderer.Error(w, http.StatusForbidden, "Forbidden", nil)
 		return
 	}
 	vars := mux.Vars(r)
@@ -205,14 +205,14 @@ func (c *Controller) UserUpdateViewController(w http.ResponseWriter, r *http.Req
 	// it has to be converted to int64
 	userID, err := strconv.ParseInt(userIDVariable, 10, 64)
 	if err != nil {
-		http.Error(w, UserUserIDInvalidErrorMessagePrefix+err.Error(), http.StatusBadRequest)
+		c.renderer.Error(w, http.StatusBadRequest, UserUserIDInvalidErrorMessagePrefix, err)
 		return
 	}
 
 	// get the user
 	user, err := c.userRepository.GetUserByID(userID)
 	if err != nil {
-		http.Error(w, UserUpdateFailedToGetUserErrorMessage+err.Error(), http.StatusInternalServerError)
+		c.renderer.Error(w, http.StatusInternalServerError, UserUpdateFailedToGetUserErrorMessage, err)
 		return
 	}
 
@@ -221,7 +221,7 @@ func (c *Controller) UserUpdateViewController(w http.ResponseWriter, r *http.Req
 		// get all roles
 		roles, err := c.roleRepository.GetRoles()
 		if err != nil {
-			http.Error(w, "Failed to get role data "+err.Error(), http.StatusInternalServerError)
+			c.renderer.Error(w, http.StatusInternalServerError, "Failed to get role data", err)
 			return
 		}
 		content := struct {
@@ -250,7 +250,7 @@ func (c *Controller) UserUpdateViewController(w http.ResponseWriter, r *http.Req
 
 		// if the name or email is empty, return an error
 		if name == "" || email == "" || roleIDRaw == "" {
-			http.Error(w, UserUpdateRequiredFieldMissing, http.StatusBadRequest)
+			c.renderer.Error(w, http.StatusBadRequest, UserUpdateRequiredFieldMissing, nil)
 			return
 		}
 
@@ -258,7 +258,7 @@ func (c *Controller) UserUpdateViewController(w http.ResponseWriter, r *http.Req
 		if password != "" {
 			password, err := passwd.HashPassword(password)
 			if err != nil {
-				http.Error(w, UserPasswordEncriptionFailedErrorMessage+err.Error(), http.StatusInternalServerError)
+				c.renderer.Error(w, http.StatusInternalServerError, UserPasswordEncriptionFailedErrorMessage, err)
 				return
 			}
 			user.Password = password
@@ -269,13 +269,13 @@ func (c *Controller) UserUpdateViewController(w http.ResponseWriter, r *http.Req
 		// roleID has to be converted to int64
 		roleID, err := strconv.ParseInt(roleIDRaw, 10, 64)
 		if err != nil {
-			http.Error(w, UserRoleIDInvalidErrorMessagePrefix+err.Error(), http.StatusBadRequest)
+			c.renderer.Error(w, http.StatusBadRequest, UserRoleIDInvalidErrorMessagePrefix, err)
 			return
 		}
 		user.Role.ID = roleID
 		err = c.userRepository.UpdateUser(user)
 		if err != nil {
-			http.Error(w, UserUpdateFailedToUpdateUserErrorMessage+err.Error(), http.StatusInternalServerError)
+			c.renderer.Error(w, http.StatusInternalServerError, UserUpdateFailedToUpdateUserErrorMessage, err)
 			return
 		}
 		http.Redirect(w, r, "/admin/user/list", http.StatusSeeOther)
@@ -294,7 +294,7 @@ func (c *Controller) UserUpdateAPIController(w http.ResponseWriter, r *http.Requ
 	// it has to be converted to int64
 	userID, err := strconv.ParseInt(userIDVariable, 10, 64)
 	if err != nil {
-		http.Error(w, UserUserIDInvalidErrorMessagePrefix+err.Error(), http.StatusBadRequest)
+		c.renderer.Error(w, http.StatusBadRequest, UserUserIDInvalidErrorMessagePrefix, err)
 		return
 	}
 	name := r.FormValue("name")
@@ -304,12 +304,12 @@ func (c *Controller) UserUpdateAPIController(w http.ResponseWriter, r *http.Requ
 	// get the user
 	user, err := c.userRepository.GetUserByID(userID)
 	if err != nil {
-		http.Error(w, UserUpdateFailedToGetUserErrorMessage+err.Error(), http.StatusInternalServerError)
+		c.renderer.Error(w, http.StatusInternalServerError, UserUpdateFailedToGetUserErrorMessage, err)
 		return
 	}
 	hashedPassword, err := passwd.HashPassword(password)
 	if err != nil {
-		http.Error(w, UserPasswordEncriptionFailedErrorMessage+err.Error(), http.StatusInternalServerError)
+		c.renderer.Error(w, http.StatusInternalServerError, UserPasswordEncriptionFailedErrorMessage, err)
 		return
 	}
 	// update the user
@@ -319,13 +319,13 @@ func (c *Controller) UserUpdateAPIController(w http.ResponseWriter, r *http.Requ
 	// roleID has to be converted to int64
 	roleID, err := strconv.ParseInt(roleIDRaw, 10, 64)
 	if err != nil {
-		http.Error(w, UserRoleIDInvalidErrorMessagePrefix+err.Error(), http.StatusBadRequest)
+		c.renderer.Error(w, http.StatusBadRequest, UserRoleIDInvalidErrorMessagePrefix, err)
 		return
 	}
 	user.Role.ID = roleID
 	err = c.userRepository.UpdateUser(user)
 	if err != nil {
-		http.Error(w, UserUpdateFailedToUpdateUserErrorMessage+err.Error(), http.StatusInternalServerError)
+		c.renderer.Error(w, http.StatusInternalServerError, UserUpdateFailedToUpdateUserErrorMessage, err)
 		return
 	}
 	// return the updated user as JSON
@@ -338,7 +338,7 @@ func (c *Controller) UserUpdateAPIController(w http.ResponseWriter, r *http.Requ
 func (c *Controller) UserDeleteViewController(w http.ResponseWriter, r *http.Request) {
 	currentUser := c.CurrentUser(r)
 	if !currentUser.HasPrivilege("users.delete") {
-		http.Error(w, "Forbidden", http.StatusForbidden)
+		c.renderer.Error(w, http.StatusForbidden, "Forbidden", nil)
 		return
 	}
 	vars := mux.Vars(r)
@@ -346,13 +346,13 @@ func (c *Controller) UserDeleteViewController(w http.ResponseWriter, r *http.Req
 	// it has to be converted to int64
 	userID, err := strconv.ParseInt(userIDVariable, 10, 64)
 	if err != nil {
-		http.Error(w, UserUserIDInvalidErrorMessagePrefix+err.Error(), http.StatusBadRequest)
+		c.renderer.Error(w, http.StatusBadRequest, UserUserIDInvalidErrorMessagePrefix, err)
 		return
 	}
 	// delete the user
 	err = c.userRepository.DeleteUser(userID)
 	if err != nil {
-		http.Error(w, UserDeleteFailedToDeleteErrorMessage+err.Error(), http.StatusInternalServerError)
+		c.renderer.Error(w, http.StatusInternalServerError, UserDeleteFailedToDeleteErrorMessage, err)
 		return
 	}
 	// redirect to the user list
@@ -369,13 +369,13 @@ func (c *Controller) UserDeleteAPIController(w http.ResponseWriter, r *http.Requ
 	// it has to be converted to int64
 	userID, err := strconv.ParseInt(userIDVariable, 10, 64)
 	if err != nil {
-		http.Error(w, UserUserIDInvalidErrorMessagePrefix+err.Error(), http.StatusBadRequest)
+		c.renderer.Error(w, http.StatusBadRequest, UserUserIDInvalidErrorMessagePrefix, err)
 		return
 	}
 	// delete the user
 	err = c.userRepository.DeleteUser(userID)
 	if err != nil {
-		http.Error(w, UserDeleteFailedToDeleteErrorMessage+err.Error(), http.StatusInternalServerError)
+		c.renderer.Error(w, http.StatusInternalServerError, UserDeleteFailedToDeleteErrorMessage, err)
 		return
 	}
 	// return success
@@ -386,13 +386,13 @@ func (c *Controller) UserDeleteAPIController(w http.ResponseWriter, r *http.Requ
 func (c *Controller) UserListViewController(w http.ResponseWriter, r *http.Request) {
 	currentUser := c.CurrentUser(r)
 	if !currentUser.HasPrivilege("users.view") {
-		http.Error(w, "Forbidden", http.StatusForbidden)
+		c.renderer.Error(w, http.StatusForbidden, "Forbidden", nil)
 		return
 	}
 	// get all users
 	users, err := c.userRepository.GetUsers()
 	if err != nil {
-		http.Error(w, UserFailedToGetUserErrorMessage+err.Error(), http.StatusInternalServerError)
+		c.renderer.Error(w, http.StatusInternalServerError, UserFailedToGetUserErrorMessage, err)
 		return
 	}
 	template := c.renderer.BuildTemplate("user-list", []string{c.renderer.GetTemplateDirectoryPath() + "/user/list.html.tmpl"})
@@ -419,7 +419,7 @@ func (c *Controller) UserListAPIController(w http.ResponseWriter, r *http.Reques
 	// get all users
 	users, err := c.userRepository.GetUsers()
 	if err != nil {
-		http.Error(w, UserListFailedToGetUsersErrorMessage+err.Error(), http.StatusInternalServerError)
+		c.renderer.Error(w, http.StatusInternalServerError, UserListFailedToGetUsersErrorMessage, err)
 		return
 	}
 	// return the users as JSON
