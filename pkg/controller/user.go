@@ -10,6 +10,31 @@ import (
 	"github.com/akosgarai/projectregister/pkg/passwd"
 )
 
+var (
+	// UserCreateRequiredFieldMissing is the error message for the required fields in the user create.
+	UserCreateRequiredFieldMissing = "Name, email, password and role are required"
+	// UserCreateCreateUserErrorMessagePrefix is the error message prefix for the failed user creation.
+	UserCreateCreateUserErrorMessagePrefix = "Internal server error - failed to create the user "
+	// UserUpdateFailedToGetUserErrorMessage is the error message for the failed user get.
+	UserUpdateFailedToGetUserErrorMessage = "Internal server error - failed to get the user "
+	// UserUpdateRequiredFieldMissing is the error message for the required fields in the user update.
+	UserUpdateRequiredFieldMissing = "Name, email and role are required"
+	// UserUpdateFailedToUpdateUserErrorMessage is the error message for the failed user update.
+	UserUpdateFailedToUpdateUserErrorMessage = "Internal server error - failed to update the user "
+	// UserDeleteFailedToDeleteErrorMessage is the error message for the failed user deletion.
+	UserDeleteFailedToDeleteErrorMessage = "Internal server error - failed to delete the user "
+	// UserListFailedToGetUsersErrorMessage is the error message for the failed users get.
+	UserListFailedToGetUsersErrorMessage = "Internal server error - failed to get the users "
+	// UserPasswordEncriptionFailedErrorMessage is the error message for the failed password encryption.
+	UserPasswordEncriptionFailedErrorMessage = "Internal server error - failed to encrypt the password "
+	// UserRoleIDInvalidErrorMessagePrefix is the error message prefix for the invalid role id.
+	UserRoleIDInvalidErrorMessagePrefix = "Invalid role id "
+	// UserUserIDInvalidErrorMessagePrefix is the error message prefix for the invalid user id.
+	UserUserIDInvalidErrorMessagePrefix = "Invalid user id "
+	// UserFailedToGetUserErrorMessage is the error message for the failed user get.
+	UserFailedToGetUserErrorMessage = "Failed to get user data "
+)
+
 // UserViewController is the controller for the user view page.
 func (c *Controller) UserViewController(w http.ResponseWriter, r *http.Request) {
 	currentUser := c.CurrentUser(r)
@@ -20,7 +45,7 @@ func (c *Controller) UserViewController(w http.ResponseWriter, r *http.Request) 
 	template := c.renderer.BuildTemplate("login", []string{c.renderer.GetTemplateDirectoryPath() + "/user/view.html.tmpl"})
 	u, statusCode, err := c.userViewData(r)
 	if err != nil {
-		http.Error(w, "Failed to get user data "+err.Error(), statusCode)
+		http.Error(w, UserFailedToGetUserErrorMessage+err.Error(), statusCode)
 		return
 	}
 	content := struct {
@@ -45,7 +70,7 @@ func (c *Controller) UserViewController(w http.ResponseWriter, r *http.Request) 
 func (c *Controller) UserViewAPIController(w http.ResponseWriter, r *http.Request) {
 	u, statusCode, err := c.userViewData(r)
 	if err != nil {
-		http.Error(w, "Failed to get user data "+err.Error(), statusCode)
+		http.Error(w, UserFailedToGetUserErrorMessage+err.Error(), statusCode)
 		return
 	}
 	c.renderer.JSON(w, statusCode, u)
@@ -108,24 +133,24 @@ func (c *Controller) UserCreateViewController(w http.ResponseWriter, r *http.Req
 
 		// if the name or email is empty, return an error
 		if name == "" || email == "" || password == "" || roleIDRaw == "" {
-			http.Error(w, "Name and email and password are required", http.StatusBadRequest)
+			http.Error(w, UserCreateRequiredFieldMissing, http.StatusBadRequest)
 			return
 		}
 
 		password, err := passwd.HashPassword(password)
 		if err != nil {
-			http.Error(w, "Internal server error - failed to encrypt the password "+err.Error(), http.StatusInternalServerError)
+			http.Error(w, UserPasswordEncriptionFailedErrorMessage+err.Error(), http.StatusInternalServerError)
 			return
 		}
 		// it has to be converted to int64
 		roleID, err := strconv.ParseInt(roleIDRaw, 10, 64)
 		if err != nil {
-			http.Error(w, "Invalid role id "+err.Error(), http.StatusBadRequest)
+			http.Error(w, UserRoleIDInvalidErrorMessagePrefix+err.Error(), http.StatusBadRequest)
 			return
 		}
 		_, err = c.userRepository.CreateUser(name, email, string(password), roleID)
 		if err != nil {
-			http.Error(w, "Internal server error - failed to create the user "+err.Error(), http.StatusInternalServerError)
+			http.Error(w, UserCreateCreateUserErrorMessagePrefix+err.Error(), http.StatusInternalServerError)
 			return
 		}
 		http.Redirect(w, r, "/admin/user/list", http.StatusSeeOther)
@@ -147,19 +172,19 @@ func (c *Controller) UserCreateAPIController(w http.ResponseWriter, r *http.Requ
 	roleIDRaw := r.FormValue("role")
 	hashedPassword, err := passwd.HashPassword(password)
 	if err != nil {
-		http.Error(w, "Internal server error - failed to encrypt the password "+err.Error(), http.StatusInternalServerError)
+		http.Error(w, UserPasswordEncriptionFailedErrorMessage+err.Error(), http.StatusInternalServerError)
 		return
 	}
 	// it has to be converted to int64
 	roleID, err := strconv.ParseInt(roleIDRaw, 10, 64)
 	if err != nil {
-		http.Error(w, "Invalid role id "+err.Error(), http.StatusBadRequest)
+		http.Error(w, UserRoleIDInvalidErrorMessagePrefix+err.Error(), http.StatusBadRequest)
 		return
 	}
 	// create the user
 	user, err := c.userRepository.CreateUser(name, email, string(hashedPassword), roleID)
 	if err != nil {
-		http.Error(w, "Internal server error - failed to insert data to the database "+err.Error(), http.StatusInternalServerError)
+		http.Error(w, UserCreateCreateUserErrorMessagePrefix+err.Error(), http.StatusInternalServerError)
 		return
 	}
 	// return the user as JSON
@@ -180,14 +205,14 @@ func (c *Controller) UserUpdateViewController(w http.ResponseWriter, r *http.Req
 	// it has to be converted to int64
 	userID, err := strconv.ParseInt(userIDVariable, 10, 64)
 	if err != nil {
-		http.Error(w, "Invalid user id "+err.Error(), http.StatusBadRequest)
+		http.Error(w, UserUserIDInvalidErrorMessagePrefix+err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	// get the user
 	user, err := c.userRepository.GetUserByID(userID)
 	if err != nil {
-		http.Error(w, "Internal server error - failed to get the user "+err.Error(), http.StatusInternalServerError)
+		http.Error(w, UserUpdateFailedToGetUserErrorMessage+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
@@ -225,7 +250,7 @@ func (c *Controller) UserUpdateViewController(w http.ResponseWriter, r *http.Req
 
 		// if the name or email is empty, return an error
 		if name == "" || email == "" || roleIDRaw == "" {
-			http.Error(w, "Name and email are required", http.StatusBadRequest)
+			http.Error(w, UserUpdateRequiredFieldMissing, http.StatusBadRequest)
 			return
 		}
 
@@ -233,7 +258,7 @@ func (c *Controller) UserUpdateViewController(w http.ResponseWriter, r *http.Req
 		if password != "" {
 			password, err := passwd.HashPassword(password)
 			if err != nil {
-				http.Error(w, "Internal server error - failed to encrypt the password "+err.Error(), http.StatusInternalServerError)
+				http.Error(w, UserPasswordEncriptionFailedErrorMessage+err.Error(), http.StatusInternalServerError)
 				return
 			}
 			user.Password = password
@@ -244,13 +269,13 @@ func (c *Controller) UserUpdateViewController(w http.ResponseWriter, r *http.Req
 		// roleID has to be converted to int64
 		roleID, err := strconv.ParseInt(roleIDRaw, 10, 64)
 		if err != nil {
-			http.Error(w, "Invalid role id "+err.Error(), http.StatusBadRequest)
+			http.Error(w, UserRoleIDInvalidErrorMessagePrefix+err.Error(), http.StatusBadRequest)
 			return
 		}
 		user.Role.ID = roleID
 		err = c.userRepository.UpdateUser(user)
 		if err != nil {
-			http.Error(w, "Internal server error - failed to update the user "+err.Error(), http.StatusInternalServerError)
+			http.Error(w, UserUpdateFailedToUpdateUserErrorMessage+err.Error(), http.StatusInternalServerError)
 			return
 		}
 		http.Redirect(w, r, "/admin/user/list", http.StatusSeeOther)
@@ -269,7 +294,7 @@ func (c *Controller) UserUpdateAPIController(w http.ResponseWriter, r *http.Requ
 	// it has to be converted to int64
 	userID, err := strconv.ParseInt(userIDVariable, 10, 64)
 	if err != nil {
-		http.Error(w, "Invalid user id "+err.Error(), http.StatusBadRequest)
+		http.Error(w, UserUserIDInvalidErrorMessagePrefix+err.Error(), http.StatusBadRequest)
 		return
 	}
 	name := r.FormValue("name")
@@ -279,12 +304,12 @@ func (c *Controller) UserUpdateAPIController(w http.ResponseWriter, r *http.Requ
 	// get the user
 	user, err := c.userRepository.GetUserByID(userID)
 	if err != nil {
-		http.Error(w, "Internal server error - failed to get the user "+err.Error(), http.StatusInternalServerError)
+		http.Error(w, UserUpdateFailedToGetUserErrorMessage+err.Error(), http.StatusInternalServerError)
 		return
 	}
 	hashedPassword, err := passwd.HashPassword(password)
 	if err != nil {
-		http.Error(w, "Internal server error - failed to encrypt the password "+err.Error(), http.StatusInternalServerError)
+		http.Error(w, UserPasswordEncriptionFailedErrorMessage+err.Error(), http.StatusInternalServerError)
 		return
 	}
 	// update the user
@@ -294,13 +319,13 @@ func (c *Controller) UserUpdateAPIController(w http.ResponseWriter, r *http.Requ
 	// roleID has to be converted to int64
 	roleID, err := strconv.ParseInt(roleIDRaw, 10, 64)
 	if err != nil {
-		http.Error(w, "Invalid role id "+err.Error(), http.StatusBadRequest)
+		http.Error(w, UserRoleIDInvalidErrorMessagePrefix+err.Error(), http.StatusBadRequest)
 		return
 	}
 	user.Role.ID = roleID
 	err = c.userRepository.UpdateUser(user)
 	if err != nil {
-		http.Error(w, "Internal server error - failed to update the user "+err.Error(), http.StatusInternalServerError)
+		http.Error(w, UserUpdateFailedToUpdateUserErrorMessage+err.Error(), http.StatusInternalServerError)
 		return
 	}
 	// return the updated user as JSON
@@ -321,13 +346,13 @@ func (c *Controller) UserDeleteViewController(w http.ResponseWriter, r *http.Req
 	// it has to be converted to int64
 	userID, err := strconv.ParseInt(userIDVariable, 10, 64)
 	if err != nil {
-		http.Error(w, "Invalid user id "+err.Error(), http.StatusBadRequest)
+		http.Error(w, UserUserIDInvalidErrorMessagePrefix+err.Error(), http.StatusBadRequest)
 		return
 	}
 	// delete the user
 	err = c.userRepository.DeleteUser(userID)
 	if err != nil {
-		http.Error(w, "Internal server error - failed to delete the user "+err.Error(), http.StatusInternalServerError)
+		http.Error(w, UserDeleteFailedToDeleteErrorMessage+err.Error(), http.StatusInternalServerError)
 		return
 	}
 	// redirect to the user list
@@ -344,13 +369,13 @@ func (c *Controller) UserDeleteAPIController(w http.ResponseWriter, r *http.Requ
 	// it has to be converted to int64
 	userID, err := strconv.ParseInt(userIDVariable, 10, 64)
 	if err != nil {
-		http.Error(w, "Invalid user id "+err.Error(), http.StatusBadRequest)
+		http.Error(w, UserUserIDInvalidErrorMessagePrefix+err.Error(), http.StatusBadRequest)
 		return
 	}
 	// delete the user
 	err = c.userRepository.DeleteUser(userID)
 	if err != nil {
-		http.Error(w, "Internal server error - failed to delete the user "+err.Error(), http.StatusInternalServerError)
+		http.Error(w, UserDeleteFailedToDeleteErrorMessage+err.Error(), http.StatusInternalServerError)
 		return
 	}
 	// return success
@@ -367,7 +392,7 @@ func (c *Controller) UserListViewController(w http.ResponseWriter, r *http.Reque
 	// get all users
 	users, err := c.userRepository.GetUsers()
 	if err != nil {
-		http.Error(w, "Failed to get user data "+err.Error(), http.StatusInternalServerError)
+		http.Error(w, UserFailedToGetUserErrorMessage+err.Error(), http.StatusInternalServerError)
 		return
 	}
 	template := c.renderer.BuildTemplate("user-list", []string{c.renderer.GetTemplateDirectoryPath() + "/user/list.html.tmpl"})
@@ -394,7 +419,7 @@ func (c *Controller) UserListAPIController(w http.ResponseWriter, r *http.Reques
 	// get all users
 	users, err := c.userRepository.GetUsers()
 	if err != nil {
-		http.Error(w, "Internal server error - failed to get the users "+err.Error(), http.StatusInternalServerError)
+		http.Error(w, UserListFailedToGetUsersErrorMessage+err.Error(), http.StatusInternalServerError)
 		return
 	}
 	// return the users as JSON

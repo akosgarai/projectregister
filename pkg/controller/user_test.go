@@ -357,6 +357,10 @@ func TestUserCreateViewControllerEmptyNameError(t *testing.T) {
 		t.Errorf("handler returned wrong status code: got %v want %v",
 			status, http.StatusBadRequest)
 	}
+	body := rr.Body.String()
+	if !strings.Contains(body, UserCreateRequiredFieldMissing) {
+		t.Errorf("handler returned unexpected body: got %v want %v", body, UserCreateRequiredFieldMissing)
+	}
 }
 
 // TestUserCreateViewControllerLongPasswd tests the UserCreateViewController function.
@@ -385,6 +389,10 @@ func TestUserCreateViewControllerLongPasswd(t *testing.T) {
 	if status := rr.Code; status != http.StatusInternalServerError {
 		t.Errorf("handler returned wrong status code: got %v want %v",
 			status, http.StatusInternalServerError)
+	}
+	body := rr.Body.String()
+	if !strings.Contains(body, UserPasswordEncriptionFailedErrorMessage) {
+		t.Errorf("handler returned unexpected body: got %v want %v", body, UserPasswordEncriptionFailedErrorMessage)
 	}
 }
 
@@ -447,6 +455,10 @@ func TestUserCreateViewControllerCreateError(t *testing.T) {
 	if status := rr.Code; status != http.StatusInternalServerError {
 		t.Errorf("handler returned wrong status code: got %v want %v",
 			status, http.StatusInternalServerError)
+	}
+	body := rr.Body.String()
+	if !strings.Contains(body, UserCreateCreateUserErrorMessagePrefix) {
+		t.Errorf("handler returned unexpected body: got %v want %v", body, UserCreateCreateUserErrorMessagePrefix)
 	}
 }
 
