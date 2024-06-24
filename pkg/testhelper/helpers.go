@@ -211,11 +211,11 @@ func GetRoleWithAccessToResources(roleID int, resourceNames []string) *model.Rol
 	role := &model.Role{
 		ID:        int64(roleID),
 		Name:      "Test Role",
-		Resources: []model.Resource{},
+		Resources: []*model.Resource{},
 	}
 	for _, resourceName := range resourceNames {
 		id := int64(len(role.Resources) + 1)
-		resource := model.Resource{Name: resourceName, ID: id}
+		resource := &model.Resource{Name: resourceName, ID: id}
 		role.Resources = append(role.Resources, resource)
 	}
 	return role

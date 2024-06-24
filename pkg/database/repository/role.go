@@ -63,7 +63,7 @@ func (r *RoleRepository) GetRoleByName(name string) (*model.Role, error) {
 		if err != nil {
 			return nil, err
 		}
-		role.Resources = append(role.Resources, resource)
+		role.Resources = append(role.Resources, &resource)
 	}
 	return &role, err
 }
@@ -92,7 +92,7 @@ func (r *RoleRepository) GetRoleByID(id int64) (*model.Role, error) {
 		if err != nil {
 			return nil, err
 		}
-		role.Resources = append(role.Resources, resource)
+		role.Resources = append(role.Resources, &resource)
 	}
 	return &role, err
 }

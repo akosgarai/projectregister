@@ -145,6 +145,10 @@ func (c *Controller) RoleUpdateViewController(w http.ResponseWriter, r *http.Req
 	if r.Method == http.MethodGet {
 		template := c.renderer.BuildTemplate("user-role", []string{c.renderer.GetTemplateDirectoryPath() + "/role/update.html.tmpl"})
 		resources, err := c.resourceRepository.GetResources()
+		if err != nil {
+			c.renderer.Error(w, http.StatusInternalServerError, RoleFailedToGetResourcesErrorMessage, err)
+			return
+		}
 		content := struct {
 			Title       string
 			Role        *model.Role
