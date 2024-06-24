@@ -33,21 +33,37 @@ func TestRoleViewControllerWithoutPrivilege(t *testing.T) {
 		sessionStore,
 		renderer,
 	)
-	req, err := testhelper.NewRequestWithSessionCookie("GET", "/admin/role/view/1")
-	if err != nil {
-		t.Fatal(err)
+	testData := []struct {
+		Method       string
+		Route        string
+		RoutePattern string
+		Handler      func(http.ResponseWriter, *http.Request)
+	}{
+		{"GET", "/admin/role/view/1", "/admin/role/view/{userId}", c.RoleViewController},
+		{"GET", "/admin/role/create", "/admin/role/create", c.RoleCreateViewController},
+		{"POST", "/admin/role/create", "/admin/role/create", c.RoleCreateViewController},
+		{"GET", "/admin/role/update/1", "/admin/role/update/{userId}", c.RoleUpdateViewController},
+		{"POST", "/admin/role/update/1", "/admin/role/update/{userId}", c.RoleUpdateViewController},
+		{"POST", "/admin/role/delete/1", "/admin/role/delete/{userId}", c.RoleDeleteViewController},
+		{"GET", "/admin/role/list", "/admin/role/list", c.RoleListViewController},
 	}
-	rr := httptest.NewRecorder()
-	// To add the vars to the context,
-	// we need to create a router through which we can pass the request.
-	router := mux.NewRouter()
-	router.HandleFunc("/admin/role/view/{userId}", c.RoleViewController)
-	router.ServeHTTP(rr, req)
+	for _, d := range testData {
+		req, err := testhelper.NewRequestWithSessionCookie(d.Method, d.Route)
+		if err != nil {
+			t.Fatal(err)
+		}
+		rr := httptest.NewRecorder()
+		// To add the vars to the context,
+		// we need to create a router through which we can pass the request.
+		router := mux.NewRouter()
+		router.HandleFunc(d.RoutePattern, d.Handler)
+		router.ServeHTTP(rr, req)
 
-	needles := []string{
-		"Forbidden",
+		needles := []string{
+			"Forbidden",
+		}
+		testhelper.CheckResponse(t, rr, http.StatusForbidden, needles)
 	}
-	testhelper.CheckResponse(t, rr, http.StatusForbidden, needles)
 }
 
 // getRoleViewController
