@@ -1,0 +1,33 @@
+{{define "content"}}
+<div class="listing-page">
+	<h1>{{.Title}}</h1>
+	{{if .CurrentUser.HasPrivilege "clients.create"}}
+		<a class="button-link" href="/admin/client/create">Create Client</a>
+	{{end}}
+	<table >
+		<tr>
+			<th>ID</th>
+			<th>Name</th>
+			<th>Actions</th>
+		</tr>
+		{{ range .Clients }}
+			<tr>
+				<td>{{.ID}}</td>
+				<td>{{.Name}}</td>
+				<td>
+					<a href="/admin/client/view/{{.ID}}">View</a>
+					{{if $.CurrentUser.HasPrivilege "clients.update"}}
+						<a href="/admin/client/update/{{.ID}}">Edit</a>
+					{{end}}
+
+					{{if $.CurrentUser.HasPrivilege "clients.delete"}}
+					<form action="/admin/client/delete/{{.ID}}" method="post">
+						<input type="submit" value="Delete">
+					</form>
+					{{end}}
+				</td>
+			</tr>
+		{{end}}
+	</table>
+</div>
+{{end}}

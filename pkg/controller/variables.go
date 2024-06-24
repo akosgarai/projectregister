@@ -3,6 +3,22 @@ package controller
 var (
 	// AuthFailedToGenerateSessionKeyErrorMessage is the error message for the failed session key generation.
 	AuthFailedToGenerateSessionKeyErrorMessage = "Failed to generate session key"
+	// ClientClientIDInvalidErrorMessage is the error message prefix for the invalid client id.
+	ClientClientIDInvalidErrorMessage = "Invalid client id"
+	// ClientCreateCreateClientErrorMessage is the error message for the failed client creation.
+	ClientCreateCreateClientErrorMessage = "Failed to create the client"
+	// ClientCreateRequiredFieldMissing is the error message for the required fields in the client create.
+	ClientCreateRequiredFieldMissing = "Name is required"
+	// ClientDeleteFailedToDeleteErrorMessage is the error message for the failed client deletion.
+	ClientDeleteFailedToDeleteErrorMessage = "Failed to delete the client"
+	// ClientFailedToGetClientErrorMessage is the error message for the failed client get.
+	ClientFailedToGetClientErrorMessage = "Failed to get client data"
+	// ClientListFailedToGetClientsErrorMessage is the error message for the failed clients get.
+	ClientListFailedToGetClientsErrorMessage = "Failed to get clients"
+	// ClientUpdateRequiredFieldMissing is the error message for the required fields in the client update.
+	ClientUpdateRequiredFieldMissing = "Name is required"
+	// ClientUpdateUpdateClientErrorMessage is the error message for the failed client update.
+	ClientUpdateUpdateClientErrorMessage = "Failed to update the client"
 	// RoleFailedToGetRoleErrorMessage is the error message for the failed role get.
 	RoleFailedToGetRoleErrorMessage = "Failed to get role data"
 	// RoleFailedToGetResourcesErrorMessage is the error message for the failed resources get.

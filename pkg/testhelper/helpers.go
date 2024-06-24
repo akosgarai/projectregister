@@ -153,6 +153,50 @@ func (r *ResourceRepositoryMock) GetResources() ([]*model.Resource, error) {
 	return r.AllResources, r.Error
 }
 
+// ClientRepositoryMock is a mock for the ClientRepository interface.
+// It can be used to mock the ClientRepository interface.
+// Set the LatestClient field to the client you want to return.
+// Set the AllClients field to the list of clients you want to return.
+// Set the Error field to the error you want to return.
+// Set the UpdateClientError field to the error you want to return.
+type ClientRepositoryMock struct {
+	LatestClient *model.Client
+	AllClients   []*model.Client
+
+	Error             error
+	UpdateClientError error
+}
+
+// CreateClient mocks the CreateClient method.
+func (r *ClientRepositoryMock) CreateClient(name string) (*model.Client, error) {
+	return r.LatestClient, r.Error
+}
+
+// GetClientByName mocks the GetClientByName method.
+func (r *ClientRepositoryMock) GetClientByName(name string) (*model.Client, error) {
+	return r.LatestClient, r.Error
+}
+
+// GetClientByID mocks the GetClientByID method.
+func (r *ClientRepositoryMock) GetClientByID(id int64) (*model.Client, error) {
+	return r.LatestClient, r.Error
+}
+
+// UpdateClient mocks the UpdateClient method.
+func (r *ClientRepositoryMock) UpdateClient(client *model.Client) error {
+	return r.UpdateClientError
+}
+
+// DeleteClient mocks the DeleteClient method.
+func (r *ClientRepositoryMock) DeleteClient(id int64) error {
+	return r.Error
+}
+
+// GetClients mocks the GetClients method.
+func (r *ClientRepositoryMock) GetClients() ([]*model.Client, error) {
+	return r.AllClients, r.Error
+}
+
 // NewRequestWithSessionCookie creates a new request with the session cookie.
 func NewRequestWithSessionCookie(method, url string) (*http.Request, error) {
 	req, err := http.NewRequest(method, url, nil)

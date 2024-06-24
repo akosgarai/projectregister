@@ -18,13 +18,21 @@ func New(
 	userRepository model.UserRepository,
 	roleRepository model.RoleRepository,
 	resourceRepository model.ResourceRepository,
+	clientRepository model.ClientRepository,
 	sessionStore *session.Store,
 	renderer *render.Renderer,
 ) *mux.Router {
 	r := mux.NewRouter()
 	// handle the static files
 	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir(renderer.GetStaticDirectoryPath()))))
-	routerController := controller.New(userRepository, roleRepository, resourceRepository, sessionStore, renderer)
+	routerController := controller.New(
+		userRepository,
+		roleRepository,
+		resourceRepository,
+		clientRepository,
+		sessionStore,
+		renderer,
+	)
 	r.HandleFunc("/health", routerController.HealthController)
 	r.HandleFunc("/login", routerController.LoginPageController)
 	r.HandleFunc("/auth/login", routerController.LoginActionController).Methods("POST")
@@ -41,6 +49,12 @@ func New(
 	adminRouter.HandleFunc("/role/update/{roleId}", routerController.RoleUpdateViewController).Methods("GET", "POST")
 	adminRouter.HandleFunc("/role/delete/{roleId}", routerController.RoleDeleteViewController).Methods("POST")
 	adminRouter.HandleFunc("/role/list", routerController.RoleListViewController)
+
+	adminRouter.HandleFunc("/client/create", routerController.ClientCreateViewController).Methods("GET", "POST")
+	adminRouter.HandleFunc("/client/view/{clientId}", routerController.ClientViewController)
+	adminRouter.HandleFunc("/client/update/{clientId}", routerController.ClientUpdateViewController).Methods("GET", "POST")
+	adminRouter.HandleFunc("/client/delete/{clientId}", routerController.ClientDeleteViewController).Methods("POST")
+	adminRouter.HandleFunc("/client/list", routerController.ClientListViewController)
 
 	apiRouter := r.PathPrefix("/api").Subrouter()
 	apiRouter.Use(routerController.AuthMiddleware)

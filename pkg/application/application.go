@@ -45,7 +45,15 @@ func (a *App) Initialize() {
 	userRepository := repository.NewUserRepository(a.db)
 	roleRepository := repository.NewRoleRepository(a.db)
 	resourceRepository := repository.NewResourceRepository(a.db)
-	a.Router = router.New(userRepository, roleRepository, resourceRepository, session.NewStore(a.envConfig), render.NewRenderer(a.envConfig))
+	clientRepository := repository.NewClientRepository(a.db)
+	a.Router = router.New(
+		userRepository,
+		roleRepository,
+		resourceRepository,
+		clientRepository,
+		session.NewStore(a.envConfig),
+		render.NewRenderer(a.envConfig),
+	)
 	// create a new server
 	a.Server = &http.Server{
 		Addr: a.envConfig.GetServerAddr() + ":" + a.envConfig.GetServerPort(),
