@@ -16,27 +16,9 @@ import (
 	"github.com/akosgarai/projectregister/pkg/testhelper"
 )
 
-func getStaticViewUser() *model.User {
-	return &model.User{
-		ID:    1,
-		Email: "test@email.com",
-		Name:  "Test User",
-		Role: &model.Role{
-			ID:   1,
-			Name: "Test Role",
-			Resources: []model.Resource{
-				model.Resource{
-					ID:   1,
-					Name: "users.view",
-				},
-			},
-		},
-	}
-}
-
 // getViewController
 func getViewController() *Controller {
-	testUser := getStaticViewUser()
+	testUser := testhelper.GetUserWithAccessToResources(1, []string{"users.view"})
 	userRepository := &testhelper.UserRepositoryMock{}
 	userRepository.LatestUser = testUser
 	testConfig := config.NewEnvironment(testhelper.TestConfigData)
@@ -59,7 +41,7 @@ func getViewController() *Controller {
 // The test creates a new request with a new response recorder.
 // It calls the UserViewController function with the recorder and the request.
 func TestUserViewControllerUserFound(t *testing.T) {
-	testUser := getStaticViewUser()
+	testUser := testhelper.GetUserWithAccessToResources(1, []string{"users.view"})
 	c := getViewController()
 
 	req, err := testhelper.NewRequestWithSessionCookie("GET", "/admin/user/view/1")
@@ -135,7 +117,7 @@ func TestUserViewControllerMissingUserId(t *testing.T) {
 // It calls the UserViewController function with the recorder and the request.
 func TestUserViewControllerRepositoryError(t *testing.T) {
 	userRepository := &testhelper.UserRepositoryMock{}
-	userRepository.LatestUser = getStaticViewUser()
+	userRepository.LatestUser = testhelper.GetUserWithAccessToResources(1, []string{"users.view"})
 	missingDataError := "Missing data error"
 	userRepository.Error = errors.New(missingDataError)
 	c := getViewController()
@@ -164,7 +146,7 @@ func TestUserViewAPIControllerError(t *testing.T) {
 	userRepository := &testhelper.UserRepositoryMock{}
 	missingDataError := "Missing data error"
 	userRepository.Error = errors.New(missingDataError)
-	userRepository.LatestUser = getStaticViewUser()
+	userRepository.LatestUser = testhelper.GetUserWithAccessToResources(1, []string{"users.view"})
 	c := getViewController()
 	c.userRepository = userRepository
 
@@ -208,25 +190,7 @@ func TestUserViewAPIController(t *testing.T) {
 func getCreateController() *Controller {
 	userRepository := &testhelper.UserRepositoryMock{}
 	// Set the user data for the mock.
-	testUser := &model.User{
-		ID:    1,
-		Email: "test@email.com",
-		Name:  "Test User",
-		Role: &model.Role{
-			ID:   1,
-			Name: "Test Role",
-			Resources: []model.Resource{
-				model.Resource{
-					ID:   1,
-					Name: "users.view",
-				},
-				model.Resource{
-					ID:   2,
-					Name: "users.create",
-				},
-			},
-		},
-	}
+	testUser := testhelper.GetUserWithAccessToResources(1, []string{"users.view", "users.create"})
 	userRepository.LatestUser = testUser
 	resourceRepository := &testhelper.ResourceRepositoryMock{}
 	roleRepository := &testhelper.RoleRepositoryMock{}
@@ -360,7 +324,7 @@ func TestUserCreateViewControllerSave(t *testing.T) {
 // It calls the UserCreateViewController function with the recorder and the request.
 func TestUserCreateViewControllerCreateError(t *testing.T) {
 	userRepository := &testhelper.UserRepositoryMock{}
-	userRepository.LatestUser = getStaticUpdateUser()
+	userRepository.LatestUser = testhelper.GetUserWithAccessToResources(1, []string{"users.view", "users.create", "users.update"})
 	userRepository.Error = errors.New("Create error")
 	c := getCreateController()
 	c.userRepository = userRepository
@@ -418,7 +382,7 @@ func TestUserCreateAPIController(t *testing.T) {
 // It calls the UserCreateAPIController function with the recorder and the request.
 func TestUserCreateAPIControllerCreateError(t *testing.T) {
 	userRepository := &testhelper.UserRepositoryMock{}
-	userRepository.LatestUser = getStaticUpdateUser()
+	userRepository.LatestUser = testhelper.GetUserWithAccessToResources(1, []string{"users.view", "users.create"})
 	userRepository.Error = errors.New("Create error")
 	c := getCreateController()
 	c.userRepository = userRepository
@@ -471,35 +435,9 @@ func TestUserCreateAPIControllerCreateErrorLongPwd(t *testing.T) {
 	testhelper.CheckResponseCode(t, rr, http.StatusInternalServerError)
 }
 
-func getStaticUpdateUser() *model.User {
-	return &model.User{
-		ID:    1,
-		Email: "test@email.com",
-		Name:  "Test User",
-		Role: &model.Role{
-			ID:   1,
-			Name: "Test Role",
-			Resources: []model.Resource{
-				model.Resource{
-					ID:   1,
-					Name: "users.view",
-				},
-				model.Resource{
-					ID:   2,
-					Name: "users.create",
-				},
-				model.Resource{
-					ID:   3,
-					Name: "users.update",
-				},
-			},
-		},
-	}
-}
-
 // getUpdateController
 func getUpdateController() *Controller {
-	testUpdateUser := getStaticUpdateUser()
+	testUpdateUser := testhelper.GetUserWithAccessToResources(1, []string{"users.view", "users.create", "users.update"})
 	userRepository := &testhelper.UserRepositoryMock{}
 	userRepository.LatestUser = testUpdateUser
 	resourceRepository := &testhelper.ResourceRepositoryMock{}
@@ -579,7 +517,7 @@ func TestUserUpdateViewControllerRendersTemplate(t *testing.T) {
 	router.HandleFunc("/admin/user/update/{userId}", c.UserUpdateViewController)
 	router.ServeHTTP(rr, req)
 
-	testUser := getStaticUpdateUser()
+	testUser := testhelper.GetUserWithAccessToResources(1, []string{"users.view", "users.create", "users.update"})
 	needles := []string{
 		"<title>User Update</title>",
 		"<h1>User Update</h1>",
@@ -678,7 +616,7 @@ func TestUserUpdateViewControllerSave(t *testing.T) {
 // It calls the UserUpdateViewController function with the recorder and the request.
 func TestUserUpdateViewControllerUpdateError(t *testing.T) {
 	userRepository := &testhelper.UserRepositoryMock{}
-	userRepository.LatestUser = getStaticUpdateUser()
+	userRepository.LatestUser = testhelper.GetUserWithAccessToResources(1, []string{"users.view", "users.create", "users.update"})
 	userRepository.UpdateUserError = errors.New("Update error")
 	c := getUpdateController()
 	c.userRepository = userRepository
@@ -730,7 +668,7 @@ func TestUserUpdateAPIControllerBadUserId(t *testing.T) {
 // It calls the UserUpdateAPIController function with the recorder and the request.
 func TestUserUpdateAPIControllerMissingUserId(t *testing.T) {
 	userRepository := &testhelper.UserRepositoryMock{}
-	userRepository.LatestUser = getStaticUpdateUser()
+	userRepository.LatestUser = testhelper.GetUserWithAccessToResources(1, []string{"users.view", "users.create", "users.update"})
 	userRepository.Error = errors.New("Missing data error")
 	c := getUpdateController()
 	c.userRepository = userRepository
@@ -812,7 +750,7 @@ func TestUserUpdateAPIControllerSave(t *testing.T) {
 // It calls the UserUpdateAPIController function with the recorder and the request.
 func TestUserUpdateAPIControllerSaveError(t *testing.T) {
 	userRepository := &testhelper.UserRepositoryMock{}
-	userRepository.LatestUser = getStaticUpdateUser()
+	userRepository.LatestUser = testhelper.GetUserWithAccessToResources(1, []string{"users.view", "users.create", "users.update"})
 	userRepository.UpdateUserError = errors.New("Save error")
 	c := getUpdateController()
 	c.userRepository = userRepository
@@ -836,39 +774,10 @@ func TestUserUpdateAPIControllerSaveError(t *testing.T) {
 
 	testhelper.CheckResponseCode(t, rr, http.StatusInternalServerError)
 }
-func getStaticDeleteUser() *model.User {
-	return &model.User{
-		ID:    1,
-		Email: "test@email.com",
-		Name:  "Test User",
-		Role: &model.Role{
-			ID:   1,
-			Name: "Test Role",
-			Resources: []model.Resource{
-				model.Resource{
-					ID:   1,
-					Name: "users.view",
-				},
-				model.Resource{
-					ID:   2,
-					Name: "users.create",
-				},
-				model.Resource{
-					ID:   3,
-					Name: "users.update",
-				},
-				model.Resource{
-					ID:   4,
-					Name: "users.delete",
-				},
-			},
-		},
-	}
-}
 
 // getDeleteController
 func getDeleteController() *Controller {
-	testDeleteUser := getStaticDeleteUser()
+	testDeleteUser := testhelper.GetUserWithAccessToResources(1, []string{"users.view", "users.create", "users.update", "users.delete"})
 	userRepository := &testhelper.UserRepositoryMock{}
 	userRepository.LatestUser = testDeleteUser
 	resourceRepository := &testhelper.ResourceRepositoryMock{}
@@ -956,7 +865,7 @@ func TestUserDeleteViewControllerRedirects(t *testing.T) {
 // It calls the UserDeleteViewController function with the recorder and the request.
 func TestUserDeleteViewControllerDeleteError(t *testing.T) {
 	userRepository := &testhelper.UserRepositoryMock{}
-	userRepository.LatestUser = getStaticDeleteUser()
+	userRepository.LatestUser = testhelper.GetUserWithAccessToResources(1, []string{"users.view", "users.create", "users.update", "users.delete"})
 	userRepository.Error = errors.New("Delete error")
 	c := getDeleteController()
 	c.userRepository = userRepository
@@ -979,7 +888,7 @@ func TestUserDeleteViewControllerDeleteError(t *testing.T) {
 // It calls the UserDeleteAPIController function with the recorder and the request.
 func TestUserDeleteAPIControllerBadUserId(t *testing.T) {
 	userRepository := &testhelper.UserRepositoryMock{}
-	userRepository.LatestUser = getStaticDeleteUser()
+	userRepository.LatestUser = testhelper.GetUserWithAccessToResources(1, []string{"users.view", "users.create", "users.update", "users.delete"})
 	userRepository.Error = errors.New("Missing data error")
 	c := getDeleteController()
 	c.userRepository = userRepository
@@ -1005,7 +914,7 @@ func TestUserDeleteAPIControllerBadUserId(t *testing.T) {
 // It calls the UserDeleteAPIController function with the recorder and the request.
 func TestUserDeleteAPIControllerMissingUserId(t *testing.T) {
 	userRepository := &testhelper.UserRepositoryMock{}
-	userRepository.LatestUser = getStaticDeleteUser()
+	userRepository.LatestUser = testhelper.GetUserWithAccessToResources(1, []string{"users.view", "users.create", "users.update", "users.delete"})
 	userRepository.Error = errors.New("Missing data error")
 	c := getDeleteController()
 	c.userRepository = userRepository
@@ -1048,42 +957,14 @@ func TestUserDeleteAPIControllerDelete(t *testing.T) {
 
 func getStaticListUsers() []*model.User {
 	return []*model.User{
-		&model.User{
-			ID:    1,
-			Email: "one@email.com",
-			Name:  "Test User 01",
-			Role: &model.Role{
-				ID:   1,
-				Name: "Test Role",
-				Resources: []model.Resource{
-					model.Resource{
-						ID:   1,
-						Name: "users.view",
-					},
-				},
-			},
-		},
-		&model.User{
-			ID:    2,
-			Email: "two@email.com",
-			Name:  "Test User 02",
-			Role: &model.Role{
-				ID:   1,
-				Name: "Test Role",
-				Resources: []model.Resource{
-					model.Resource{
-						ID:   1,
-						Name: "users.view",
-					},
-				},
-			},
-		},
+		testhelper.GetUserWithAccessToResources(2, []string{"users.view"}),
+		testhelper.GetUserWithAccessToResources(3, []string{"users.view"}),
 	}
 }
 
 // getListController
 func getListController() *Controller {
-	testUser := getStaticUpdateUser()
+	testUser := testhelper.GetUserWithAccessToResources(1, []string{"users.view", "users.create", "users.update"})
 	userRepository := &testhelper.UserRepositoryMock{}
 	userRepository.AllUsers = getStaticListUsers()
 	resourceRepository := &testhelper.ResourceRepositoryMock{}

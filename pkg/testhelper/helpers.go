@@ -3,6 +3,7 @@ package testhelper
 import (
 	"net/http"
 	"net/http/httptest"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -186,4 +187,29 @@ func CheckResponseCode(t *testing.T, rr *httptest.ResponseRecorder, expectedCode
 func CheckResponse(t *testing.T, rr *httptest.ResponseRecorder, expectedCode int, needles []string) {
 	CheckResponseCode(t, rr, expectedCode)
 	CheckBodyContains(t, rr.Body.String(), needles)
+}
+
+// GetUserWithAccessToResources returns a user with access to the given resources.
+// The user has the given ID, and the given resource names.
+// The email of the user has the format of test+ID@email.com.
+// The name of the user is Test User ID.
+// The role of the user is Test Role with 1 as role ID.
+func GetUserWithAccessToResources(userID int, resourceNames []string) *model.User {
+	email := "test" + strconv.Itoa(userID) + "@email.com"
+	user := &model.User{
+		ID:    int64(userID),
+		Email: email,
+		Name:  "Test User " + strconv.Itoa(userID),
+		Role: &model.Role{
+			ID:        1,
+			Name:      "Test Role",
+			Resources: []model.Resource{},
+		},
+	}
+	for _, resourceName := range resourceNames {
+		id := int64(len(user.Role.Resources) + 1)
+		resource := model.Resource{Name: resourceName, ID: id}
+		user.Role.Resources = append(user.Role.Resources, resource)
+	}
+	return user
 }
