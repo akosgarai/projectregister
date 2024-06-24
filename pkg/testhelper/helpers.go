@@ -200,16 +200,23 @@ func GetUserWithAccessToResources(userID int, resourceNames []string) *model.Use
 		ID:    int64(userID),
 		Email: email,
 		Name:  "Test User " + strconv.Itoa(userID),
-		Role: &model.Role{
-			ID:        1,
-			Name:      "Test Role",
-			Resources: []model.Resource{},
-		},
-	}
-	for _, resourceName := range resourceNames {
-		id := int64(len(user.Role.Resources) + 1)
-		resource := model.Resource{Name: resourceName, ID: id}
-		user.Role.Resources = append(user.Role.Resources, resource)
+		Role:  GetRoleWithAccessToResources(1, resourceNames),
 	}
 	return user
+}
+
+// GetRoleWithAccessToResources returns a role with access to the given resources.
+// The role has the given ID, and the given resource names.
+func GetRoleWithAccessToResources(roleID int, resourceNames []string) *model.Role {
+	role := &model.Role{
+		ID:        int64(roleID),
+		Name:      "Test Role",
+		Resources: []model.Resource{},
+	}
+	for _, resourceName := range resourceNames {
+		id := int64(len(role.Resources) + 1)
+		resource := model.Resource{Name: resourceName, ID: id}
+		role.Resources = append(role.Resources, resource)
+	}
+	return role
 }
