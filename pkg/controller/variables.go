@@ -19,6 +19,22 @@ var (
 	ClientUpdateRequiredFieldMissing = "Name is required"
 	// ClientUpdateUpdateClientErrorMessage is the error message for the failed client update.
 	ClientUpdateUpdateClientErrorMessage = "Failed to update the client"
+	// ProjectCreateCreateProjectErrorMessage is the error message for the failed project creation.
+	ProjectCreateCreateProjectErrorMessage = "Failed to create the project"
+	// ProjectCreateRequiredFieldMissing is the error message for the required fields in the project create.
+	ProjectCreateRequiredFieldMissing = "Name is required"
+	// ProjectDeleteFailedToDeleteErrorMessage is the error message for the failed project deletion.
+	ProjectDeleteFailedToDeleteErrorMessage = "Failed to delete the project"
+	// ProjectFailedToGetProjectErrorMessage is the error message for the failed project get.
+	ProjectFailedToGetProjectErrorMessage = "Failed to get project data"
+	// ProjectListFailedToGetProjectsErrorMessage is the error message for the failed projects get.
+	ProjectListFailedToGetProjectsErrorMessage = "Failed to get projects"
+	// ProjectProjectIDInvalidErrorMessage is the error message prefix for the invalid project id.
+	ProjectProjectIDInvalidErrorMessage = "Invalid project id"
+	// ProjectUpdateRequiredFieldMissing is the error message for the required fields in the project update.
+	ProjectUpdateRequiredFieldMissing = "Name is required"
+	// ProjectUpdateUpdateProjectErrorMessage is the error message for the failed project update.
+	ProjectUpdateUpdateProjectErrorMessage = "Failed to update the project"
 	// RoleFailedToGetRoleErrorMessage is the error message for the failed role get.
 	RoleFailedToGetRoleErrorMessage = "Failed to get role data"
 	// RoleFailedToGetResourcesErrorMessage is the error message for the failed resources get.

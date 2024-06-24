@@ -197,6 +197,50 @@ func (r *ClientRepositoryMock) GetClients() ([]*model.Client, error) {
 	return r.AllClients, r.Error
 }
 
+// ProjectRepositoryMock is a mock for the ProjectRepository interface.
+// It can be used to mock the ProjectRepository interface.
+// Set the LatestProject field to the project you want to return.
+// Set the AllProjects field to the list of projects you want to return.
+// Set the Error field to the error you want to return.
+// Set the UpdateProjectError field to the error you want to return.
+type ProjectRepositoryMock struct {
+	LatestProject *model.Project
+	AllProjects   []*model.Project
+
+	Error              error
+	UpdateProjectError error
+}
+
+// CreateProject mocks the CreateProject method.
+func (r *ProjectRepositoryMock) CreateProject(name string) (*model.Project, error) {
+	return r.LatestProject, r.Error
+}
+
+// GetProjectByName mocks the GetProjectByName method.
+func (r *ProjectRepositoryMock) GetProjectByName(name string) (*model.Project, error) {
+	return r.LatestProject, r.Error
+}
+
+// GetProjectByID mocks the GetProjectByID method.
+func (r *ProjectRepositoryMock) GetProjectByID(id int64) (*model.Project, error) {
+	return r.LatestProject, r.Error
+}
+
+// UpdateProject mocks the UpdateProject method.
+func (r *ProjectRepositoryMock) UpdateProject(project *model.Project) error {
+	return r.UpdateProjectError
+}
+
+// DeleteProject mocks the DeleteProject method.
+func (r *ProjectRepositoryMock) DeleteProject(id int64) error {
+	return r.Error
+}
+
+// GetProjects mocks the GetProjects method.
+func (r *ProjectRepositoryMock) GetProjects() ([]*model.Project, error) {
+	return r.AllProjects, r.Error
+}
+
 // NewRequestWithSessionCookie creates a new request with the session cookie.
 func NewRequestWithSessionCookie(method, url string) (*http.Request, error) {
 	req, err := http.NewRequest(method, url, nil)

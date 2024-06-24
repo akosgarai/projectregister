@@ -1,0 +1,14 @@
+{{define "content"}}
+<div class="detail-page">
+	<h1>{{.Title}}</h1>
+	{{if .CurrentUser.HasPrivilege "projects.update"}}
+		<a class="button-link" href="/admin/project/update/{{.Project.ID}}">Edit Project</a>
+	{{end}}
+	<div>
+		<p>ID: {{.Project.ID}}</p>
+		<p>Name: {{.Project.Name}}</p>
+		<p>Created at: {{.Project.CreatedAt}}</p>
+		<p>Updated at: {{.Project.UpdatedAt}}</p>
+	</div>
+</div>
+{{end}}
