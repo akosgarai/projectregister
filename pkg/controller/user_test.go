@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"strconv"
-	"strings"
 	"testing"
 
 	"github.com/gorilla/mux"
@@ -74,10 +73,6 @@ func TestUserViewControllerUserFound(t *testing.T) {
 	router.HandleFunc("/admin/user/view/{userId}", c.UserViewController)
 	router.ServeHTTP(rr, req)
 
-	if status := rr.Code; status != http.StatusOK {
-		t.Errorf("handler returned wrong status code: got %v want %v",
-			status, http.StatusOK)
-	}
 	needles := []string{
 		"<title>User View</title>",
 		"<h1>User View</h1>",
@@ -86,12 +81,7 @@ func TestUserViewControllerUserFound(t *testing.T) {
 		"<p>Name: " + testUser.Name + "</p>",
 		"<p>Role: " + testUser.Role.Name + "</p>",
 	}
-	body := rr.Body.String()
-	for _, needle := range needles {
-		if !strings.Contains(body, needle) {
-			t.Errorf("handler returned unexpected body: got %v want %v", body, needle)
-		}
-	}
+	testhelper.CheckResponse(t, rr, http.StatusOK, needles)
 }
 
 // TestUserViewControllerBadUserId tests the UserViewController function.
@@ -113,10 +103,7 @@ func TestUserViewControllerBadUserId(t *testing.T) {
 	router.HandleFunc("/admin/user/view/{userId}", c.UserViewController)
 	router.ServeHTTP(rr, req)
 
-	if status := rr.Code; status != http.StatusBadRequest {
-		t.Errorf("handler returned wrong status code: got %v want %v",
-			status, http.StatusBadRequest)
-	}
+	testhelper.CheckResponse(t, rr, http.StatusBadRequest, []string{UserFailedToGetUserErrorMessage})
 }
 
 // TestUserViewControllerMissingUserId tests the UserViewController function.
@@ -138,10 +125,7 @@ func TestUserViewControllerMissingUserId(t *testing.T) {
 	router.HandleFunc("/admin/user/view/{userId}", c.UserViewController)
 	router.ServeHTTP(rr, req)
 
-	if status := rr.Code; status != http.StatusNotFound {
-		t.Errorf("handler returned wrong status code: got %v want %v",
-			status, http.StatusNotFound)
-	}
+	testhelper.CheckResponseCode(t, rr, http.StatusNotFound)
 }
 
 // TestUserViewControllerRepositoryError tests the UserViewController function.
@@ -168,10 +152,7 @@ func TestUserViewControllerRepositoryError(t *testing.T) {
 	router.HandleFunc("/admin/user/view/{userId}", c.UserViewController)
 	router.ServeHTTP(rr, req)
 
-	if status := rr.Code; status != http.StatusInternalServerError {
-		t.Errorf("handler returned wrong status code: got %v want %v",
-			status, http.StatusInternalServerError)
-	}
+	testhelper.CheckResponse(t, rr, http.StatusInternalServerError, []string{UserFailedToGetUserErrorMessage})
 }
 
 // TestUserViewAPIControllerError tests the UserViewAPIController function.
@@ -198,10 +179,7 @@ func TestUserViewAPIControllerError(t *testing.T) {
 	router.HandleFunc("/api/user/view/{userId}", c.UserViewAPIController)
 	router.ServeHTTP(rr, req)
 
-	if status := rr.Code; status != http.StatusInternalServerError {
-		t.Errorf("handler returned wrong status code: got %v want %v",
-			status, http.StatusInternalServerError)
-	}
+	testhelper.CheckResponse(t, rr, http.StatusInternalServerError, []string{UserFailedToGetUserErrorMessage})
 }
 
 // TestUserViewAPIController tests the UserViewAPIController function.
@@ -223,10 +201,7 @@ func TestUserViewAPIController(t *testing.T) {
 	router.HandleFunc("/api/user/view/{userId}", c.UserViewAPIController)
 	router.ServeHTTP(rr, req)
 
-	if status := rr.Code; status != http.StatusOK {
-		t.Errorf("handler returned wrong status code: got %v want %v",
-			status, http.StatusOK)
-	}
+	testhelper.CheckResponseCode(t, rr, http.StatusOK)
 }
 
 // getCreateController
@@ -287,10 +262,6 @@ func TestUserCreateViewControllerRendersTemplate(t *testing.T) {
 	router.HandleFunc("/admin/user/create", c.UserCreateViewController)
 	router.ServeHTTP(rr, req)
 
-	if status := rr.Code; status != http.StatusOK {
-		t.Errorf("handler returned wrong status code: got %v want %v",
-			status, http.StatusOK)
-	}
 	needles := []string{
 		"<title>User Create</title>",
 		"<h1>User Create</h1>",
@@ -301,12 +272,7 @@ func TestUserCreateViewControllerRendersTemplate(t *testing.T) {
 		"<label for=\"password\">Password</label>",
 		"<input type=\"password\" class=\"form-control\" id=\"password\" name=\"password\">",
 	}
-	body := rr.Body.String()
-	for _, needle := range needles {
-		if !strings.Contains(body, needle) {
-			t.Errorf("handler returned unexpected body: got %v want %v", body, needle)
-		}
-	}
+	testhelper.CheckResponse(t, rr, http.StatusOK, needles)
 }
 
 // TestUserCreateViewControllerEmptyNameError tests the UserCreateViewController function.
@@ -332,14 +298,7 @@ func TestUserCreateViewControllerEmptyNameError(t *testing.T) {
 	router.HandleFunc("/admin/user/create", c.UserCreateViewController)
 	router.ServeHTTP(rr, req)
 
-	if status := rr.Code; status != http.StatusBadRequest {
-		t.Errorf("handler returned wrong status code: got %v want %v",
-			status, http.StatusBadRequest)
-	}
-	body := rr.Body.String()
-	if !strings.Contains(body, UserCreateRequiredFieldMissing) {
-		t.Errorf("handler returned unexpected body: got %v want %v", body, UserCreateRequiredFieldMissing)
-	}
+	testhelper.CheckResponse(t, rr, http.StatusBadRequest, []string{UserCreateRequiredFieldMissing})
 }
 
 // TestUserCreateViewControllerLongPasswd tests the UserCreateViewController function.
@@ -365,14 +324,7 @@ func TestUserCreateViewControllerLongPasswd(t *testing.T) {
 	router.HandleFunc("/admin/user/create", c.UserCreateViewController)
 	router.ServeHTTP(rr, req)
 
-	if status := rr.Code; status != http.StatusInternalServerError {
-		t.Errorf("handler returned wrong status code: got %v want %v",
-			status, http.StatusInternalServerError)
-	}
-	body := rr.Body.String()
-	if !strings.Contains(body, UserPasswordEncriptionFailedErrorMessage) {
-		t.Errorf("handler returned unexpected body: got %v want %v", body, UserPasswordEncriptionFailedErrorMessage)
-	}
+	testhelper.CheckResponse(t, rr, http.StatusInternalServerError, []string{UserPasswordEncriptionFailedErrorMessage})
 }
 
 // TestUserCreateViewControllerSave tests the UserCreateViewController function.
@@ -398,10 +350,7 @@ func TestUserCreateViewControllerSave(t *testing.T) {
 	router.HandleFunc("/admin/user/create", c.UserCreateViewController)
 	router.ServeHTTP(rr, req)
 
-	if status := rr.Code; status != http.StatusSeeOther {
-		t.Errorf("handler returned wrong status code: got %v want %v",
-			status, http.StatusSeeOther)
-	}
+	testhelper.CheckResponseCode(t, rr, http.StatusSeeOther)
 }
 
 // TestUserCreateViewControllerCreateError tests the UserCreateViewController function.
@@ -431,14 +380,7 @@ func TestUserCreateViewControllerCreateError(t *testing.T) {
 	router.HandleFunc("/admin/user/create", c.UserCreateViewController)
 	router.ServeHTTP(rr, req)
 
-	if status := rr.Code; status != http.StatusInternalServerError {
-		t.Errorf("handler returned wrong status code: got %v want %v",
-			status, http.StatusInternalServerError)
-	}
-	body := rr.Body.String()
-	if !strings.Contains(body, UserCreateCreateUserErrorMessagePrefix) {
-		t.Errorf("handler returned unexpected body: got %v want %v", body, UserCreateCreateUserErrorMessagePrefix)
-	}
+	testhelper.CheckResponse(t, rr, http.StatusInternalServerError, []string{UserCreateCreateUserErrorMessagePrefix})
 }
 
 // TestUserCreateAPIController tests the UserCreateAPIController function.
@@ -466,10 +408,7 @@ func TestUserCreateAPIController(t *testing.T) {
 	router.HandleFunc("/api/user/create", c.UserCreateAPIController)
 	router.ServeHTTP(rr, req)
 
-	if status := rr.Code; status != http.StatusOK {
-		t.Errorf("handler returned wrong status code: got %v want %v. Response: %v",
-			status, http.StatusOK, rr.Body.String())
-	}
+	testhelper.CheckResponseCode(t, rr, http.StatusOK)
 }
 
 // TestUserCreateAPIControllerCreateError tests the UserCreateAPIController function.
@@ -501,10 +440,7 @@ func TestUserCreateAPIControllerCreateError(t *testing.T) {
 	router.HandleFunc("/api/user/create", c.UserCreateAPIController)
 	router.ServeHTTP(rr, req)
 
-	if status := rr.Code; status != http.StatusInternalServerError {
-		t.Errorf("handler returned wrong status code: got %v want %v",
-			status, http.StatusInternalServerError)
-	}
+	testhelper.CheckResponseCode(t, rr, http.StatusInternalServerError)
 }
 
 // TestUserCreateAPIControllerCreateErrorLongPwd tests the UserCreateAPIController function.
@@ -532,10 +468,7 @@ func TestUserCreateAPIControllerCreateErrorLongPwd(t *testing.T) {
 	router.HandleFunc("/api/user/create", c.UserCreateAPIController)
 	router.ServeHTTP(rr, req)
 
-	if status := rr.Code; status != http.StatusInternalServerError {
-		t.Errorf("handler returned wrong status code: got %v want %v",
-			status, http.StatusInternalServerError)
-	}
+	testhelper.CheckResponseCode(t, rr, http.StatusInternalServerError)
 }
 
 func getStaticUpdateUser() *model.User {
@@ -603,10 +536,7 @@ func TestUserUpdateViewControllerInvalidUserId(t *testing.T) {
 	router.HandleFunc("/admin/user/update/{userId}", c.UserUpdateViewController)
 	router.ServeHTTP(rr, req)
 
-	if status := rr.Code; status != http.StatusBadRequest {
-		t.Errorf("handler returned wrong status code: got %v want %v",
-			status, http.StatusBadRequest)
-	}
+	testhelper.CheckResponse(t, rr, http.StatusBadRequest, []string{UserUserIDInvalidErrorMessagePrefix})
 }
 
 // TestUserUpdateViewControllerMissingUserId tests the UserUpdateViewController function.
@@ -629,10 +559,7 @@ func TestUserUpdateViewControllerMissingUserId(t *testing.T) {
 	router.HandleFunc("/admin/user/update/{userId}", c.UserUpdateViewController)
 	router.ServeHTTP(rr, req)
 
-	if status := rr.Code; status != http.StatusInternalServerError {
-		t.Errorf("handler returned wrong status code: got %v want %v",
-			status, http.StatusInternalServerError)
-	}
+	testhelper.CheckResponse(t, rr, http.StatusInternalServerError, []string{UserUpdateFailedToGetUserErrorMessage})
 }
 
 // TestUserUpdateViewControllerRendersTemplate tests the UserUpdateViewController function.
@@ -652,10 +579,6 @@ func TestUserUpdateViewControllerRendersTemplate(t *testing.T) {
 	router.HandleFunc("/admin/user/update/{userId}", c.UserUpdateViewController)
 	router.ServeHTTP(rr, req)
 
-	if status := rr.Code; status != http.StatusOK {
-		t.Errorf("handler returned wrong status code: got %v want %v",
-			status, http.StatusOK)
-	}
 	testUser := getStaticUpdateUser()
 	needles := []string{
 		"<title>User Update</title>",
@@ -667,12 +590,7 @@ func TestUserUpdateViewControllerRendersTemplate(t *testing.T) {
 		"<label for=\"password\">Password</label>",
 		"<input type=\"password\" class=\"form-control\" id=\"password\" name=\"password\">",
 	}
-	body := rr.Body.String()
-	for _, needle := range needles {
-		if !strings.Contains(body, needle) {
-			t.Errorf("handler returned unexpected body: got %v want %v", body, needle)
-		}
-	}
+	testhelper.CheckResponse(t, rr, http.StatusOK, needles)
 }
 
 // TestUserUpdateViewControllerEmptyNameError tests the UserUpdateViewController function.
@@ -698,10 +616,7 @@ func TestUserUpdateViewControllerEmptyNameError(t *testing.T) {
 	router.HandleFunc("/admin/user/update/{userId}", c.UserUpdateViewController)
 	router.ServeHTTP(rr, req)
 
-	if status := rr.Code; status != http.StatusBadRequest {
-		t.Errorf("handler returned wrong status code: got %v want %v",
-			status, http.StatusBadRequest)
-	}
+	testhelper.CheckResponse(t, rr, http.StatusBadRequest, []string{UserUpdateRequiredFieldMissing})
 }
 
 // TestUserUpdateViewControllerLongPasswd tests the UserUpdateViewController function.
@@ -727,10 +642,7 @@ func TestUserUpdateViewControllerLongPasswd(t *testing.T) {
 	router.HandleFunc("/admin/user/update/{userId}", c.UserUpdateViewController)
 	router.ServeHTTP(rr, req)
 
-	if status := rr.Code; status != http.StatusInternalServerError {
-		t.Errorf("handler returned wrong status code: got %v want %v",
-			status, http.StatusInternalServerError)
-	}
+	testhelper.CheckResponse(t, rr, http.StatusInternalServerError, []string{UserPasswordEncriptionFailedErrorMessage})
 }
 
 // TestUserUpdateViewControllerSave tests the UserUpdateViewController function.
@@ -756,10 +668,7 @@ func TestUserUpdateViewControllerSave(t *testing.T) {
 	router.HandleFunc("/admin/user/update/{userId}", c.UserUpdateViewController)
 	router.ServeHTTP(rr, req)
 
-	if status := rr.Code; status != http.StatusSeeOther {
-		t.Errorf("handler returned wrong status code: got %v want %v",
-			status, http.StatusSeeOther)
-	}
+	testhelper.CheckResponseCode(t, rr, http.StatusSeeOther)
 }
 
 // TestUserUpdateViewControllerUpdateError tests the UserUpdateViewController function.
@@ -789,10 +698,7 @@ func TestUserUpdateViewControllerUpdateError(t *testing.T) {
 	router.HandleFunc("/admin/user/update/{userId}", c.UserUpdateViewController)
 	router.ServeHTTP(rr, req)
 
-	if status := rr.Code; status != http.StatusInternalServerError {
-		t.Errorf("handler returned wrong status code: got %v want %v",
-			status, http.StatusInternalServerError)
-	}
+	testhelper.CheckResponse(t, rr, http.StatusInternalServerError, []string{UserUpdateFailedToUpdateUserErrorMessage})
 }
 
 // TestUserUpdateAPIControllerBadUserId tests the UserUpdateAPIController function.
@@ -814,10 +720,7 @@ func TestUserUpdateAPIControllerBadUserId(t *testing.T) {
 	router.HandleFunc("/admin/user/update/{userId}", c.UserUpdateAPIController)
 	router.ServeHTTP(rr, req)
 
-	if status := rr.Code; status != http.StatusBadRequest {
-		t.Errorf("handler returned wrong status code: got %v want %v",
-			status, http.StatusBadRequest)
-	}
+	testhelper.CheckResponseCode(t, rr, http.StatusBadRequest)
 }
 
 // TestUserUpdateAPIControllerMissingUserId tests the UserUpdateAPIController function.
@@ -843,10 +746,7 @@ func TestUserUpdateAPIControllerMissingUserId(t *testing.T) {
 	router.HandleFunc("/admin/user/update/{userId}", c.UserUpdateAPIController)
 	router.ServeHTTP(rr, req)
 
-	if status := rr.Code; status != http.StatusInternalServerError {
-		t.Errorf("handler returned wrong status code: got %v want %v",
-			status, http.StatusInternalServerError)
-	}
+	testhelper.CheckResponseCode(t, rr, http.StatusInternalServerError)
 }
 
 // TestUserUpdateAPIControllerWrongNewPassword tests the UserUpdateAPIController function.
@@ -874,10 +774,7 @@ func TestUserUpdateAPIControllerWrongNewPassword(t *testing.T) {
 	router.HandleFunc("/admin/user/update/{userId}", c.UserUpdateAPIController)
 	router.ServeHTTP(rr, req)
 
-	if status := rr.Code; status != http.StatusInternalServerError {
-		t.Errorf("handler returned wrong status code: got %v want %v",
-			status, http.StatusInternalServerError)
-	}
+	testhelper.CheckResponseCode(t, rr, http.StatusInternalServerError)
 }
 
 // TestUserUpdateAPIControllerSave tests the UserUpdateAPIController function.
@@ -905,10 +802,7 @@ func TestUserUpdateAPIControllerSave(t *testing.T) {
 	router.HandleFunc("/admin/user/update/{userId}", c.UserUpdateAPIController)
 	router.ServeHTTP(rr, req)
 
-	if status := rr.Code; status != http.StatusOK {
-		t.Errorf("handler returned wrong status code: got %v want %v",
-			status, http.StatusOK)
-	}
+	testhelper.CheckResponseCode(t, rr, http.StatusOK)
 }
 
 // TestUserUpdateAPIControllerSaveError tests the UserUpdateAPIController function.
@@ -940,10 +834,7 @@ func TestUserUpdateAPIControllerSaveError(t *testing.T) {
 	router.HandleFunc("/admin/user/update/{userId}", c.UserUpdateAPIController)
 	router.ServeHTTP(rr, req)
 
-	if status := rr.Code; status != http.StatusInternalServerError {
-		t.Errorf("handler returned wrong status code: got %v want %v",
-			status, http.StatusInternalServerError)
-	}
+	testhelper.CheckResponseCode(t, rr, http.StatusInternalServerError)
 }
 func getStaticDeleteUser() *model.User {
 	return &model.User{
@@ -1013,10 +904,8 @@ func TestUserDeleteViewControllerWrongUserId(t *testing.T) {
 	router.HandleFunc("/admin/user/delete/{userId}", c.UserDeleteViewController)
 	router.ServeHTTP(rr, req)
 
-	if status := rr.Code; status != http.StatusBadRequest {
-		t.Errorf("handler returned wrong status code: got %v want %v",
-			status, http.StatusBadRequest)
-	}
+	testhelper.CheckResponseCode(t, rr, http.StatusBadRequest)
+	testhelper.CheckResponse(t, rr, http.StatusBadRequest, []string{UserUserIDInvalidErrorMessagePrefix})
 }
 
 // TestUserDeleteViewControllerMissingUserId tests the UserDeleteViewController function.
@@ -1038,10 +927,7 @@ func TestUserDeleteViewControllerMissingUserId(t *testing.T) {
 	router.HandleFunc("/admin/user/delete/{userId}", c.UserDeleteViewController)
 	router.ServeHTTP(rr, req)
 
-	if status := rr.Code; status != http.StatusInternalServerError {
-		t.Errorf("handler returned wrong status code: got %v want %v",
-			status, http.StatusInternalServerError)
-	}
+	testhelper.CheckResponse(t, rr, http.StatusInternalServerError, []string{UserDeleteFailedToDeleteErrorMessage})
 }
 
 // TestUserDeleteViewControllerRedirects tests the UserDeleteViewController function.
@@ -1060,10 +946,7 @@ func TestUserDeleteViewControllerRedirects(t *testing.T) {
 	router.HandleFunc("/admin/user/delete/{userId}", c.UserDeleteViewController)
 	router.ServeHTTP(rr, req)
 
-	if status := rr.Code; status != http.StatusSeeOther {
-		t.Errorf("handler returned wrong status code: got %v want %v",
-			status, http.StatusSeeOther)
-	}
+	testhelper.CheckResponseCode(t, rr, http.StatusSeeOther)
 }
 
 // TestUserDeleteViewControllerDeleteError tests the UserDeleteViewController function.
@@ -1086,10 +969,7 @@ func TestUserDeleteViewControllerDeleteError(t *testing.T) {
 	router.HandleFunc("/admin/user/delete/{userId}", c.UserDeleteViewController)
 	router.ServeHTTP(rr, req)
 
-	if status := rr.Code; status != http.StatusInternalServerError {
-		t.Errorf("handler returned wrong status code: got %v want %v",
-			status, http.StatusInternalServerError)
-	}
+	testhelper.CheckResponse(t, rr, http.StatusInternalServerError, []string{UserDeleteFailedToDeleteErrorMessage})
 }
 
 // TestUserDeleteAPIControllerBadUserId tests the UserDeleteAPIController function.
@@ -1115,10 +995,7 @@ func TestUserDeleteAPIControllerBadUserId(t *testing.T) {
 	router.HandleFunc("/admin/user/delete/{userId}", c.UserDeleteAPIController)
 	router.ServeHTTP(rr, req)
 
-	if status := rr.Code; status != http.StatusBadRequest {
-		t.Errorf("handler returned wrong status code: got %v want %v",
-			status, http.StatusBadRequest)
-	}
+	testhelper.CheckResponseCode(t, rr, http.StatusBadRequest)
 }
 
 // TestUserDeleteAPIControllerMissingUserId tests the UserDeleteAPIController function.
@@ -1144,10 +1021,7 @@ func TestUserDeleteAPIControllerMissingUserId(t *testing.T) {
 	router.HandleFunc("/admin/user/delete/{userId}", c.UserDeleteAPIController)
 	router.ServeHTTP(rr, req)
 
-	if status := rr.Code; status != http.StatusInternalServerError {
-		t.Errorf("handler returned wrong status code: got %v want %v",
-			status, http.StatusInternalServerError)
-	}
+	testhelper.CheckResponseCode(t, rr, http.StatusInternalServerError)
 }
 
 // TestUserDeleteAPIControllerDelete tests the UserDeleteAPIController function.
@@ -1169,10 +1043,7 @@ func TestUserDeleteAPIControllerDelete(t *testing.T) {
 	router.HandleFunc("/admin/user/delete/{userId}", c.UserDeleteAPIController)
 	router.ServeHTTP(rr, req)
 
-	if status := rr.Code; status != http.StatusOK {
-		t.Errorf("handler returned wrong status code: got %v want %v",
-			status, http.StatusOK)
-	}
+	testhelper.CheckResponseCode(t, rr, http.StatusOK)
 }
 
 func getStaticListUsers() []*model.User {
@@ -1251,10 +1122,7 @@ func TestUserListViewControllerError(t *testing.T) {
 	router.HandleFunc("/admin/user/list", c.UserListViewController)
 	router.ServeHTTP(rr, req)
 
-	if status := rr.Code; status != http.StatusInternalServerError {
-		t.Errorf("handler returned wrong status code: got %v want %v",
-			status, http.StatusInternalServerError)
-	}
+	testhelper.CheckResponse(t, rr, http.StatusInternalServerError, []string{UserFailedToGetUserErrorMessage})
 }
 
 // TestUserListViewController tests the UserListViewController function.
@@ -1273,10 +1141,6 @@ func TestUserListViewController(t *testing.T) {
 	router.HandleFunc("/admin/user/list", c.UserListViewController)
 	router.ServeHTTP(rr, req)
 
-	if status := rr.Code; status != http.StatusOK {
-		t.Errorf("handler returned wrong status code: got %v want %v",
-			status, http.StatusOK)
-	}
 	userList := getStaticListUsers()
 	needles := []string{
 		"<title>User List</title>",
@@ -1289,12 +1153,7 @@ func TestUserListViewController(t *testing.T) {
 		needles = append(needles, "<a href=\"/admin/user/update/"+strconv.Itoa((int)(user.ID))+"\">Edit</a>")
 		needles = append(needles, "<a href=\"/admin/user/view/"+strconv.Itoa((int)(user.ID))+"\">View</a>")
 	}
-	body := rr.Body.String()
-	for _, needle := range needles {
-		if !strings.Contains(body, needle) {
-			t.Errorf("handler returned unexpected body: got %v want %v", body, needle)
-		}
-	}
+	testhelper.CheckResponse(t, rr, http.StatusOK, needles)
 }
 
 // TestUserListAPIControllerError tests the UserListAPIController function.
@@ -1316,10 +1175,7 @@ func TestUserListAPIControllerError(t *testing.T) {
 	router.HandleFunc("/api/user/list", c.UserListAPIController)
 	router.ServeHTTP(rr, req)
 
-	if status := rr.Code; status != http.StatusInternalServerError {
-		t.Errorf("handler returned wrong status code: got %v want %v",
-			status, http.StatusInternalServerError)
-	}
+	testhelper.CheckResponseCode(t, rr, http.StatusInternalServerError)
 }
 
 // TestUserListAPIController tests the UserListAPIController function.
@@ -1338,8 +1194,5 @@ func TestUserListAPIController(t *testing.T) {
 	router.HandleFunc("/api/user/list", c.UserListAPIController)
 	router.ServeHTTP(rr, req)
 
-	if status := rr.Code; status != http.StatusOK {
-		t.Errorf("handler returned wrong status code: got %v want %v",
-			status, http.StatusOK)
-	}
+	testhelper.CheckResponseCode(t, rr, http.StatusOK)
 }

@@ -10,6 +10,10 @@ import (
 	"github.com/akosgarai/projectregister/pkg/testhelper"
 )
 
+var (
+	httpStatusCodes = []int{200, 201, 202, 203, 204, 205, 206, 207, 208, 226, 300, 301, 302, 303, 304, 305, 306, 307, 308}
+)
+
 // TestNewRenderer is a test function for the NewRenderer function.
 func TestNewRenderer(t *testing.T) {
 	testConfig := config.NewEnvironment(testhelper.TestConfigData)
@@ -63,7 +67,6 @@ func TestJSON(t *testing.T) {
 	renderer := NewRenderer(testConfig)
 	// Test the JSON function with a nil value.
 	// The function should return an error.
-	httpStatusCodes := []int{200, 201, 202, 203, 204, 205, 206, 207, 208, 226, 300, 301, 302, 303, 304, 305, 306, 307, 308}
 	for _, code := range httpStatusCodes {
 		w := httptest.NewRecorder()
 		testValue := make(map[string]string)
@@ -95,7 +98,6 @@ func TestStatus(t *testing.T) {
 	testConfig := config.NewEnvironment(testhelper.TestConfigData)
 	renderer := NewRenderer(testConfig)
 	// Test the Status function with different status codes.
-	httpStatusCodes := []int{200, 201, 202, 203, 204, 205, 206, 207, 208, 226, 300, 301, 302, 303, 304, 305, 306, 307, 308}
 	for _, code := range httpStatusCodes {
 		w := httptest.NewRecorder()
 		renderer.Status(w, code)
@@ -114,7 +116,6 @@ func TestErrorWithoutDetails(t *testing.T) {
 	testConfig := config.NewEnvironment(testhelper.TestConfigData)
 	renderer := NewRenderer(testConfig)
 	// Test the Error function with different status codes and messages.
-	httpStatusCodes := []int{200, 201, 202, 203, 204, 205, 206, 207, 208, 226, 300, 301, 302, 303, 304, 305, 306, 307, 308}
 	for _, code := range httpStatusCodes {
 		w := httptest.NewRecorder()
 		testMessage := "test message"
@@ -133,7 +134,6 @@ func TestErrorWithDetails(t *testing.T) {
 	testConfig := config.NewEnvironment(testhelper.TestConfigData)
 	renderer := NewRenderer(testConfig)
 	// Test the Error function with different status codes and messages.
-	httpStatusCodes := []int{200, 201, 202, 203, 204, 205, 206, 207, 208, 226, 300, 301, 302, 303, 304, 305, 306, 307, 308}
 	for _, code := range httpStatusCodes {
 		w := httptest.NewRecorder()
 		testMessage := "test message"

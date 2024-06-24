@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"net/http"
 	"net/http/httptest"
-	"strings"
 	"testing"
 
 	"github.com/akosgarai/projectregister/pkg/config"
@@ -43,11 +42,6 @@ func TestLoginPageControllerWithoutSession(t *testing.T) {
 
 	handler.ServeHTTP(rr, req)
 
-	if status := rr.Code; status != http.StatusOK {
-		t.Errorf("handler returned wrong status code: got %v want %v",
-			status, http.StatusOK)
-	}
-
 	// Check the response body is what we expect.
 	// The body has to contain the <title>Login</title> tag.
 	// The body has to contain a text input with the name 'username'.
@@ -59,12 +53,7 @@ func TestLoginPageControllerWithoutSession(t *testing.T) {
 		"<input type=\"password\" name=\"password\"",
 		"<input type=\"submit\"",
 	}
-	body := rr.Body.String()
-	for _, needle := range needles {
-		if !strings.Contains(body, needle) {
-			t.Errorf("handler returned unexpected body: got %v want %v", body, needle)
-		}
-	}
+	testhelper.CheckResponse(t, rr, http.StatusOK, needles)
 }
 
 // TestLoginPageControllerWithSession tests the LoginPageController function with session.
@@ -96,10 +85,7 @@ func TestLoginPageControllerWithSession(t *testing.T) {
 
 	// On case of the session is set, the handler has to redirect to the /admin/dashboard.
 	// On this case the status code is 303.
-	if status := rr.Code; status != http.StatusSeeOther {
-		t.Errorf("handler returned wrong status code: got %v want %v",
-			status, http.StatusSeeOther)
-	}
+	testhelper.CheckResponseCode(t, rr, http.StatusSeeOther)
 }
 
 // TestLoginActionControllerNoInput tests the LoginActionController function. With missing input.
@@ -120,10 +106,7 @@ func TestLoginActionControllerNoInput(t *testing.T) {
 
 	// On case of missing input, the handler has to redirect to the /login.
 	// On this case the status code is 303.
-	if status := rr.Code; status != http.StatusSeeOther {
-		t.Errorf("handler returned wrong status code: got %v want %v",
-			status, http.StatusSeeOther)
-	}
+	testhelper.CheckResponseCode(t, rr, http.StatusSeeOther)
 }
 
 // TestLoginActionControllerNoUser tests the LoginActionController function. With missing username.
@@ -160,14 +143,7 @@ func TestLoginActionControllerNoUser(t *testing.T) {
 	handler.ServeHTTP(rr, req)
 
 	// On case of missing user, the handler returns error with status code 500.
-	if status := rr.Code; status != http.StatusInternalServerError {
-		t.Errorf("handler returned wrong status code: got %v want %v",
-			status, http.StatusInternalServerError)
-	}
-	body := rr.Body.String()
-	if !strings.Contains(body, UserFailedToGetUserErrorMessage) {
-		t.Errorf("handler returned unexpected body: got %v want %s", body, UserFailedToGetUserErrorMessage)
-	}
+	testhelper.CheckResponse(t, rr, http.StatusInternalServerError, []string{UserFailedToGetUserErrorMessage})
 }
 
 // TestLoginActionControllerWrongPassword tests the LoginActionController function. With wrong password.
@@ -210,10 +186,7 @@ func TestLoginActionControllerWrongPassword(t *testing.T) {
 
 	// On case of wrong password, the handler has to redirect to the /login.
 	// On this case the status code is 303.
-	if status := rr.Code; status != http.StatusSeeOther {
-		t.Errorf("handler returned wrong status code: got %v want %v",
-			status, http.StatusSeeOther)
-	}
+	testhelper.CheckResponseCode(t, rr, http.StatusSeeOther)
 }
 
 // TestLoginActionController tests the LoginActionController function. With correct input.
@@ -257,8 +230,5 @@ func TestLoginActionController(t *testing.T) {
 
 	// On case of correct input, the handler has to redirect to the /admin/dashboard.
 	// On this case the status code is 303.
-	if status := rr.Code; status != http.StatusSeeOther {
-		t.Errorf("handler returned wrong status code: got %v want %v",
-			status, http.StatusSeeOther)
-	}
+	testhelper.CheckResponseCode(t, rr, http.StatusSeeOther)
 }

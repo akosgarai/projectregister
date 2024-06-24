@@ -2,6 +2,9 @@ package testhelper
 
 import (
 	"net/http"
+	"net/http/httptest"
+	"strings"
+	"testing"
 
 	"github.com/akosgarai/projectregister/pkg/model"
 )
@@ -161,4 +164,26 @@ func NewRequestWithSessionCookie(method, url string) (*http.Request, error) {
 		Value: TestSessionCookieValue,
 	})
 	return req, nil
+}
+
+// CheckBodyContains checks if the body contains the needles.
+func CheckBodyContains(t *testing.T, body string, needles []string) {
+	for _, needle := range needles {
+		if !strings.Contains(body, needle) {
+			t.Errorf("Missing needle in the body: %s / %s", needle, body)
+		}
+	}
+}
+
+// CheckResponseCode checks if the response code is the expected.
+func CheckResponseCode(t *testing.T, rr *httptest.ResponseRecorder, expectedCode int) {
+	if rr.Code != expectedCode {
+		t.Errorf("The response code is not correct. Expected: %d, got: %d", expectedCode, rr.Code)
+	}
+}
+
+// CheckResponse check if the response code is the expected and the body contains the needles.
+func CheckResponse(t *testing.T, rr *httptest.ResponseRecorder, expectedCode int, needles []string) {
+	CheckResponseCode(t, rr, expectedCode)
+	CheckBodyContains(t, rr.Body.String(), needles)
 }
