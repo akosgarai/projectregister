@@ -1,0 +1,12 @@
+{{define "content"}}
+<div class="form-page">
+	<h1>{{.Title}}</h1>
+	<form action="/admin/domain/create" method="post">
+		<div class="form-group">
+			<label for="name">Name</label>
+			<input type="text" class="form-control" id="name" name="name" value="" required>
+		</div>
+		<input type="submit" value="Create">
+	</form>
+</div>
+{{end}}

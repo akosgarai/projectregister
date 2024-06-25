@@ -17,6 +17,7 @@ func TestNew(t *testing.T) {
 	resourceRepository := &testhelper.ResourceRepositoryMock{}
 	clientRepository := &testhelper.ClientRepositoryMock{}
 	projectRepository := &testhelper.ProjectRepositoryMock{}
+	domainRepository := &testhelper.DomainRepositoryMock{}
 	sessionStore := session.NewStore(config.DefaultEnvironment())
 	renderer := render.NewRenderer(config.DefaultEnvironment())
 	c := New(
@@ -25,6 +26,7 @@ func TestNew(t *testing.T) {
 		resourceRepository,
 		clientRepository,
 		projectRepository,
+		domainRepository,
 		sessionStore,
 		renderer,
 	)
@@ -42,6 +44,9 @@ func TestNew(t *testing.T) {
 	}
 	if c.projectRepository != projectRepository {
 		t.Errorf("ProjectRepository field is not the same as the input.")
+	}
+	if c.domainRepository != domainRepository {
+		t.Errorf("DomainRepository field is not the same as the input.")
 	}
 	if c.sessionStore != sessionStore {
 		t.Errorf("SessionStore field is not the same as the input.")

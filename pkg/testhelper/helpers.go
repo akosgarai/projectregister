@@ -241,6 +241,50 @@ func (r *ProjectRepositoryMock) GetProjects() ([]*model.Project, error) {
 	return r.AllProjects, r.Error
 }
 
+// DomainRepositoryMock is a mock for the DomainRepository interface.
+// It can be used to mock the DomainRepository interface.
+// Set the LatestDomain field to the domain you want to return.
+// Set the AllDomains field to the list of domains you want to return.
+// Set the Error field to the error you want to return.
+// Set the UpdateDomainError field to the error you want to return.
+type DomainRepositoryMock struct {
+	LatestDomain *model.Domain
+	AllDomains   []*model.Domain
+
+	Error             error
+	UpdateDomainError error
+}
+
+// CreateDomain mocks the CreateDomain method.
+func (r *DomainRepositoryMock) CreateDomain(name string) (*model.Domain, error) {
+	return r.LatestDomain, r.Error
+}
+
+// GetDomainByName mocks the GetDomainByName method.
+func (r *DomainRepositoryMock) GetDomainByName(name string) (*model.Domain, error) {
+	return r.LatestDomain, r.Error
+}
+
+// GetDomainByID mocks the GetDomainByID method.
+func (r *DomainRepositoryMock) GetDomainByID(id int64) (*model.Domain, error) {
+	return r.LatestDomain, r.Error
+}
+
+// UpdateDomain mocks the UpdateDomain method.
+func (r *DomainRepositoryMock) UpdateDomain(domain *model.Domain) error {
+	return r.UpdateDomainError
+}
+
+// DeleteDomain mocks the DeleteDomain method.
+func (r *DomainRepositoryMock) DeleteDomain(id int64) error {
+	return r.Error
+}
+
+// GetDomains mocks the GetDomains method.
+func (r *DomainRepositoryMock) GetDomains() ([]*model.Domain, error) {
+	return r.AllDomains, r.Error
+}
+
 // NewRequestWithSessionCookie creates a new request with the session cookie.
 func NewRequestWithSessionCookie(method, url string) (*http.Request, error) {
 	req, err := http.NewRequest(method, url, nil)

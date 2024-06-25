@@ -19,6 +19,22 @@ var (
 	ClientUpdateRequiredFieldMissing = "Name is required"
 	// ClientUpdateUpdateClientErrorMessage is the error message for the failed client update.
 	ClientUpdateUpdateClientErrorMessage = "Failed to update the client"
+	// DomainCreateCreateDomainErrorMessage is the error message for the failed domain creation.
+	DomainCreateCreateDomainErrorMessage = "Failed to create the domain"
+	// DomainCreateRequiredFieldMissing is the error message for the required fields in the domain create.
+	DomainCreateRequiredFieldMissing = "Name is required"
+	// DomainDeleteFailedToDeleteErrorMessage is the error message for the failed domain deletion.
+	DomainDeleteFailedToDeleteErrorMessage = "Failed to delete the domain"
+	// DomainDomainIDInvalidErrorMessage is the error message prefix for the invalid domain id.
+	DomainDomainIDInvalidErrorMessage = "Invalid domain id"
+	// DomainFailedToGetDomainErrorMessage is the error message for the failed domain get.
+	DomainFailedToGetDomainErrorMessage = "Failed to get domain data"
+	// DomainListFailedToGetDomainsErrorMessage is the error message for the failed domains get.
+	DomainListFailedToGetDomainsErrorMessage = "Failed to get domains"
+	// DomainUpdateRequiredFieldMissing is the error message for the required fields in the domain update.
+	DomainUpdateRequiredFieldMissing = "Name is required"
+	// DomainUpdateUpdateDomainErrorMessage is the error message for the failed domain update.
+	DomainUpdateUpdateDomainErrorMessage = "Failed to update the domain"
 	// ProjectCreateCreateProjectErrorMessage is the error message for the failed project creation.
 	ProjectCreateCreateProjectErrorMessage = "Failed to create the project"
 	// ProjectCreateRequiredFieldMissing is the error message for the required fields in the project create.

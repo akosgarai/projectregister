@@ -1,0 +1,33 @@
+{{define "content"}}
+<div class="listing-page">
+	<h1>{{.Title}}</h1>
+	{{if .CurrentUser.HasPrivilege "domains.create"}}
+		<a class="button-link" href="/admin/domain/create">Create Domain</a>
+	{{end}}
+	<table >
+		<tr>
+			<th>ID</th>
+			<th>Name</th>
+			<th>Actions</th>
+		</tr>
+		{{ range .Domains }}
+			<tr>
+				<td>{{.ID}}</td>
+				<td>{{.Name}}</td>
+				<td>
+					<a href="/admin/domain/view/{{.ID}}">View</a>
+					{{if $.CurrentUser.HasPrivilege "domains.update"}}
+						<a href="/admin/domain/update/{{.ID}}">Edit</a>
+					{{end}}
+
+					{{if $.CurrentUser.HasPrivilege "domains.delete"}}
+					<form action="/admin/domain/delete/{{.ID}}" method="post">
+						<input type="submit" value="Delete">
+					</form>
+					{{end}}
+				</td>
+			</tr>
+		{{end}}
+	</table>
+</div>
+{{end}}
