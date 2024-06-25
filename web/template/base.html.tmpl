@@ -23,8 +23,21 @@
 					<ul>
 						<li class="nav-toggle"><a onclick="document.querySelector('.panel-left').classList.toggle('closed')">-><-</a></li>
 						<li><a href="/admin/dashboard">Dashboard</a></li>
-						<li><a href="/admin/user/list">Users</a></li>
-						<li><a href="/admin/role/list">Roles</a></li>
+						{{if .CurrentUser.HasPrivilege "users.view"}}
+							<li><a href="/admin/user/list">Users</a></li>
+						{{end}}
+						{{if .CurrentUser.HasPrivilege "roles.view"}}
+							<li><a href="/admin/role/list">Roles</a></li>
+						{{end}}
+						{{if .CurrentUser.HasPrivilege "clients.view"}}
+							<li><a href="/admin/client/list">Clients</a></li>
+						{{end}}
+						{{if .CurrentUser.HasPrivilege "projects.view"}}
+							<li><a href="/admin/project/list">Projects</a></li>
+						{{end}}
+						{{if .CurrentUser.HasPrivilege "domains.view"}}
+							<li><a href="/admin/domain/list">Domains</a></li>
+						{{end}}
 					</ul>
 				</div>
 			{{end}}
