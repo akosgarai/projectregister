@@ -16,6 +16,8 @@ type Controller struct {
 	projectRepository  model.ProjectRepository
 	domainRepository   model.DomainRepository
 
+	environmentRepository model.EnvironmentRepository
+
 	sessionStore *session.Store
 
 	renderer *render.Renderer
@@ -29,16 +31,18 @@ func New(
 	clientRepository model.ClientRepository,
 	projectRepository model.ProjectRepository,
 	domainRepository model.DomainRepository,
+	environmentRepository model.EnvironmentRepository,
 	sessionStore *session.Store,
 	renderer *render.Renderer,
 ) *Controller {
 	return &Controller{
-		userRepository:     userRepository,
-		roleRepository:     roleRepository,
-		resourceRepository: resourceRepository,
-		clientRepository:   clientRepository,
-		projectRepository:  projectRepository,
-		domainRepository:   domainRepository,
+		userRepository:        userRepository,
+		roleRepository:        roleRepository,
+		resourceRepository:    resourceRepository,
+		clientRepository:      clientRepository,
+		projectRepository:     projectRepository,
+		domainRepository:      domainRepository,
+		environmentRepository: environmentRepository,
 
 		sessionStore: sessionStore,
 

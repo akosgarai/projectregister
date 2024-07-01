@@ -35,6 +35,23 @@ var (
 	DomainUpdateRequiredFieldMissing = "Name is required"
 	// DomainUpdateUpdateDomainErrorMessage is the error message for the failed domain update.
 	DomainUpdateUpdateDomainErrorMessage = "Failed to update the domain"
+	// EnvironmentCreateCreateEnvironmentErrorMessage is the error message for the failed environment creation.
+	EnvironmentCreateCreateEnvironmentErrorMessage = "Failed to create the environment"
+	// EnvironmentCreateRequiredFieldMissing is the error message for the required fields in the environment create.
+	EnvironmentCreateRequiredFieldMissing = "Name is required"
+	// EnvironmentDeleteFailedToDeleteErrorMessage is the error message for the failed environment deletion.
+	EnvironmentDeleteFailedToDeleteErrorMessage = "Failed to delete the environment"
+	// EnvironmentEnvironmentIDInvalidErrorMessage is the error message prefix for the invalid environment id.
+	EnvironmentEnvironmentIDInvalidErrorMessage = "Invalid environment id"
+	// EnvironmentFailedToGetEnvironmentErrorMessage is the error message for the failed environment get.
+	EnvironmentFailedToGetEnvironmentErrorMessage = "Failed to get environment data"
+	// EnvironmentListFailedToGetEnvironmentsErrorMessage is the error message for the failed environments get.
+	EnvironmentListFailedToGetEnvironmentsErrorMessage = "Failed to get environments"
+	// EnvironmentUpdateRequiredFieldMissing is the error message for the required fields in the environment update.
+	EnvironmentUpdateRequiredFieldMissing = "Name is required"
+	// EnvironmentUpdateUpdateEnvironmentErrorMessage is the error message for the failed environment update.
+	EnvironmentUpdateUpdateEnvironmentErrorMessage = "Failed to update the environment"
+
 	// ProjectCreateCreateProjectErrorMessage is the error message for the failed project creation.
 	ProjectCreateCreateProjectErrorMessage = "Failed to create the project"
 	// ProjectCreateRequiredFieldMissing is the error message for the required fields in the project create.

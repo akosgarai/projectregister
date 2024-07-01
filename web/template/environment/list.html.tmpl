@@ -1,0 +1,35 @@
+{{define "content"}}
+<div class="listing-page">
+	<h1>{{.Title}}</h1>
+	{{if .CurrentUser.HasPrivilege "environments.create"}}
+		<a class="button-link" href="/admin/environment/create">Create Environment</a>
+	{{end}}
+	<table >
+		<tr>
+			<th>ID</th>
+			<th>Name</th>
+			<th>Description</th>
+			<th>Actions</th>
+		</tr>
+		{{ range .Environments }}
+			<tr>
+				<td>{{.ID}}</td>
+				<td>{{.Name}}</td>
+				<td>{{.Description}}</td>
+				<td>
+					<a href="/admin/environment/view/{{.ID}}">View</a>
+					{{if $.CurrentUser.HasPrivilege "environments.update"}}
+						<a href="/admin/environment/update/{{.ID}}">Edit</a>
+					{{end}}
+
+					{{if $.CurrentUser.HasPrivilege "environments.delete"}}
+					<form action="/admin/environment/delete/{{.ID}}" method="post">
+						<input type="submit" value="Delete">
+					</form>
+					{{end}}
+				</td>
+			</tr>
+		{{end}}
+	</table>
+</div>
+{{end}}

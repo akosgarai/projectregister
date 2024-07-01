@@ -285,6 +285,50 @@ func (r *DomainRepositoryMock) GetDomains() ([]*model.Domain, error) {
 	return r.AllDomains, r.Error
 }
 
+// EnvironmentRepositoryMock is a mock for the EnvironmentRepository interface.
+// It can be used to mock the EnvironmentRepository interface.
+// Set the LatestEnvironment field to the environment you want to return.
+// Set the AllEnvironments field to the list of environments you want to return.
+// Set the Error field to the error you want to return.
+// Set the UpdateEnvironmentError field to the error you want to return.
+type EnvironmentRepositoryMock struct {
+	LatestEnvironment *model.Environment
+	AllEnvironments   []*model.Environment
+
+	Error                  error
+	UpdateEnvironmentError error
+}
+
+// CreateEnvironment mocks the CreateEnvironment method.
+func (r *EnvironmentRepositoryMock) CreateEnvironment(name string) (*model.Environment, error) {
+	return r.LatestEnvironment, r.Error
+}
+
+// GetEnvironmentByName mocks the GetEnvironmentByName method.
+func (r *EnvironmentRepositoryMock) GetEnvironmentByName(name string) (*model.Environment, error) {
+	return r.LatestEnvironment, r.Error
+}
+
+// GetEnvironmentByID mocks the GetEnvironmentByID method.
+func (r *EnvironmentRepositoryMock) GetEnvironmentByID(id int64) (*model.Environment, error) {
+	return r.LatestEnvironment, r.Error
+}
+
+// UpdateEnvironment mocks the UpdateEnvironment method.
+func (r *EnvironmentRepositoryMock) UpdateEnvironment(environment *model.Environment) error {
+	return r.UpdateEnvironmentError
+}
+
+// DeleteEnvironment mocks the DeleteEnvironment method.
+func (r *EnvironmentRepositoryMock) DeleteEnvironment(id int64) error {
+	return r.Error
+}
+
+// GetEnvironments mocks the GetEnvironments method.
+func (r *EnvironmentRepositoryMock) GetEnvironments() ([]*model.Environment, error) {
+	return r.AllEnvironments, r.Error
+}
+
 // NewRequestWithSessionCookie creates a new request with the session cookie.
 func NewRequestWithSessionCookie(method, url string) (*http.Request, error) {
 	req, err := http.NewRequest(method, url, nil)

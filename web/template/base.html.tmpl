@@ -38,6 +38,9 @@
 						{{if .CurrentUser.HasPrivilege "domains.view"}}
 							<li><a href="/admin/domain/list">Domains</a></li>
 						{{end}}
+						{{if .CurrentUser.HasPrivilege "environments.view"}}
+							<li><a href="/admin/environment/list">Environments</a></li>
+						{{end}}
 					</ul>
 				</div>
 			{{end}}

@@ -35,7 +35,8 @@ label {
 }
 
 select,
-input {
+input,
+textarea {
 	width: 100%;
 	border: 1.5px solid grey;
 	height: var(--input-height);
@@ -43,6 +44,10 @@ input {
 	line-height: 28px;
 	box-sizing: border-box;
 	border-radius: var(--general-border-radius);
+}
+
+textarea {
+	height: calc(var(--input-height) * 5);
 }
 
 input[type="submit"] {

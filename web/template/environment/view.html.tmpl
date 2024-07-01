@@ -1,0 +1,15 @@
+{{define "content"}}
+<div class="detail-page">
+	<h1>{{.Title}}</h1>
+	{{if .CurrentUser.HasPrivilege "environments.update"}}
+		<a class="button-link" href="/admin/environment/update/{{.Environment.ID}}">Edit Environment</a>
+	{{end}}
+	<div>
+		<p>ID: {{.Environment.ID}}</p>
+		<p>Name: {{.Environment.Name}}</p>
+		<p>Description: {{.Environment.Description}}</p>
+		<p>Created at: {{.Environment.CreatedAt}}</p>
+		<p>Updated at: {{.Environment.UpdatedAt}}</p>
+	</div>
+</div>
+{{end}}
