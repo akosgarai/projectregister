@@ -373,6 +373,50 @@ func (r *RuntimeRepositoryMock) GetRuntimes() ([]*model.Runtime, error) {
 	return r.AllRuntimes, r.Error
 }
 
+// PoolRepositoryMock is a mock for the PoolRepository interface.
+// It can be used to mock the PoolRepository interface.
+// Set the LatestPool field to the pool you want to return.
+// Set the AllPools field to the list of pools you want to return.
+// Set the Error field to the error you want to return.
+// Set the UpdatePoolError field to the error you want to return.
+type PoolRepositoryMock struct {
+	LatestPool *model.Pool
+	AllPools   []*model.Pool
+
+	Error           error
+	UpdatePoolError error
+}
+
+// CreatePool mocks the CreatePool method.
+func (r *PoolRepositoryMock) CreatePool(name string) (*model.Pool, error) {
+	return r.LatestPool, r.Error
+}
+
+// GetPoolByName mocks the GetPoolByName method.
+func (r *PoolRepositoryMock) GetPoolByName(name string) (*model.Pool, error) {
+	return r.LatestPool, r.Error
+}
+
+// GetPoolByID mocks the GetPoolByID method.
+func (r *PoolRepositoryMock) GetPoolByID(id int64) (*model.Pool, error) {
+	return r.LatestPool, r.Error
+}
+
+// UpdatePool mocks the UpdatePool method.
+func (r *PoolRepositoryMock) UpdatePool(pool *model.Pool) error {
+	return r.UpdatePoolError
+}
+
+// DeletePool mocks the DeletePool method.
+func (r *PoolRepositoryMock) DeletePool(id int64) error {
+	return r.Error
+}
+
+// GetPools mocks the GetPools method.
+func (r *PoolRepositoryMock) GetPools() ([]*model.Pool, error) {
+	return r.AllPools, r.Error
+}
+
 // NewRequestWithSessionCookie creates a new request with the session cookie.
 func NewRequestWithSessionCookie(method, url string) (*http.Request, error) {
 	req, err := http.NewRequest(method, url, nil)

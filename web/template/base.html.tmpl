@@ -44,6 +44,9 @@
 						{{if .CurrentUser.HasPrivilege "runtimes.view"}}
 							<li><a href="/admin/runtime/list">Runtimes</a></li>
 						{{end}}
+						{{if .CurrentUser.HasPrivilege "pools.view"}}
+							<li><a href="/admin/pool/list">Pools</a></li>
+						{{end}}
 					</ul>
 				</div>
 			{{end}}

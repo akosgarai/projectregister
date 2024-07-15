@@ -52,6 +52,22 @@ var (
 	// EnvironmentUpdateUpdateEnvironmentErrorMessage is the error message for the failed environment update.
 	EnvironmentUpdateUpdateEnvironmentErrorMessage = "Failed to update the environment"
 
+	// PoolCreateCreatePoolErrorMessage is the error message for the failed pool creation.
+	PoolCreateCreatePoolErrorMessage = "Failed to create the pool"
+	// PoolCreateRequiredFieldMissing is the error message for the required fields in the pool create.
+	PoolCreateRequiredFieldMissing = "Name is required"
+	// PoolDeleteFailedToDeleteErrorMessage is the error message for the failed pool deletion.
+	PoolDeleteFailedToDeleteErrorMessage = "Failed to delete the pool"
+	// PoolPoolIDInvalidErrorMessage is the error message prefix for the invalid pool id.
+	PoolPoolIDInvalidErrorMessage = "Invalid pool id"
+	// PoolFailedToGetPoolErrorMessage is the error message for the failed pool get.
+	PoolFailedToGetPoolErrorMessage = "Failed to get pool data"
+	// PoolListFailedToGetPoolsErrorMessage is the error message for the failed pools get.
+	PoolListFailedToGetPoolsErrorMessage = "Failed to get pools"
+	// PoolUpdateRequiredFieldMissing is the error message for the required fields in the pool update.
+	PoolUpdateRequiredFieldMissing = "Name is required"
+	// PoolUpdateUpdatePoolErrorMessage is the error message for the failed pool update.
+	PoolUpdateUpdatePoolErrorMessage = "Failed to update the pool"
 	// ProjectCreateCreateProjectErrorMessage is the error message for the failed project creation.
 	ProjectCreateCreateProjectErrorMessage = "Failed to create the project"
 	// ProjectCreateRequiredFieldMissing is the error message for the required fields in the project create.
