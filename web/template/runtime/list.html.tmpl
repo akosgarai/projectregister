@@ -1,0 +1,33 @@
+{{define "content"}}
+<div class="listing-page">
+	<h1>{{.Title}}</h1>
+	{{if .CurrentUser.HasPrivilege "runtimes.create"}}
+		<a class="button-link" href="/admin/runtime/create">Create Runtime</a>
+	{{end}}
+	<table >
+		<tr>
+			<th>ID</th>
+			<th>Name</th>
+			<th>Actions</th>
+		</tr>
+		{{ range .Runtimes }}
+			<tr>
+				<td>{{.ID}}</td>
+				<td>{{.Name}}</td>
+				<td>
+					<a href="/admin/runtime/view/{{.ID}}">View</a>
+					{{if $.CurrentUser.HasPrivilege "runtimes.update"}}
+						<a href="/admin/runtime/update/{{.ID}}">Edit</a>
+					{{end}}
+
+					{{if $.CurrentUser.HasPrivilege "runtimes.delete"}}
+					<form action="/admin/runtime/delete/{{.ID}}" method="post">
+						<input type="submit" value="Delete">
+					</form>
+					{{end}}
+				</td>
+			</tr>
+		{{end}}
+	</table>
+</div>
+{{end}}

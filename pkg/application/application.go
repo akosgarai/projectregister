@@ -49,6 +49,7 @@ func (a *App) Initialize() {
 	projectRepository := repository.NewProjectRepository(a.db)
 	domainRepository := repository.NewDomainRepository(a.db)
 	environmentRepository := repository.NewEnvironmentRepository(a.db)
+	runtimeRepository := repository.NewRuntimeRepository(a.db)
 	a.Router = router.New(
 		userRepository,
 		roleRepository,
@@ -57,6 +58,7 @@ func (a *App) Initialize() {
 		projectRepository,
 		domainRepository,
 		environmentRepository,
+		runtimeRepository,
 		session.NewStore(a.envConfig),
 		render.NewRenderer(a.envConfig),
 	)

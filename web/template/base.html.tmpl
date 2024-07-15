@@ -41,6 +41,9 @@
 						{{if .CurrentUser.HasPrivilege "environments.view"}}
 							<li><a href="/admin/environment/list">Environments</a></li>
 						{{end}}
+						{{if .CurrentUser.HasPrivilege "runtimes.view"}}
+							<li><a href="/admin/runtime/list">Runtimes</a></li>
+						{{end}}
 					</ul>
 				</div>
 			{{end}}

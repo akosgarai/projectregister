@@ -329,6 +329,50 @@ func (r *EnvironmentRepositoryMock) GetEnvironments() ([]*model.Environment, err
 	return r.AllEnvironments, r.Error
 }
 
+// RuntimeRepositoryMock is a mock for the RuntimeRepository interface.
+// It can be used to mock the RuntimeRepository interface.
+// Set the LatestRuntime field to the runtime you want to return.
+// Set the AllRuntimes field to the list of runtimes you want to return.
+// Set the Error field to the error you want to return.
+// Set the UpdateRuntimeError field to the error you want to return.
+type RuntimeRepositoryMock struct {
+	LatestRuntime *model.Runtime
+	AllRuntimes   []*model.Runtime
+
+	Error              error
+	UpdateRuntimeError error
+}
+
+// CreateRuntime mocks the CreateRuntime method.
+func (r *RuntimeRepositoryMock) CreateRuntime(name string) (*model.Runtime, error) {
+	return r.LatestRuntime, r.Error
+}
+
+// GetRuntimeByName mocks the GetRuntimeByName method.
+func (r *RuntimeRepositoryMock) GetRuntimeByName(name string) (*model.Runtime, error) {
+	return r.LatestRuntime, r.Error
+}
+
+// GetRuntimeByID mocks the GetRuntimeByID method.
+func (r *RuntimeRepositoryMock) GetRuntimeByID(id int64) (*model.Runtime, error) {
+	return r.LatestRuntime, r.Error
+}
+
+// UpdateRuntime mocks the UpdateRuntime method.
+func (r *RuntimeRepositoryMock) UpdateRuntime(runtime *model.Runtime) error {
+	return r.UpdateRuntimeError
+}
+
+// DeleteRuntime mocks the DeleteRuntime method.
+func (r *RuntimeRepositoryMock) DeleteRuntime(id int64) error {
+	return r.Error
+}
+
+// GetRuntimes mocks the GetRuntimes method.
+func (r *RuntimeRepositoryMock) GetRuntimes() ([]*model.Runtime, error) {
+	return r.AllRuntimes, r.Error
+}
+
 // NewRequestWithSessionCookie creates a new request with the session cookie.
 func NewRequestWithSessionCookie(method, url string) (*http.Request, error) {
 	req, err := http.NewRequest(method, url, nil)

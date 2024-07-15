@@ -88,6 +88,22 @@ var (
 	RoleUpdateUpdateRoleErrorMessage = "Failed to update the role"
 	// RoleListFailedToGetRolesErrorMessage is the error message for the failed roles get.
 	RoleListFailedToGetRolesErrorMessage = "Failed to get roles"
+	// RuntimeCreateCreateRuntimeErrorMessage is the error message for the failed runtime creation.
+	RuntimeCreateCreateRuntimeErrorMessage = "Failed to create the runtime"
+	// RuntimeCreateRequiredFieldMissing is the error message for the required fields in the runtime create.
+	RuntimeCreateRequiredFieldMissing = "Name is required"
+	// RuntimeDeleteFailedToDeleteErrorMessage is the error message for the failed runtime deletion.
+	RuntimeDeleteFailedToDeleteErrorMessage = "Failed to delete the runtime"
+	// RuntimeRuntimeIDInvalidErrorMessage is the error message prefix for the invalid runtime id.
+	RuntimeRuntimeIDInvalidErrorMessage = "Invalid runtime id"
+	// RuntimeFailedToGetRuntimeErrorMessage is the error message for the failed runtime get.
+	RuntimeFailedToGetRuntimeErrorMessage = "Failed to get runtime data"
+	// RuntimeListFailedToGetRuntimesErrorMessage is the error message for the failed runtimes get.
+	RuntimeListFailedToGetRuntimesErrorMessage = "Failed to get runtimes"
+	// RuntimeUpdateRequiredFieldMissing is the error message for the required fields in the runtime update.
+	RuntimeUpdateRequiredFieldMissing = "Name is required"
+	// RuntimeUpdateUpdateRuntimeErrorMessage is the error message for the failed runtime update.
+	RuntimeUpdateUpdateRuntimeErrorMessage = "Failed to update the runtime"
 	// UserCreateRequiredFieldMissing is the error message for the required fields in the user create.
 	UserCreateRequiredFieldMissing = "Name, email, password and role are required"
 	// UserCreateCreateUserErrorMessagePrefix is the error message prefix for the failed user creation.
