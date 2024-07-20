@@ -417,6 +417,50 @@ func (r *PoolRepositoryMock) GetPools() ([]*model.Pool, error) {
 	return r.AllPools, r.Error
 }
 
+// DatabaseRepositoryMock is a mock for the DatabaseRepository interface.
+// It can be used to mock the DatabaseRepository interface.
+// Set the LatestDatabase field to the database you want to return.
+// Set the AllDatabases field to the list of databases you want to return.
+// Set the Error field to the error you want to return.
+// Set the UpdateDatabaseError field to the error you want to return.
+type DatabaseRepositoryMock struct {
+	LatestDatabase *model.Database
+	AllDatabases   []*model.Database
+
+	Error               error
+	UpdateDatabaseError error
+}
+
+// CreateDatabase mocks the CreateDatabase method.
+func (r *DatabaseRepositoryMock) CreateDatabase(name string) (*model.Database, error) {
+	return r.LatestDatabase, r.Error
+}
+
+// GetDatabaseByName mocks the GetDatabaseByName method.
+func (r *DatabaseRepositoryMock) GetDatabaseByName(name string) (*model.Database, error) {
+	return r.LatestDatabase, r.Error
+}
+
+// GetDatabaseByID mocks the GetDatabaseByID method.
+func (r *DatabaseRepositoryMock) GetDatabaseByID(id int64) (*model.Database, error) {
+	return r.LatestDatabase, r.Error
+}
+
+// UpdateDatabase mocks the UpdateDatabase method.
+func (r *DatabaseRepositoryMock) UpdateDatabase(database *model.Database) error {
+	return r.UpdateDatabaseError
+}
+
+// DeleteDatabase mocks the DeleteDatabase method.
+func (r *DatabaseRepositoryMock) DeleteDatabase(id int64) error {
+	return r.Error
+}
+
+// GetDatabases mocks the GetDatabases method.
+func (r *DatabaseRepositoryMock) GetDatabases() ([]*model.Database, error) {
+	return r.AllDatabases, r.Error
+}
+
 // NewRequestWithSessionCookie creates a new request with the session cookie.
 func NewRequestWithSessionCookie(method, url string) (*http.Request, error) {
 	req, err := http.NewRequest(method, url, nil)

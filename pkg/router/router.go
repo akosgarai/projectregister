@@ -24,6 +24,7 @@ func New(
 	environmentRepository model.EnvironmentRepository,
 	runtimeRepository model.RuntimeRepository,
 	poolRepository model.PoolRepository,
+	databaseRepository model.DatabaseRepository,
 	sessionStore *session.Store,
 	renderer *render.Renderer,
 ) *mux.Router {
@@ -40,6 +41,7 @@ func New(
 		environmentRepository,
 		runtimeRepository,
 		poolRepository,
+		databaseRepository,
 		sessionStore,
 		renderer,
 	)
@@ -95,6 +97,12 @@ func New(
 	adminRouter.HandleFunc("/pool/update/{poolId}", routerController.PoolUpdateViewController).Methods("GET", "POST")
 	adminRouter.HandleFunc("/pool/delete/{poolId}", routerController.PoolDeleteViewController).Methods("POST")
 	adminRouter.HandleFunc("/pool/list", routerController.PoolListViewController)
+
+	adminRouter.HandleFunc("/database/create", routerController.DatabaseCreateViewController).Methods("GET", "POST")
+	adminRouter.HandleFunc("/database/view/{databaseId}", routerController.DatabaseViewController)
+	adminRouter.HandleFunc("/database/update/{databaseId}", routerController.DatabaseUpdateViewController).Methods("GET", "POST")
+	adminRouter.HandleFunc("/database/delete/{databaseId}", routerController.DatabaseDeleteViewController).Methods("POST")
+	adminRouter.HandleFunc("/database/list", routerController.DatabaseListViewController)
 
 	apiRouter := r.PathPrefix("/api").Subrouter()
 	apiRouter.Use(routerController.AuthMiddleware)

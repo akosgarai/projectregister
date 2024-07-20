@@ -1,0 +1,33 @@
+{{define "content"}}
+<div class="listing-page">
+	<h1>{{.Title}}</h1>
+	{{if .CurrentUser.HasPrivilege "databases.create"}}
+		<a class="button-link" href="/admin/database/create">Create Database</a>
+	{{end}}
+	<table >
+		<tr>
+			<th>ID</th>
+			<th>Name</th>
+			<th>Actions</th>
+		</tr>
+		{{ range .Databases }}
+			<tr>
+				<td>{{.ID}}</td>
+				<td>{{.Name}}</td>
+				<td>
+					<a href="/admin/database/view/{{.ID}}">View</a>
+					{{if $.CurrentUser.HasPrivilege "databases.update"}}
+						<a href="/admin/database/update/{{.ID}}">Edit</a>
+					{{end}}
+
+					{{if $.CurrentUser.HasPrivilege "databases.delete"}}
+					<form action="/admin/database/delete/{{.ID}}" method="post">
+						<input type="submit" value="Delete">
+					</form>
+					{{end}}
+				</td>
+			</tr>
+		{{end}}
+	</table>
+</div>
+{{end}}

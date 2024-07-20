@@ -19,6 +19,22 @@ var (
 	ClientUpdateRequiredFieldMissing = "Name is required"
 	// ClientUpdateUpdateClientErrorMessage is the error message for the failed client update.
 	ClientUpdateUpdateClientErrorMessage = "Failed to update the client"
+	// DatabaseCreateCreateDatabaseErrorMessage is the error message for the failed database creation.
+	DatabaseCreateCreateDatabaseErrorMessage = "Failed to create the database"
+	// DatabaseCreateRequiredFieldMissing is the error message for the required fields in the database create.
+	DatabaseCreateRequiredFieldMissing = "Name is required"
+	// DatabaseDeleteFailedToDeleteErrorMessage is the error message for the failed database deletion.
+	DatabaseDeleteFailedToDeleteErrorMessage = "Failed to delete the database"
+	// DatabaseDatabaseIDInvalidErrorMessage is the error message prefix for the invalid database id.
+	DatabaseDatabaseIDInvalidErrorMessage = "Invalid database id"
+	// DatabaseFailedToGetDatabaseErrorMessage is the error message for the failed database get.
+	DatabaseFailedToGetDatabaseErrorMessage = "Failed to get database data"
+	// DatabaseListFailedToGetDatabasesErrorMessage is the error message for the failed databases get.
+	DatabaseListFailedToGetDatabasesErrorMessage = "Failed to get databases"
+	// DatabaseUpdateRequiredFieldMissing is the error message for the required fields in the database update.
+	DatabaseUpdateRequiredFieldMissing = "Name is required"
+	// DatabaseUpdateUpdateDatabaseErrorMessage is the error message for the failed database update.
+	DatabaseUpdateUpdateDatabaseErrorMessage = "Failed to update the database"
 	// DomainCreateCreateDomainErrorMessage is the error message for the failed domain creation.
 	DomainCreateCreateDomainErrorMessage = "Failed to create the domain"
 	// DomainCreateRequiredFieldMissing is the error message for the required fields in the domain create.

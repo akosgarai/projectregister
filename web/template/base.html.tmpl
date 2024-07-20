@@ -47,6 +47,9 @@
 						{{if .CurrentUser.HasPrivilege "pools.view"}}
 							<li><a href="/admin/pool/list">Pools</a></li>
 						{{end}}
+						{{if .CurrentUser.HasPrivilege "databases.view"}}
+							<li><a href="/admin/database/list">Databases</a></li>
+						{{end}}
 					</ul>
 				</div>
 			{{end}}
