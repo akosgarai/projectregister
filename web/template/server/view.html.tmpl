@@ -1,0 +1,28 @@
+{{define "content"}}
+<div class="detail-page">
+	<h1>{{.Title}}</h1>
+	{{if .CurrentUser.HasPrivilege "servers.update"}}
+		<a class="button-link" href="/admin/server/update/{{.Server.ID}}">Edit Server</a>
+	{{end}}
+	<div>
+		<p>ID: {{.Server.ID}}</p>
+		<p>Name: {{.Server.Name}}</p>
+		<p>Remote Address: {{.Server.RemoteAddr}}</p>
+		<p>Description: {{.Server.Description}}</p>
+		<p>Created at: {{.Server.CreatedAt}}</p>
+		<p>Updated at: {{.Server.UpdatedAt}}</p>
+		<p>Runtimes:</p>
+		<ul>
+			{{range .Server.Runtimes}}
+				<li>{{.Name}}</li>
+			{{end}}
+		</ul>
+		<p>Pools:</p>
+		<ul>
+			{{range .Server.Pools}}
+				<li>{{.Name}}</li>
+			{{end}}
+		</ul>
+	</div>
+</div>
+{{end}}

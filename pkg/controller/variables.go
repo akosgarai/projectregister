@@ -136,6 +136,34 @@ var (
 	RuntimeUpdateRequiredFieldMissing = "Name is required"
 	// RuntimeUpdateUpdateRuntimeErrorMessage is the error message for the failed runtime update.
 	RuntimeUpdateUpdateRuntimeErrorMessage = "Failed to update the runtime"
+	// ServerCreateCreateServerErrorMessage is the error message for the failed server creation.
+	ServerCreateCreateServerErrorMessage = "Failed to create the server"
+	// ServerCreateRequiredFieldMissing is the error message for the required fields in the server create.
+	ServerCreateRequiredFieldMissing = "Name and remote address are required"
+	// ServerCreatePoolIDInvalidErrorMessage is the error message for the invalid pool id in the server form.
+	ServerCreatePoolIDInvalidErrorMessage = "Invalid pool id"
+	// ServerCreateFailedToGetRuntimesErrorMessage is the error message for the failed runtimes get.
+	ServerCreateFailedToGetRuntimesErrorMessage = "Failed to get runtimes"
+	// ServerCreateFailedToGetPoolsErrorMessage is the error message for the failed pools get.
+	ServerCreateFailedToGetPoolsErrorMessage = "Failed to get pools"
+	// ServerCreateRuntimeIDInvalidErrorMessage is the error message for the invalid runtime id in the server form.
+	ServerCreateRuntimeIDInvalidErrorMessage = "Invalid runtime id"
+	// ServerDeleteFailedToDeleteErrorMessage is the error message for the failed server deletion.
+	ServerDeleteFailedToDeleteErrorMessage = "Failed to delete the server"
+	// ServerServerIDInvalidErrorMessage is the error message prefix for the invalid server id.
+	ServerServerIDInvalidErrorMessage = "Invalid server id"
+	// ServerFailedToGetServerErrorMessage is the error message for the failed server get.
+	ServerFailedToGetServerErrorMessage = "Failed to get server data"
+	// ServerListFailedToGetServersErrorMessage is the error message for the failed servers get.
+	ServerListFailedToGetServersErrorMessage = "Failed to get servers"
+	// ServerUpdateRequiredFieldMissing is the error message for the required fields in the server update.
+	ServerUpdateRequiredFieldMissing = "Name and remote address are required"
+	// ServerUpdateUpdateServerErrorMessage is the error message for the failed server update.
+	ServerUpdateUpdateServerErrorMessage = "Failed to update the server"
+	// ServerUpdatePoolIDInvalidErrorMessage is the error message for the invalid pool id in the server form.
+	ServerUpdatePoolIDInvalidErrorMessage = "Invalid pool id"
+	// ServerUpdateRuntimeIDInvalidErrorMessage is the error message for the invalid runtime id in the server form.
+	ServerUpdateRuntimeIDInvalidErrorMessage = "Invalid runtime id"
 	// UserCreateRequiredFieldMissing is the error message for the required fields in the user create.
 	UserCreateRequiredFieldMissing = "Name, email, password and role are required"
 	// UserCreateCreateUserErrorMessagePrefix is the error message prefix for the failed user creation.

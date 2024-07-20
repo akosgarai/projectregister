@@ -1,0 +1,34 @@
+{{define "content"}}
+<div class="form-page">
+	<h1>{{.Title}}</h1>
+	<form action="/admin/server/update/{{.Server.ID}}" method="post">
+		<div class="form-group">
+			<label for="name">Name</label>
+			<input type="text" class="form-control" id="name" name="name" value="{{.Server.Name}}" required>
+		</div>
+		<div class="form-group">
+			<label for="remote_address">Remote Address</label>
+			<input type="text" class="form-control" id="remote_address" name="remote_address" value="{{.Server.RemoteAddr}}" required>
+		</div>
+		<div class="form-group">
+			<label for="description">Description</label>
+			<textarea class="form-control" id="description" name="description" >{{.Server.Description}}</textarea>
+		</div>
+		<label for="runtimes">Runtimes</label>
+		{{range .Runtimes}}
+			<div class="checkbox">
+				<input type="checkbox" id="r_{{.ID}}" name="runtimes" value="{{.ID}}" {{if  $.Server.HasRuntime .Name}} checked {{end}}>
+				<label for="r_{{.ID}}">{{.Name}}</label>
+			</div>
+		{{end}}
+		<label for="pools">Pools</label>
+		{{range .Pools}}
+			<div class="checkbox">
+				<input type="checkbox" id="p_{{.ID}}" name="pools" value="{{.ID}}" {{if  $.Server.HasPool .Name}} checked {{end}}>
+				<label for="p_{{.ID}}">{{.Name}}</label>
+			</div>
+		{{end}}
+		<input type="submit" value="Update">
+	</form>
+</div>
+{{end}}

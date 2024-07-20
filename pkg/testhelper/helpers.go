@@ -461,6 +461,50 @@ func (r *DatabaseRepositoryMock) GetDatabases() ([]*model.Database, error) {
 	return r.AllDatabases, r.Error
 }
 
+// ServerRepositoryMock is a mock for the ServerRepository interface.
+// It can be used to mock the ServerRepository interface.
+// Set the LatestServer field to the server you want to return.
+// Set the AllServers field to the list of servers you want to return.
+// Set the Error field to the error you want to return.
+// Set the UpdateServerError field to the error you want to return.
+type ServerRepositoryMock struct {
+	LatestServer *model.Server
+	AllServers   []*model.Server
+
+	Error             error
+	UpdateServerError error
+}
+
+// CreateServer mocks the CreateServer method.
+func (r *ServerRepositoryMock) CreateServer(name, description, remoteAddress string, runtimes, pools []int64) (*model.Server, error) {
+	return r.LatestServer, r.Error
+}
+
+// GetServerByName mocks the GetServerByName method.
+func (r *ServerRepositoryMock) GetServerByName(name string) (*model.Server, error) {
+	return r.LatestServer, r.Error
+}
+
+// GetServerByID mocks the GetServerByID method.
+func (r *ServerRepositoryMock) GetServerByID(id int64) (*model.Server, error) {
+	return r.LatestServer, r.Error
+}
+
+// UpdateServer mocks the UpdateServer method.
+func (r *ServerRepositoryMock) UpdateServer(server *model.Server) error {
+	return r.UpdateServerError
+}
+
+// DeleteServer mocks the DeleteServer method.
+func (r *ServerRepositoryMock) DeleteServer(id int64) error {
+	return r.Error
+}
+
+// GetServers mocks the GetServers method.
+func (r *ServerRepositoryMock) GetServers() ([]*model.Server, error) {
+	return r.AllServers, r.Error
+}
+
 // NewRequestWithSessionCookie creates a new request with the session cookie.
 func NewRequestWithSessionCookie(method, url string) (*http.Request, error) {
 	req, err := http.NewRequest(method, url, nil)

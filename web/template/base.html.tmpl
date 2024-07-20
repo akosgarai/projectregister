@@ -50,6 +50,9 @@
 						{{if .CurrentUser.HasPrivilege "databases.view"}}
 							<li><a href="/admin/database/list">Databases</a></li>
 						{{end}}
+						{{if .CurrentUser.HasPrivilege "servers.view"}}
+							<li><a href="/admin/server/list">Servers</a></li>
+						{{end}}
 					</ul>
 				</div>
 			{{end}}

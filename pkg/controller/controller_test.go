@@ -22,6 +22,7 @@ func TestNew(t *testing.T) {
 	runtimeRepository := &testhelper.RuntimeRepositoryMock{}
 	poolRepository := &testhelper.PoolRepositoryMock{}
 	databaseRepository := &testhelper.DatabaseRepositoryMock{}
+	serverRepository := &testhelper.ServerRepositoryMock{}
 	sessionStore := session.NewStore(config.DefaultEnvironment())
 	renderer := render.NewRenderer(config.DefaultEnvironment())
 	c := New(
@@ -35,6 +36,7 @@ func TestNew(t *testing.T) {
 		runtimeRepository,
 		poolRepository,
 		databaseRepository,
+		serverRepository,
 		sessionStore,
 		renderer,
 	)
@@ -67,6 +69,9 @@ func TestNew(t *testing.T) {
 	}
 	if c.databaseRepository != databaseRepository {
 		t.Errorf("DatabaseRepository field is not the same as the input.")
+	}
+	if c.serverRepository != serverRepository {
+		t.Errorf("ServerRepository field is not the same as the input.")
 	}
 	if c.sessionStore != sessionStore {
 		t.Errorf("SessionStore field is not the same as the input.")
