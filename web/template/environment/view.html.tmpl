@@ -10,6 +10,18 @@
 		<p>Description: {{.Environment.Description}}</p>
 		<p>Created at: {{.Environment.CreatedAt}}</p>
 		<p>Updated at: {{.Environment.UpdatedAt}}</p>
+		<p>Servers:</p>
+		<ul>
+			{{range .Environment.Servers}}
+				<li>{{.Name}}</li>
+			{{end}}
+		</ul>
+		<p>Databases:</p>
+		<ul>
+			{{range .Environment.Databases}}
+				<li>{{.Name}}</li>
+			{{end}}
+		</ul>
 	</div>
 </div>
 {{end}}

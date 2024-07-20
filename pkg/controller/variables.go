@@ -53,6 +53,14 @@ var (
 	DomainUpdateUpdateDomainErrorMessage = "Failed to update the domain"
 	// EnvironmentCreateCreateEnvironmentErrorMessage is the error message for the failed environment creation.
 	EnvironmentCreateCreateEnvironmentErrorMessage = "Failed to create the environment"
+	// EnvironmentCreateDatabaseIDInvalidErrorMessage is the error message for the invalid database id in the environment form.
+	EnvironmentCreateDatabaseIDInvalidErrorMessage = "Invalid database id"
+	// EnvironmentCreateFailedToGetDatabasesErrorMessage is the error message for the failed databases get.
+	EnvironmentCreateFailedToGetDatabasesErrorMessage = "Failed to get databases"
+	// EnvironmentCreateFailedToGetServersErrorMessage is the error message for the failed servers get
+	EnvironmentCreateFailedToGetServersErrorMessage = "Failed to get projects"
+	// EnvironmentCreateServerIDInvalidErrorMessage is the error message for the invalid server id in the environment form.
+	EnvironmentCreateServerIDInvalidErrorMessage = "Invalid server id"
 	// EnvironmentCreateRequiredFieldMissing is the error message for the required fields in the environment create.
 	EnvironmentCreateRequiredFieldMissing = "Name is required"
 	// EnvironmentDeleteFailedToDeleteErrorMessage is the error message for the failed environment deletion.
@@ -63,8 +71,16 @@ var (
 	EnvironmentFailedToGetEnvironmentErrorMessage = "Failed to get environment data"
 	// EnvironmentListFailedToGetEnvironmentsErrorMessage is the error message for the failed environments get.
 	EnvironmentListFailedToGetEnvironmentsErrorMessage = "Failed to get environments"
+	// EnvironmentUpdateDatabaseIDInvalidErrorMessage is the error message for the invalid database id in the environment form.
+	EnvironmentUpdateDatabaseIDInvalidErrorMessage = "Invalid database id"
+	// EnvironmentUpdateFailedToGetDatabasesErrorMessage is the error message for the failed databases get.
+	EnvironmentUpdateFailedToGetDatabasesErrorMessage = "Failed to get databases"
+	// EnvironmentUpdateFailedToGetServersErrorMessage is the error message for the failed servers get.
+	EnvironmentUpdateFailedToGetServersErrorMessage = "Failed to get servers"
 	// EnvironmentUpdateRequiredFieldMissing is the error message for the required fields in the environment update.
 	EnvironmentUpdateRequiredFieldMissing = "Name is required"
+	// EnvironmentUpdateServerIDInvalidErrorMessage is the error message for the invalid server id in the environment form.
+	EnvironmentUpdateServerIDInvalidErrorMessage = "Invalid server id"
 	// EnvironmentUpdateUpdateEnvironmentErrorMessage is the error message for the failed environment update.
 	EnvironmentUpdateUpdateEnvironmentErrorMessage = "Failed to update the environment"
 

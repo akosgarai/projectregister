@@ -10,6 +10,20 @@
 			<label for="description">Description</label>
 			<textarea class="form-control" id="description" name="description" >{{.Environment.Description}}</textarea>
 		</div>
+		<label for="servers">Servers</label>
+		{{range .Servers}}
+			<div class="checkbox">
+				<input type="checkbox" id="s_{{.ID}}" name="server_id" value="{{.ID}}" {{if  $.Environment.HasServer .Name}} checked {{end}}>
+				<label for="s_{{.ID}}">{{.Name}}</label>
+			</div>
+		{{end}}
+		<label for="databases">Databases</label>
+		{{range .Databases}}
+			<div class="checkbox">
+				<input type="checkbox" id="d_{{.ID}}" name="database_id" value="{{.ID}}" {{if  $.Environment.HasDatabase .Name}} checked {{end}}>
+				<label for="d_{{.ID}}">{{.Name}}</label>
+			</div>
+		{{end}}
 		<input type="submit" value="Update">
 	</form>
 </div>

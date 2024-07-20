@@ -66,14 +66,28 @@ func (c *Controller) EnvironmentCreateViewController(w http.ResponseWriter, r *h
 	}
 	if r.Method == http.MethodGet {
 		template := c.renderer.BuildTemplate("environment-create", []string{c.renderer.GetTemplateDirectoryPath() + "/environment/create.html.tmpl"})
+		servers, err := c.serverRepository.GetServers()
+		if err != nil {
+			c.renderer.Error(w, http.StatusInternalServerError, EnvironmentCreateFailedToGetServersErrorMessage, err)
+			return
+		}
+		databases, err := c.databaseRepository.GetDatabases()
+		if err != nil {
+			c.renderer.Error(w, http.StatusInternalServerError, EnvironmentCreateFailedToGetDatabasesErrorMessage, err)
+			return
+		}
 		content := struct {
 			Title       string
+			Servers     []*model.Server
+			Databases   []*model.Database
 			CurrentUser *model.User
 		}{
 			Title:       "Environment Create",
+			Servers:     servers,
+			Databases:   databases,
 			CurrentUser: currentUser,
 		}
-		err := template.ExecuteTemplate(w, "base.html", content)
+		err = template.ExecuteTemplate(w, "base.html", content)
 		if err != nil {
 			panic(err)
 		}
@@ -89,8 +103,29 @@ func (c *Controller) EnvironmentCreateViewController(w http.ResponseWriter, r *h
 			c.renderer.Error(w, http.StatusBadRequest, EnvironmentCreateRequiredFieldMissing, nil)
 			return
 		}
+		serverIDsRaw := r.Form["server_id"]
+		var serverIDs []int64
+		for _, serverIDRaw := range serverIDsRaw {
+			serverID, err := strconv.ParseInt(serverIDRaw, 10, 64)
+			if err != nil {
+				c.renderer.Error(w, http.StatusBadRequest, EnvironmentCreateServerIDInvalidErrorMessage, err)
+				return
+			}
+			serverIDs = append(serverIDs, serverID)
+		}
 
-		_, err := c.environmentRepository.CreateEnvironment(name, description)
+		databaseIDsRaw := r.Form["database_id"]
+		var databaseIDs []int64
+		for _, databaseIDRaw := range databaseIDsRaw {
+			databaseID, err := strconv.ParseInt(databaseIDRaw, 10, 64)
+			if err != nil {
+				c.renderer.Error(w, http.StatusBadRequest, EnvironmentCreateDatabaseIDInvalidErrorMessage, err)
+				return
+			}
+			databaseIDs = append(databaseIDs, databaseID)
+		}
+
+		_, err := c.environmentRepository.CreateEnvironment(name, description, serverIDs, databaseIDs)
 		if err != nil {
 			c.renderer.Error(w, http.StatusInternalServerError, EnvironmentCreateCreateEnvironmentErrorMessage, err)
 			return
@@ -127,13 +162,27 @@ func (c *Controller) EnvironmentUpdateViewController(w http.ResponseWriter, r *h
 
 	if r.Method == http.MethodGet {
 		template := c.renderer.BuildTemplate("user-environment", []string{c.renderer.GetTemplateDirectoryPath() + "/environment/update.html.tmpl"})
+		servers, err := c.serverRepository.GetServers()
+		if err != nil {
+			c.renderer.Error(w, http.StatusInternalServerError, EnvironmentUpdateFailedToGetServersErrorMessage, err)
+			return
+		}
+		databases, err := c.databaseRepository.GetDatabases()
+		if err != nil {
+			c.renderer.Error(w, http.StatusInternalServerError, EnvironmentUpdateFailedToGetDatabasesErrorMessage, err)
+			return
+		}
 		content := struct {
 			Title       string
 			Environment *model.Environment
+			Servers     []*model.Server
+			Databases   []*model.Database
 			CurrentUser *model.User
 		}{
 			Title:       "Environment Update",
 			Environment: environment,
+			Servers:     servers,
+			Databases:   databases,
 			CurrentUser: currentUser,
 		}
 		err = template.ExecuteTemplate(w, "base.html", content)
@@ -151,6 +200,28 @@ func (c *Controller) EnvironmentUpdateViewController(w http.ResponseWriter, r *h
 		if name == "" {
 			c.renderer.Error(w, http.StatusBadRequest, EnvironmentUpdateRequiredFieldMissing, nil)
 			return
+		}
+
+		serverIDsRaw := r.Form["server_id"]
+		environment.Servers = make([]*model.Server, len(serverIDsRaw))
+		for i, serverIDRaw := range serverIDsRaw {
+			serverID, err := strconv.ParseInt(serverIDRaw, 10, 64)
+			if err != nil {
+				c.renderer.Error(w, http.StatusBadRequest, EnvironmentUpdateServerIDInvalidErrorMessage, err)
+				return
+			}
+			environment.Servers[i] = &model.Server{ID: serverID}
+		}
+
+		databaseIDsRaw := r.Form["database_id"]
+		environment.Databases = make([]*model.Database, len(databaseIDsRaw))
+		for i, databaseIDRaw := range databaseIDsRaw {
+			databaseID, err := strconv.ParseInt(databaseIDRaw, 10, 64)
+			if err != nil {
+				c.renderer.Error(w, http.StatusBadRequest, EnvironmentUpdateDatabaseIDInvalidErrorMessage, err)
+				return
+			}
+			environment.Databases[i] = &model.Database{ID: databaseID}
 		}
 
 		// update the environment
