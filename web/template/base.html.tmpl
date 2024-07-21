@@ -53,6 +53,9 @@
 						{{if .CurrentUser.HasPrivilege "servers.view"}}
 							<li><a href="/admin/server/list">Servers</a></li>
 						{{end}}
+						{{if .CurrentUser.HasPrivilege "applications.view"}}
+							<li><a href="/admin/application/list">Applications</a></li>
+						{{end}}
 					</ul>
 				</div>
 			{{end}}

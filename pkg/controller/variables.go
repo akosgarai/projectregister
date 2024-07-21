@@ -1,6 +1,48 @@
 package controller
 
 var (
+	// ApplicationApplicationIDInvalidErrorMessage is the error message prefix for the invalid application id.
+	ApplicationApplicationIDInvalidErrorMessage = "Invalid application id"
+	// ApplicationCreateClientIDInvalidErrorMessage is the error message for the invalid client id in the application form.
+	ApplicationCreateClientIDInvalidErrorMessage = "Invalid client id"
+	// ApplicationCreateCreateApplicationErrorMessage is the error message for the failed application creation.
+	ApplicationCreateCreateApplicationErrorMessage = "Failed to create the application"
+	// ApplicationCreateDatabaseIDInvalidErrorMessage is the error message for the invalid database id in the application form.
+	ApplicationCreateDatabaseIDInvalidErrorMessage = "Invalid database id"
+	// ApplicationCreateDomainIDInvalidErrorMessage is the error message for the invalid domain id in the application form.
+	ApplicationCreateDomainIDInvalidErrorMessage = "Invalid domain id"
+	// ApplicationCreateEnvironmentIDInvalidErrorMessage is the error message for the invalid environment id in the application form.
+	ApplicationCreateEnvironmentIDInvalidErrorMessage = "Invalid environment id"
+	// ApplicationCreateFailedToGetClientsErrorMessage is the error message for the failed clients get.
+	ApplicationCreateFailedToGetClientsErrorMessage = "Failed to get clients"
+	// ApplicationCreateFailedToGetDatabasesErrorMessage is the error message for the failed databases get.
+	ApplicationCreateFailedToGetDatabasesErrorMessage = "Failed to get databases"
+	// ApplicationCreateFailedToGetDomainsErrorMessage is the error message for the failed domains get.
+	ApplicationCreateFailedToGetDomainsErrorMessage = "Failed to get domains"
+	// ApplicationCreateFailedToGetEnvironmentsErrorMessage is the error message for the failed environments get.
+	ApplicationCreateFailedToGetEnvironmentsErrorMessage = "Failed to get environments"
+	// ApplicationCreateFailedToGetPoolsErrorMessage is the error message for the failed pools get.
+	ApplicationCreateFailedToGetPoolsErrorMessage = "Failed to get pools"
+	// ApplicationCreateFailedToGetProjectsErrorMessage is the error message for the failed projects get.
+	ApplicationCreateFailedToGetProjectsErrorMessage = "Failed to get projects"
+	// ApplicationCreateFailedToGetRuntimesErrorMessage is the error message for the failed runtimes get.
+	ApplicationCreateFailedToGetRuntimesErrorMessage = "Failed to get runtimes"
+	// ApplicationCreatePoolIDInvalidErrorMessage is the error message for the invalid pool id in the application form.
+	ApplicationCreatePoolIDInvalidErrorMessage = "Invalid pool id"
+	// ApplicationCreateProjectIDInvalidErrorMessage is the error message for the invalid project id in the application form.
+	ApplicationCreateProjectIDInvalidErrorMessage = "Invalid project id"
+	// ApplicationCreateRequiredFieldMissing is the error message for the required fields in the application create.
+	ApplicationCreateRequiredFieldMissing = "Client, project, environment are required"
+	// ApplicationCreateRuntimeIDInvalidErrorMessage is the error message for the invalid runtime id in the application form.
+	ApplicationCreateRuntimeIDInvalidErrorMessage = "Invalid runtime id"
+	// ApplicationDeleteFailedToDeleteErrorMessage is the error message for the failed application deletion.
+	ApplicationDeleteFailedToDeleteErrorMessage = "Failed to delete the application"
+	// ApplicationFailedToGetApplicationErrorMessage is the error message for the failed application get.
+	ApplicationFailedToGetApplicationErrorMessage = "Failed to get application data"
+	// ApplicationListFailedToGetApplicationsErrorMessage is the error message for the failed applications get.
+	ApplicationListFailedToGetApplicationsErrorMessage = "Failed to get applications"
+	// ApplicationUpdateUpdateApplicationErrorMessage is the error message for the failed application update.
+	ApplicationUpdateUpdateApplicationErrorMessage = "Failed to update the application"
 	// AuthFailedToGenerateSessionKeyErrorMessage is the error message for the failed session key generation.
 	AuthFailedToGenerateSessionKeyErrorMessage = "Failed to generate session key"
 	// ClientClientIDInvalidErrorMessage is the error message prefix for the invalid client id.

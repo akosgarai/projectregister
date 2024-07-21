@@ -16,4 +16,5 @@ type DomainRepository interface {
 	UpdateDomain(client *Domain) error
 	DeleteDomain(id int64) error
 	GetDomains() ([]*Domain, error)
+	GetFreeDomains() ([]*Domain, error)
 }

@@ -21,6 +21,7 @@ type Controller struct {
 	poolRepository        model.PoolRepository
 	databaseRepository    model.DatabaseRepository
 	serverRepository      model.ServerRepository
+	applicationRepository model.ApplicationRepository
 
 	sessionStore *session.Store
 
@@ -40,6 +41,7 @@ func New(
 	poolRepository model.PoolRepository,
 	databaseRepository model.DatabaseRepository,
 	serverRepository model.ServerRepository,
+	applicationRepository model.ApplicationRepository,
 	sessionStore *session.Store,
 	renderer *render.Renderer,
 ) *Controller {
@@ -55,6 +57,7 @@ func New(
 		databaseRepository:    databaseRepository,
 		poolRepository:        poolRepository,
 		serverRepository:      serverRepository,
+		applicationRepository: applicationRepository,
 
 		sessionStore: sessionStore,
 

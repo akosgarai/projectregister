@@ -505,6 +505,50 @@ func (r *ServerRepositoryMock) GetServers() ([]*model.Server, error) {
 	return r.AllServers, r.Error
 }
 
+// ApplicationRepositoryMock is a mock for the ApplicationRepository interface.
+// It can be used to mock the ApplicationRepository interface.
+// Set the LatestApplication field to the application you want to return.
+// Set the AllApplications field to the list of applications you want to return.
+// Set the Error field to the error you want to return.
+// Set the UpdateApplicationError field to the error you want to return.
+type ApplicationRepositoryMock struct {
+	LatestApplication *model.Application
+	AllApplications   []*model.Application
+
+	Error                  error
+	UpdateApplicationError error
+}
+
+// CreateApplication mocks the CreateApplication method.
+func (r *ApplicationRepositoryMock) CreateApplication(name, description, remoteAddress string, runtimes, pools []int64) (*model.Application, error) {
+	return r.LatestApplication, r.Error
+}
+
+// GetApplicationByName mocks the GetApplicationByName method.
+func (r *ApplicationRepositoryMock) GetApplicationByName(name string) (*model.Application, error) {
+	return r.LatestApplication, r.Error
+}
+
+// GetApplicationByID mocks the GetApplicationByID method.
+func (r *ApplicationRepositoryMock) GetApplicationByID(id int64) (*model.Application, error) {
+	return r.LatestApplication, r.Error
+}
+
+// UpdateApplication mocks the UpdateApplication method.
+func (r *ApplicationRepositoryMock) UpdateApplication(application *model.Application) error {
+	return r.UpdateApplicationError
+}
+
+// DeleteApplication mocks the DeleteApplication method.
+func (r *ApplicationRepositoryMock) DeleteApplication(id int64) error {
+	return r.Error
+}
+
+// GetApplications mocks the GetApplications method.
+func (r *ApplicationRepositoryMock) GetApplications() ([]*model.Application, error) {
+	return r.AllApplications, r.Error
+}
+
 // NewRequestWithSessionCookie creates a new request with the session cookie.
 func NewRequestWithSessionCookie(method, url string) (*http.Request, error) {
 	req, err := http.NewRequest(method, url, nil)

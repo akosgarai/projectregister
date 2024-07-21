@@ -1,0 +1,93 @@
+{{define "content"}}
+<div class="form-page">
+	<h1>{{.Title}}</h1>
+	<form action="/admin/application/update/{{.Application.ID}}" method="post">
+		<div class="form-group">
+			<label for="client">Client</label>
+			<select class="form-control" id="client" name="client" required>
+				{{ range .Clients }}
+					<option value="{{.ID}}" {{if eq $.Application.Client.ID .ID}} selected {{end}}>{{.Name}}</option>
+				{{end}}
+			</select>
+		</div>
+		<div class="form-group">
+			<label for="project">Project</label>
+			<select class="form-control" id="project" name="project" required>
+				{{ range .Projects }}
+					<option value="{{.ID}}" {{if eq $.Application.Project.ID .ID}} selected {{end}}>{{.Name}}</option>
+				{{end}}
+			</select>
+		</div>
+		<div class="form-group">
+			<label for="environment">Environment</label>
+			<select class="form-control" id="environment" name="environment" required>
+				{{ range .Environments }}
+					<option value="{{.ID}}" {{if eq $.Application.Environment.ID .ID}} selected {{end}}>{{.Name}}</option>
+				{{end}}
+			</select>
+		</div>
+		<div class="form-group">
+			<label for="database">Database</label>
+			<select class="form-control" id="database" name="database" required>
+				{{ range .Databases }}
+					<option value="{{.ID}}" {{if eq $.Application.Database.ID .ID}} selected {{end}}>{{.Name}}</option>
+				{{end}}
+			</select>
+		</div>
+		<div class="form-group">
+			<label for="db_name">DB Name</label>
+			<input type="text" class="form-control" id="db_name" name="db_name" value="{{.Application.DBName}}">
+		</div>
+		<div class="form-group">
+			<label for="db_user">DB User</label>
+			<input type="text" class="form-control" id="db_user" name="db_user" value="{{.Application.DBUser}}">
+		</div>
+		<div class="form-group">
+			<label for="runtime">Runtime</label>
+			<select class="form-control" id="runtime" name="runtime" required>
+				{{ range .Runtimes }}
+					<option value="{{.ID}}" {{if eq $.Application.Runtime.ID .ID}} selected {{end}}>{{.Name}}</option>
+				{{end}}
+			</select>
+		</div>
+		<div class="form-group">
+			<label for="pool">Pool</label>
+			<select class="form-control" id="pool" name="pool" required>
+				{{ range .Pools }}
+					<option value="{{.ID}}" {{if eq $.Application.Pool.ID .ID}} selected {{end}}>{{.Name}}</option>
+				{{end}}
+			</select>
+		</div>
+		<div class="form-group">
+			<label for="repository">Repository</label>
+			<input type="text" class="form-control" id="repository" name="repository" value="{{.Application.Repository}}">
+		</div>
+		<div class="form-group">
+			<label for="branch">Branch</label>
+			<input type="text" class="form-control" id="branch" name="branch" value="{{.Application.Branch}}">
+		</div>
+		<div class="form-group">
+			<label for="framework">Framework</label>
+			<input type="text" class="form-control" id="framework" name="framework" value="{{.Application.Framework}}">
+		</div>
+		<div class="form-group">
+			<label for="document_root">Document Root</label>
+			<input type="text" class="form-control" id="document_root" name="document_root" value="{{.Application.DocumentRoot}}">
+		</div>
+		<label for="domains">Domains</label>
+		{{range .Application.Domains}}
+			<div class="checkbox">
+				<input type="checkbox" id="d_{{.ID}}" name="domain" value="{{.ID}}" checked >
+				<label for="d_{{.ID}}">{{.Name}}</label>
+			</div>
+		{{end}}
+		{{range .Domains}}
+			<div class="checkbox">
+				<input type="checkbox" id="d_{{.ID}}" name="domain" value="{{.ID}}">
+				<label for="d_{{.ID}}">{{.Name}}</label>
+			</div>
+		{{end}}
+		<input type="submit" value="Create">
+	</form>
+</div>
+{{end}}
