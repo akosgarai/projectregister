@@ -58,6 +58,9 @@ func TestDefaultEnvironment(t *testing.T) {
 	if env.GetStaticDirectoryPath() != DefaultStaticDirectoryPath {
 		t.Errorf("Expected %s, got %s", DefaultStaticDirectoryPath, env.GetStaticDirectoryPath())
 	}
+	if env.GetUploadDirectoryPath() != DefaultUploadDirectoryPath {
+		t.Errorf("Expected %s, got %s", DefaultUploadDirectoryPath, env.GetUploadDirectoryPath())
+	}
 }
 
 // TestNewEnvironmentWithEmptyValues tests the NewEnvironment function with empty values.
@@ -117,6 +120,9 @@ func TestNewEnvironmentWithEmptyValues(t *testing.T) {
 	}
 	if env.GetStaticDirectoryPath() != DefaultStaticDirectoryPath {
 		t.Errorf("Expected %s, got %s", DefaultStaticDirectoryPath, env.GetStaticDirectoryPath())
+	}
+	if env.GetUploadDirectoryPath() != DefaultUploadDirectoryPath {
+		t.Errorf("Expected %s, got %s", DefaultUploadDirectoryPath, env.GetUploadDirectoryPath())
 	}
 }
 
@@ -301,6 +307,17 @@ func TestNewEnvironmentStaticDirectoryPath(t *testing.T) {
 	env := NewEnvironment(envList)
 	if env.GetStaticDirectoryPath() != staticDirectoryPath {
 		t.Errorf("Expected %s, got %s", staticDirectoryPath, env.GetStaticDirectoryPath())
+	}
+}
+
+// TestNewEnvironmentUploadDirectoryPath tests the NewEnvironment function with an upload directory path value.
+func TestNewEnvironmentUploadDirectoryPath(t *testing.T) {
+	envList := make(map[string]string)
+	uploadDirectoryPath := "uploads/updated/path"
+	envList[UploadDirectoryPathEnvName] = uploadDirectoryPath
+	env := NewEnvironment(envList)
+	if env.GetUploadDirectoryPath() != uploadDirectoryPath {
+		t.Errorf("Expected %s, got %s", uploadDirectoryPath, env.GetUploadDirectoryPath())
 	}
 }
 

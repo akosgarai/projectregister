@@ -35,6 +35,8 @@ const (
 	DefaultRenderBaseTemplate = "base.html.tmpl"
 	// DefaultStaticDirectoryPath is the default render static directory path.
 	DefaultStaticDirectoryPath = "./web/public"
+	// DefaultUploadDirectoryPath is the default upload directory path.
+	DefaultUploadDirectoryPath = "./uploads"
 
 	// environment variables
 
@@ -72,4 +74,6 @@ const (
 	RenderBaseTemplateEnvName = "RENDER_BASE_TEMPLATE"
 	// StaticDirectoryPathEnvName is the static directory path environment variable name.
 	StaticDirectoryPathEnvName = "STATIC_DIRECTORY_PATH"
+	// UploadDirectoryPathEnvName is the upload directory path environment variable name.
+	UploadDirectoryPathEnvName = "UPLOAD_DIRECTORY_PATH"
 )

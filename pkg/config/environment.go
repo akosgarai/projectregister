@@ -28,6 +28,7 @@ type Environment struct {
 	renderBaseTemplate          string
 
 	staticDirectoryPath string
+	uploadDirectoryPath string
 }
 
 // DefaultEnvironment creates a new instance of the environment with default values.
@@ -55,6 +56,7 @@ func DefaultEnvironment() *Environment {
 		renderBaseTemplate:          DefaultRenderBaseTemplate,
 
 		staticDirectoryPath: DefaultStaticDirectoryPath,
+		uploadDirectoryPath: DefaultUploadDirectoryPath,
 	}
 }
 
@@ -143,6 +145,11 @@ func (e *Environment) GetStaticDirectoryPath() string {
 	return e.staticDirectoryPath
 }
 
+// GetUploadDirectoryPath returns the upload directory path.
+func (e *Environment) GetUploadDirectoryPath() string {
+	return e.uploadDirectoryPath
+}
+
 // NewEnvironment creates a new instance of the environment.
 func NewEnvironment(envConfig map[string]string) *Environment {
 	env := DefaultEnvironment()
@@ -196,6 +203,9 @@ func NewEnvironment(envConfig map[string]string) *Environment {
 	}
 	if val, ok := envConfig[StaticDirectoryPathEnvName]; ok {
 		env.staticDirectoryPath = val
+	}
+	if val, ok := envConfig[UploadDirectoryPathEnvName]; ok {
+		env.uploadDirectoryPath = val
 	}
 
 	return env
