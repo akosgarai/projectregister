@@ -9,6 +9,7 @@ import (
 	"github.com/akosgarai/projectregister/pkg/model"
 	"github.com/akosgarai/projectregister/pkg/render"
 	"github.com/akosgarai/projectregister/pkg/session"
+	"github.com/akosgarai/projectregister/pkg/storage"
 )
 
 // I want the router creation to be here.
@@ -28,6 +29,7 @@ func New(
 	serverRepository model.ServerRepository,
 	applicationRepository model.ApplicationRepository,
 	sessionStore *session.Store,
+	csvStorage storage.CSVStorage,
 	renderer *render.Renderer,
 ) *mux.Router {
 	r := mux.NewRouter()
@@ -47,6 +49,7 @@ func New(
 		serverRepository,
 		applicationRepository,
 		sessionStore,
+		csvStorage,
 		renderer,
 	)
 	r.HandleFunc("/health", routerController.HealthController)
@@ -119,6 +122,8 @@ func New(
 	adminRouter.HandleFunc("/application/update/{applicationId}", routerController.ApplicationUpdateViewController).Methods("GET", "POST")
 	adminRouter.HandleFunc("/application/delete/{applicationId}", routerController.ApplicationDeleteViewController).Methods("POST")
 	adminRouter.HandleFunc("/application/list", routerController.ApplicationListViewController)
+	adminRouter.HandleFunc("/application/import-to-environment/{environmentId}", routerController.ApplicationImportToEnvironmentFormController).Methods("GET", "POST")
+	adminRouter.HandleFunc("/application/mapping-to-environment/{environmentId}/{fileId}", routerController.ApplicationMappingToEnvironmentFormController).Methods("GET", "POST")
 
 	apiRouter := r.PathPrefix("/api").Subrouter()
 	apiRouter.Use(routerController.AuthMiddleware)

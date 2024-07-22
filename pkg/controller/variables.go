@@ -39,6 +39,12 @@ var (
 	ApplicationDeleteFailedToDeleteErrorMessage = "Failed to delete the application"
 	// ApplicationFailedToGetApplicationErrorMessage is the error message for the failed application get.
 	ApplicationFailedToGetApplicationErrorMessage = "Failed to get application data"
+	// ApplicationImportFailedToGetEnvironmentErrorMessage is the error message for the failed environment get.
+	ApplicationImportFailedToGetEnvironmentErrorMessage = "Failed to get environment"
+	// ApplicationImportFailedToSaveFileErrorMessage is the error message for the failed file save.
+	ApplicationImportFailedToSaveFileErrorMessage = "Failed to save the file"
+	// ApplicationImportInvalidEnvironmentIDErrorMessage is the error message for the invalid environment id in the application import form.
+	ApplicationImportInvalidEnvironmentIDErrorMessage = "Invalid environment id"
 	// ApplicationListFailedToGetApplicationsErrorMessage is the error message for the failed applications get.
 	ApplicationListFailedToGetApplicationsErrorMessage = "Failed to get applications"
 	// ApplicationUpdateUpdateApplicationErrorMessage is the error message for the failed application update.

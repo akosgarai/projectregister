@@ -12,6 +12,7 @@ import (
 	"github.com/akosgarai/projectregister/pkg/render"
 	"github.com/akosgarai/projectregister/pkg/router"
 	"github.com/akosgarai/projectregister/pkg/session"
+	"github.com/akosgarai/projectregister/pkg/storage"
 )
 
 // App is a struct that holds the application configuration.
@@ -41,6 +42,8 @@ func (a *App) Initialize() {
 	if err != nil {
 		panic(err)
 	}
+	// Create a csv file storage.
+	csvFileStorage := storage.NewCSVFileStorage(a.envConfig)
 	// create a new router
 	userRepository := repository.NewUserRepository(a.db)
 	roleRepository := repository.NewRoleRepository(a.db)
@@ -68,6 +71,7 @@ func (a *App) Initialize() {
 		serverRepository,
 		applicationRepository,
 		session.NewStore(a.envConfig),
+		csvFileStorage,
 		render.NewRenderer(a.envConfig),
 	)
 	// create a new server

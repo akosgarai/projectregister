@@ -220,6 +220,102 @@ func (c *Controller) ApplicationListViewController(w http.ResponseWriter, r *htt
 	}
 }
 
+// ApplicationImportToEnvironmentFormController is the controller for the application import to environment form.
+// It is responsible for handling the forms that guides you throught the import process.
+func (c *Controller) ApplicationImportToEnvironmentFormController(w http.ResponseWriter, r *http.Request) {
+	currentUser := c.CurrentUser(r)
+	if !currentUser.HasPrivilege("applications.create") {
+		c.renderer.Error(w, http.StatusForbidden, "Forbidden", nil)
+		return
+	}
+	// get the environment id from the url
+	vars := mux.Vars(r)
+	environmentIDVariable := vars["environmentId"]
+	// it has to be converted to int64
+	environmentID, err := strconv.ParseInt(environmentIDVariable, 10, 64)
+	if err != nil {
+		c.renderer.Error(w, http.StatusBadRequest, ApplicationImportInvalidEnvironmentIDErrorMessage, err)
+		return
+	}
+	// load the environment
+	environment, err := c.environmentRepository.GetEnvironmentByID(environmentID)
+	if err != nil {
+		c.renderer.Error(w, http.StatusInternalServerError, ApplicationImportFailedToGetEnvironmentErrorMessage, err)
+		return
+	}
+	// On case of get method load the form template
+	if r.Method == http.MethodGet {
+		content := struct {
+			Title       string
+			Environment *model.Environment
+			CurrentUser *model.User
+		}{
+			Title:       "Import Application to Environment",
+			Environment: environment,
+			CurrentUser: currentUser,
+		}
+		template := c.renderer.BuildTemplate("application-import", []string{c.renderer.GetTemplateDirectoryPath() + "/application/import.html.tmpl"})
+		err = template.ExecuteTemplate(w, "base.html", content)
+		if err != nil {
+			panic(err)
+		}
+	}
+	// On case of post method, store the csv file content in file and redirect to the mapping page.
+	if r.Method == http.MethodPost {
+		filename, err := c.storeImportCSVFile(r)
+		if err != nil {
+			c.renderer.Error(w, http.StatusInternalServerError, ApplicationImportFailedToSaveFileErrorMessage, err)
+			return
+		}
+		http.Redirect(w, r, "/admin/application/mapping-to-environment/"+environmentIDVariable+"/"+filename, http.StatusSeeOther)
+	}
+}
+
+// ApplicationMappingToEnvironmentFormController is the controller for the application mapping to environment form.
+// It is responsible for handling the forms that guides you throught the mapping process.
+func (c *Controller) ApplicationMappingToEnvironmentFormController(w http.ResponseWriter, r *http.Request) {
+	currentUser := c.CurrentUser(r)
+	if !currentUser.HasPrivilege("applications.create") {
+		c.renderer.Error(w, http.StatusForbidden, "Forbidden", nil)
+		return
+	}
+	// get the environment id from the url
+	vars := mux.Vars(r)
+	environmentIDVariable := vars["environmentId"]
+	// it has to be converted to int64
+	environmentID, err := strconv.ParseInt(environmentIDVariable, 10, 64)
+	if err != nil {
+		c.renderer.Error(w, http.StatusBadRequest, ApplicationImportInvalidEnvironmentIDErrorMessage, err)
+		return
+	}
+	fileID := vars["fileId"]
+	// load the environment
+	environment, err := c.environmentRepository.GetEnvironmentByID(environmentID)
+	if err != nil {
+		c.renderer.Error(w, http.StatusInternalServerError, ApplicationImportFailedToGetEnvironmentErrorMessage, err)
+		return
+	}
+	// On case of get method load the form template
+	if r.Method == http.MethodGet {
+		content := struct {
+			Title       string
+			Environment *model.Environment
+			FileID      string
+			CurrentUser *model.User
+		}{
+			Title:       "Import Mapping to Environment",
+			Environment: environment,
+			CurrentUser: currentUser,
+			FileID:      fileID,
+		}
+		template := c.renderer.BuildTemplate("application-import", []string{c.renderer.GetTemplateDirectoryPath() + "/application/mapping.html.tmpl"})
+		err = template.ExecuteTemplate(w, "base.html", content)
+		if err != nil {
+			panic(err)
+		}
+	}
+}
+
 // It creates the content for the application forms.
 func (c *Controller) createApplicationFormResponse(title string, currentUser *model.User, application *model.Application) (ApplicationFormResponse, string, error) {
 	runtimes, err := c.runtimeRepository.GetRuntimes()
@@ -336,4 +432,17 @@ func (c *Controller) validateApplicationForm(r *http.Request) (*model.Applicatio
 	// add the domain ids
 	return app, domainIDS, "", nil
 
+}
+
+// storeImportCSVFile stores the csv file in the file system.
+// It returns the filename and an error.
+func (c *Controller) storeImportCSVFile(r *http.Request) (string, error) {
+	r.ParseMultipartForm(32 << 20)
+	file, _, err := r.FormFile("csvfile")
+	if err != nil {
+		return "", err
+	}
+	defer file.Close()
+	// store the file
+	return c.csvStorage.Save(file)
 }

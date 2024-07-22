@@ -1,0 +1,11 @@
+{{define "content"}}
+<div class="detail-page">
+	<h1>{{.Title}}</h1>
+	<form action="/admin/application/import-process/{{.Environment.ID}}/{{.FileID}}" method="post" enctype="multipart/form-data">
+		<input type="hidden" name="environment_id" value="{{.Environment.ID}}"/>
+		<input type="hidden" name="file_id" value="{{.FileID}}"/>
+		<p>Mapping form goes here</p>
+		<button type="submit" class="btn btn-primary">Upload</button>
+	</form>
+</div>
+{{end}}

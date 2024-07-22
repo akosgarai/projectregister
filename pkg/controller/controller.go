@@ -4,6 +4,7 @@ import (
 	"github.com/akosgarai/projectregister/pkg/model"
 	"github.com/akosgarai/projectregister/pkg/render"
 	"github.com/akosgarai/projectregister/pkg/session"
+	"github.com/akosgarai/projectregister/pkg/storage"
 )
 
 // Controller type for controller
@@ -24,6 +25,7 @@ type Controller struct {
 	applicationRepository model.ApplicationRepository
 
 	sessionStore *session.Store
+	csvStorage   storage.CSVStorage
 
 	renderer *render.Renderer
 }
@@ -43,6 +45,7 @@ func New(
 	serverRepository model.ServerRepository,
 	applicationRepository model.ApplicationRepository,
 	sessionStore *session.Store,
+	csvStorage storage.CSVStorage,
 	renderer *render.Renderer,
 ) *Controller {
 	return &Controller{
@@ -60,6 +63,7 @@ func New(
 		applicationRepository: applicationRepository,
 
 		sessionStore: sessionStore,
+		csvStorage:   csvStorage,
 
 		renderer: renderer,
 	}
