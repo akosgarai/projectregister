@@ -116,6 +116,7 @@ func (s *CSVFileStorage) Read(fileName string) ([][]string, error) {
 	// and this creates a new csv.Reader that reads
 	// from the file
 	reader := csv.NewReader(file)
+	reader.Comma = ';'
 
 	// ReadAll reads all the records from the CSV file
 	// and Returns them as slice of slices of string

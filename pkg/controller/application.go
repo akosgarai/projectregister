@@ -3,6 +3,7 @@ package controller
 import (
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/gorilla/mux"
 
@@ -21,6 +22,13 @@ type ApplicationFormResponse struct {
 	Pools        []*model.Pool
 	Domains      []*model.Domain
 	CurrentUser  *model.User
+}
+
+// ApplicationImportRowResult is the struct for the application import row results.
+type ApplicationImportRowResult struct {
+	ErrorMessage string
+	RowData      []string
+	Application  *model.Application
 }
 
 // ApplicationViewController is the controller for the application view page.
@@ -314,6 +322,42 @@ func (c *Controller) ApplicationMappingToEnvironmentFormController(w http.Respon
 			panic(err)
 		}
 	}
+	// On case of post process the mapping form and execute the import process.
+	if r.Method == http.MethodPost {
+		// TODO: implement the import process
+		// Now use hardcoded mapping based on the excel file.
+		fileName := r.FormValue("file_id")
+		environmentIDRaw := r.FormValue("environment_id")
+		// it has to be converted to int64
+		environmentID, err := strconv.ParseInt(environmentIDRaw, 10, 64)
+		if err != nil {
+			c.renderer.Error(w, http.StatusBadRequest, ApplicationImportInvalidEnvironmentIDErrorMessage, err)
+			return
+		}
+		results, err := c.importApplicationToEnvironment(environmentID, fileName)
+		if err != nil {
+			c.renderer.Error(w, http.StatusInternalServerError, "Failed to import", err)
+			return
+		}
+		content := struct {
+			Title       string
+			Environment *model.Environment
+			FileID      string
+			CurrentUser *model.User
+			Result      map[int]ApplicationImportRowResult
+		}{
+			Title:       "Results Mapping to Environment",
+			Environment: environment,
+			CurrentUser: currentUser,
+			FileID:      fileID,
+			Result:      results,
+		}
+		template := c.renderer.BuildTemplate("application-import", []string{c.renderer.GetTemplateDirectoryPath() + "/application/import-results.html.tmpl"})
+		err = template.ExecuteTemplate(w, "base.html", content)
+		if err != nil {
+			panic(err)
+		}
+	}
 }
 
 // It creates the content for the application forms.
@@ -445,4 +489,126 @@ func (c *Controller) storeImportCSVFile(r *http.Request) (string, error) {
 	defer file.Close()
 	// store the file
 	return c.csvStorage.Save(file)
+}
+
+// importApplicationToEnvironment imports the applications to the environment.
+// It returns the results and an error.
+func (c *Controller) importApplicationToEnvironment(environmentID int64, fileName string) (map[int]ApplicationImportRowResult, error) {
+	// get the file content
+	response := map[int]ApplicationImportRowResult{}
+	csvData, err := c.csvStorage.Read(fileName + ".csv")
+	if err != nil {
+		return response, err
+	}
+	// parse the file content every line represents an application
+	for rowIndex, line := range csvData {
+		// set the response to empty string. it means process went well
+		response[rowIndex] = ApplicationImportRowResult{ErrorMessage: "", RowData: line, Application: nil}
+		clientName := line[0]
+		projectName := line[1]
+		runtimeName := line[5]
+		poolName := line[6]
+		databaseTypeName := line[7]
+
+		domainsRaw := line[3]
+		framework := line[4]
+		databaseName := line[8]
+		if databaseName == "-" {
+			databaseName = ""
+		}
+		databaseUser := line[9]
+		if databaseUser == "-" {
+			databaseUser = ""
+		}
+		docRoot := line[10]
+		repository := line[11]
+		branch := line[12]
+
+		// if the client name does not exist, create it
+		client, err := c.clientRepository.GetClientByName(clientName)
+		if err != nil {
+			client, err = c.clientRepository.CreateClient(clientName)
+			if err != nil {
+				currentData := response[rowIndex]
+				currentData.ErrorMessage = err.Error()
+				response[rowIndex] = currentData
+				continue
+			}
+		}
+
+		// if the project name does not exist, create it
+		project, err := c.projectRepository.GetProjectByName(projectName)
+		if err != nil {
+			project, err = c.projectRepository.CreateProject(projectName)
+			if err != nil {
+				currentData := response[rowIndex]
+				currentData.ErrorMessage = err.Error()
+				response[rowIndex] = currentData
+				continue
+			}
+		}
+		// if the runtime name does not exist, create it
+		runtime, err := c.runtimeRepository.GetRuntimeByName(runtimeName)
+		if err != nil {
+			runtime, err = c.runtimeRepository.CreateRuntime(runtimeName)
+			if err != nil {
+				currentData := response[rowIndex]
+				currentData.ErrorMessage = err.Error()
+				response[rowIndex] = currentData
+				continue
+			}
+		}
+		// if the pool name does not exist, create it
+		pool, err := c.poolRepository.GetPoolByName(poolName)
+		if err != nil {
+			pool, err = c.poolRepository.CreatePool(poolName)
+			if err != nil {
+				currentData := response[rowIndex]
+				currentData.ErrorMessage = err.Error()
+				response[rowIndex] = currentData
+				continue
+			}
+		}
+		// if the database name does not exist, create it
+		database, err := c.databaseRepository.GetDatabaseByName(databaseTypeName)
+		if err != nil {
+			database, err = c.databaseRepository.CreateDatabase(databaseTypeName)
+			if err != nil {
+				currentData := response[rowIndex]
+				currentData.ErrorMessage = err.Error()
+				response[rowIndex] = currentData
+				continue
+			}
+		}
+
+		// handle the domains. The domains are separated by space.
+		// If the domain does not exists, create it.
+		domainNames := strings.Split(domainsRaw, " ")
+		domainIDs := []int64{}
+		for _, domainName := range domainNames {
+			domain, err := c.domainRepository.GetDomainByName(domainName)
+			if err != nil {
+				domain, err = c.domainRepository.CreateDomain(domainName)
+				if err != nil {
+					currentData := response[rowIndex]
+					currentData.ErrorMessage = err.Error()
+					response[rowIndex] = currentData
+					continue
+				}
+			}
+			domainIDs = append(domainIDs, domain.ID)
+		}
+
+		// create the application
+		app, err := c.applicationRepository.CreateApplication(client.ID, project.ID, environmentID, database.ID, runtime.ID, pool.ID, repository, branch, databaseName, databaseUser, framework, docRoot, domainIDs)
+		currentData := response[rowIndex]
+		if err != nil {
+			currentData.ErrorMessage = err.Error()
+			response[rowIndex] = currentData
+			continue
+		}
+		currentData.Application = app
+		response[rowIndex] = currentData
+	}
+	return response, nil
 }

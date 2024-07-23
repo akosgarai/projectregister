@@ -1,0 +1,17 @@
+{{define "content"}}
+<div class="detail-page">
+	<h1>{{.Title}}</h1>
+	<table>
+		{{range $rowIndex, $item  := .Result}}
+			<tr>
+				<td>{{$rowIndex}}</td>
+				{{range $i, $col := $item.RowData}}
+					<td>{{$col}}</td>
+				{{end}}
+				<td>{{$item.ErrorMessage}}</td>
+				<td>{{if eq $item.ErrorMessage ""}}{{$item.Application.ID}}{{end}}</td>
+			</tr>
+		{{end}}
+	</table>
+</div>
+{{end}}
