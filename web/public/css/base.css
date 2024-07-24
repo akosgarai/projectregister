@@ -5,6 +5,8 @@
 	--button-background-color: #000000;
 	--button-text-color: #ffffff;
 	--input-height: 56px;
+	--left-panel-open-width: 400px;
+	--left-panel-closed-width: 50px;
 }
 * {
 	margin: 0;
@@ -84,13 +86,14 @@ table {
 .panel-left {
 	height: 100%;
 	flex-grow: 0;
+	flex-shrink: 0;
 	position: relative;
-	width: 400px;
+	flex-basis: var(--left-panel-open-width);
 	background-color: var(--panel-left-background);
 }
 
-.panel-left.closed {
-	width: 50px;
+.closed .panel-left {
+	flex-basis: var(--left-panel-closed-width);
 }
 
 .panel-right {
@@ -99,7 +102,11 @@ table {
 	align-items: center;
 	justify-content: center;
 	flex: 1;
-	width: 100%;
+	width: calc(100% - var(--left-panel-open-width));
+}
+
+.closed .panel-right {
+	width: calc(100% - var(--left-panel-closed-width));
 }
 
 .loader {
@@ -207,7 +214,7 @@ table {
 }
 
 /* Hide the li navigation items except the toggle li*/
-.panel-left.closed .navigation li:not(.nav-toggle) {
+.closed .panel-left .navigation li:not(.nav-toggle) {
 	display: none;
 }
 
@@ -219,6 +226,13 @@ table {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
+}
+
+.listing-page {
+	overflow-x: auto;
+}
+.listing-page table {
+	align-self: flex-start;
 }
 
 .button-link {

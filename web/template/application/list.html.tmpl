@@ -4,7 +4,7 @@
 	{{if .CurrentUser.HasPrivilege "applications.create"}}
 		<a class="button-link" href="/admin/application/create">Create Application</a>
 	{{end}}
-	<table >
+	<table>
 		<tr>
 			<th>ID</th>
 			<th>Client</th>
@@ -35,9 +35,9 @@
 				<td>{{.DocumentRoot}}</td>
 				<td>
 					<ul>
-					{{range .Domains}}
-						<li>{{.Name}}</li>
-					{{end}}
+						{{range .Domains}}
+							<li>{{.Name}}</li>
+						{{end}}
 					</ul>
 				</td>
 				<td>{{.CreatedAt}}</td>
@@ -49,9 +49,9 @@
 					{{end}}
 
 					{{if $.CurrentUser.HasPrivilege "applications.delete"}}
-					<form action="/admin/application/delete/{{.ID}}" method="post">
-						<input type="submit" value="Delete">
-					</form>
+						<form action="/admin/application/delete/{{.ID}}" method="post">
+							<input type="submit" value="Delete">
+						</form>
 					{{end}}
 				</td>
 			</tr>
