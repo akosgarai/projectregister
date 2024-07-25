@@ -21,7 +21,7 @@
 			{{else}}
 				<div class="navigation">
 					<ul>
-						<li class="nav-toggle"><a onclick="document.querySelector('.panel-left').classList.toggle('closed')">-><-</a></li>
+						<li class="nav-toggle"><a onclick="document.querySelector('.container').classList.toggle('closed')">-><-</a></li>
 						<li><a href="/admin/dashboard">Dashboard</a></li>
 						{{if .CurrentUser.HasPrivilege "users.view"}}
 							<li><a href="/admin/user/list">Users</a></li>

@@ -4,58 +4,64 @@
 	{{if .CurrentUser.HasPrivilege "applications.create"}}
 		<a class="button-link" href="/admin/application/create">Create Application</a>
 	{{end}}
-	<table>
-		<tr>
-			<th>ID</th>
-			<th>Client</th>
-			<th>Project</th>
-			<th>Environment</th>
-			<th>Database</th>
-			<th>Runtime</th>
-			<th>Pool</th>
-			<th>Codebase</th>
-			<th>Framework</th>
-			<th>Document Root</th>
-			<th>Domains</th>
-			<th>Created At</th>
-			<th>Updated At</th>
-			<th>Actions</th>
-		</tr>
-		{{ range .Applications }}
-			<tr>
-				<td>{{.ID}}</td>
-				<td>{{.Client.Name}}</td>
-				<td>{{.Project.Name}}</td>
-				<td>{{.Environment.Name}}</td>
-				<td>{{.Database.Name}} {{if ne .DBName "" }} {{.DBUser}} / {{.DBName}} {{end}}</td>
-				<td>{{.Runtime.Name}}</td>
-				<td>{{.Pool.Name}}</td>
-				<td>{{.Repository}} {{if ne .Branch ""}} {{.Branch}} {{end}}</td>
-				<td>{{.Framework}}</td>
-				<td>{{.DocumentRoot}}</td>
-				<td>
-					<ul>
-						{{range .Domains}}
-							<li>{{.Name}}</li>
+	<div class="listing-table">
+		<table>
+			<thead>
+				<tr>
+					<th>ID</th>
+					<th>Client</th>
+					<th>Project</th>
+					<th>Environment</th>
+					<th>Database</th>
+					<th>Runtime</th>
+					<th>Pool</th>
+					<th>Codebase</th>
+					<th>Framework</th>
+					<th>Document Root</th>
+					<th>Domains</th>
+					<th>Created At</th>
+					<th>Updated At</th>
+					<th>Actions</th>
+				</tr>
+			</thead>
+			<tbody>
+			{{ range .Applications }}
+				<tr>
+					<td>{{.ID}}</td>
+					<td>{{.Client.Name}}</td>
+					<td>{{.Project.Name}}</td>
+					<td>{{.Environment.Name}}</td>
+					<td>{{.Database.Name}} {{if ne .DBName "" }} {{.DBUser}} / {{.DBName}} {{end}}</td>
+					<td>{{.Runtime.Name}}</td>
+					<td>{{.Pool.Name}}</td>
+					<td>{{.Repository}} {{if ne .Branch ""}} {{.Branch}} {{end}}</td>
+					<td>{{.Framework}}</td>
+					<td>{{.DocumentRoot}}</td>
+					<td>
+						<ul>
+							{{range .Domains}}
+								<li>{{.Name}}</li>
+							{{end}}
+						</ul>
+					</td>
+					<td>{{.CreatedAt}}</td>
+					<td>{{.UpdatedAt}}</td>
+					<td>
+						<a href="/admin/application/view/{{.ID}}">View</a>
+						{{if $.CurrentUser.HasPrivilege "applications.update"}}
+							<a href="/admin/application/update/{{.ID}}">Edit</a>
 						{{end}}
-					</ul>
-				</td>
-				<td>{{.CreatedAt}}</td>
-				<td>{{.UpdatedAt}}</td>
-				<td>
-					<a href="/admin/application/view/{{.ID}}">View</a>
-					{{if $.CurrentUser.HasPrivilege "applications.update"}}
-						<a href="/admin/application/update/{{.ID}}">Edit</a>
-					{{end}}
 
-					{{if $.CurrentUser.HasPrivilege "applications.delete"}}
-						<form action="/admin/application/delete/{{.ID}}" method="post">
-							<input type="submit" value="Delete">
-						</form>
-					{{end}}
-				</td>
-			</tr>
-		{{end}}
-	</table>
+						{{if $.CurrentUser.HasPrivilege "applications.delete"}}
+							<form action="/admin/application/delete/{{.ID}}" method="post">
+								<input type="submit" value="Delete">
+							</form>
+						{{end}}
+					</td>
+				</tr>
+			{{end}}
+			</tbody>
+		</table>
+	</div>
 </div>
 {{end}}
