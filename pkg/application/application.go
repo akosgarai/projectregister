@@ -72,7 +72,7 @@ func (a *App) Initialize() {
 		applicationRepository,
 		session.NewStore(a.envConfig),
 		csvFileStorage,
-		render.NewRenderer(a.envConfig),
+		render.NewRenderer(a.envConfig, render.NewTemplates()),
 	)
 	// create a new server
 	a.Server = &http.Server{

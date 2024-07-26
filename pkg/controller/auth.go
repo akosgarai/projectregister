@@ -22,13 +22,12 @@ func (c *Controller) LoginPageController(w http.ResponseWriter, r *http.Request)
 			return
 		}
 	}
-	template := c.renderer.BuildTemplate("login", []string{c.renderer.GetTemplateDirectoryPath() + "/auth/login.html.tmpl"})
 	content := struct {
 		Title string
 	}{
 		Title: "Login",
 	}
-	err = template.ExecuteTemplate(w, "base.html", content)
+	err = c.renderer.Template.RenderTemplate(w, "login.html", content)
 	if err != nil {
 		panic(err)
 	}

@@ -18,7 +18,6 @@ func (c *Controller) DatabaseViewController(w http.ResponseWriter, r *http.Reque
 		c.renderer.Error(w, http.StatusForbidden, "Forbidden", nil)
 		return
 	}
-	template := c.renderer.BuildTemplate("database-view", []string{c.renderer.GetTemplateDirectoryPath() + "/database/view.html.tmpl"})
 	database, statusCode, err := c.databaseViewData(r)
 	if err != nil {
 		c.renderer.Error(w, statusCode, DatabaseFailedToGetDatabaseErrorMessage, err)
@@ -33,7 +32,7 @@ func (c *Controller) DatabaseViewController(w http.ResponseWriter, r *http.Reque
 		Database:    database,
 		CurrentUser: currentUser,
 	}
-	err = template.ExecuteTemplate(w, "base.html", content)
+	err = c.renderer.Template.RenderTemplate(w, "database-view.html", content)
 	if err != nil {
 		panic(err)
 	}
@@ -65,7 +64,6 @@ func (c *Controller) DatabaseCreateViewController(w http.ResponseWriter, r *http
 		return
 	}
 	if r.Method == http.MethodGet {
-		template := c.renderer.BuildTemplate("database-create", []string{c.renderer.GetTemplateDirectoryPath() + "/database/create.html.tmpl"})
 		content := struct {
 			Title       string
 			CurrentUser *model.User
@@ -73,7 +71,7 @@ func (c *Controller) DatabaseCreateViewController(w http.ResponseWriter, r *http
 			Title:       "Database Create",
 			CurrentUser: currentUser,
 		}
-		err := template.ExecuteTemplate(w, "base.html", content)
+		err := c.renderer.Template.RenderTemplate(w, "database-create.html", content)
 		if err != nil {
 			panic(err)
 		}
@@ -125,7 +123,6 @@ func (c *Controller) DatabaseUpdateViewController(w http.ResponseWriter, r *http
 	}
 
 	if r.Method == http.MethodGet {
-		template := c.renderer.BuildTemplate("user-database", []string{c.renderer.GetTemplateDirectoryPath() + "/database/update.html.tmpl"})
 		content := struct {
 			Title       string
 			Database    *model.Database
@@ -135,7 +132,7 @@ func (c *Controller) DatabaseUpdateViewController(w http.ResponseWriter, r *http
 			Database:    database,
 			CurrentUser: currentUser,
 		}
-		err = template.ExecuteTemplate(w, "base.html", content)
+		err = c.renderer.Template.RenderTemplate(w, "database-update.html", content)
 		if err != nil {
 			panic(err)
 		}
@@ -203,7 +200,6 @@ func (c *Controller) DatabaseListViewController(w http.ResponseWriter, r *http.R
 		c.renderer.Error(w, http.StatusInternalServerError, DatabaseListFailedToGetDatabasesErrorMessage, err)
 		return
 	}
-	template := c.renderer.BuildTemplate("database-list", []string{c.renderer.GetTemplateDirectoryPath() + "/database/list.html.tmpl"})
 	content := struct {
 		Title       string
 		Databases   []*model.Database
@@ -213,7 +209,7 @@ func (c *Controller) DatabaseListViewController(w http.ResponseWriter, r *http.R
 		Databases:   databases,
 		CurrentUser: currentUser,
 	}
-	err = template.ExecuteTemplate(w, "base.html", content)
+	err = c.renderer.Template.RenderTemplate(w, "database-list.html", content)
 	if err != nil {
 		panic(err)
 	}

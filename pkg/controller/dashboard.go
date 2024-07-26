@@ -8,7 +8,6 @@ import (
 
 // DashboardController is the dashboard controller.
 func (c *Controller) DashboardController(w http.ResponseWriter, r *http.Request) {
-	template := c.renderer.BuildTemplate("dashboard", []string{c.renderer.GetTemplateDirectoryPath() + "/dashboard/index.html.tmpl"})
 	content := struct {
 		Title       string
 		CurrentUser *model.User
@@ -16,7 +15,7 @@ func (c *Controller) DashboardController(w http.ResponseWriter, r *http.Request)
 		Title:       "Dashboard",
 		CurrentUser: c.CurrentUser(r),
 	}
-	err := template.ExecuteTemplate(w, "base.html", content)
+	err := c.renderer.Template.RenderTemplate(w, "dashboard.html", content)
 	if err != nil {
 		panic(err)
 	}

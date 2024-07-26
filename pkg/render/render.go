@@ -2,7 +2,6 @@ package render
 
 import (
 	"encoding/json"
-	"html/template"
 	"net/http"
 
 	"github.com/akosgarai/projectregister/pkg/config"
@@ -15,24 +14,25 @@ const (
 
 // Renderer is the renderer.
 type Renderer struct {
-	// baseTemplate is the base template.
-	baseTemplate string
-
 	// templateDirectoryPath is the path to the template directory.
 	templateDirectoryPath string
 
 	// staticDirectoryPath is the path to the static directory.
 	staticDirectoryPath string
+
+	// the compiled templates
+	Template TemplateInterface
 }
 
 // NewRenderer creates a new renderer.
-func NewRenderer(envConfig *config.Environment) *Renderer {
+func NewRenderer(envConfig *config.Environment, t TemplateInterface) *Renderer {
+	t.SetBaseTemplate(envConfig.GetRenderTemplateDirectoryPath() + "/" + envConfig.GetRenderBaseTemplate())
 	return &Renderer{
-		baseTemplate: envConfig.GetRenderTemplateDirectoryPath() + "/" + envConfig.GetRenderBaseTemplate(),
-
 		templateDirectoryPath: envConfig.GetRenderTemplateDirectoryPath(),
 
 		staticDirectoryPath: envConfig.GetStaticDirectoryPath(),
+
+		Template: t,
 	}
 }
 
@@ -44,11 +44,6 @@ func (r *Renderer) GetTemplateDirectoryPath() string {
 // GetStaticDirectoryPath returns the static directory path.
 func (r *Renderer) GetStaticDirectoryPath() string {
 	return r.staticDirectoryPath
-}
-
-// BuildTemplate builds a template.
-func (r *Renderer) BuildTemplate(name string, files []string) *template.Template {
-	return template.Must(template.New(name).ParseFiles(append(files, r.baseTemplate)...))
 }
 
 // JSON renders a JSON response.

@@ -18,7 +18,6 @@ func (c *Controller) ProjectViewController(w http.ResponseWriter, r *http.Reques
 		c.renderer.Error(w, http.StatusForbidden, "Forbidden", nil)
 		return
 	}
-	template := c.renderer.BuildTemplate("project-view", []string{c.renderer.GetTemplateDirectoryPath() + "/project/view.html.tmpl"})
 	project, statusCode, err := c.projectViewData(r)
 	if err != nil {
 		c.renderer.Error(w, statusCode, ProjectFailedToGetProjectErrorMessage, err)
@@ -33,7 +32,7 @@ func (c *Controller) ProjectViewController(w http.ResponseWriter, r *http.Reques
 		Project:     project,
 		CurrentUser: currentUser,
 	}
-	err = template.ExecuteTemplate(w, "base.html", content)
+	err = c.renderer.Template.RenderTemplate(w, "project-view.html", content)
 	if err != nil {
 		panic(err)
 	}
@@ -65,7 +64,6 @@ func (c *Controller) ProjectCreateViewController(w http.ResponseWriter, r *http.
 		return
 	}
 	if r.Method == http.MethodGet {
-		template := c.renderer.BuildTemplate("project-create", []string{c.renderer.GetTemplateDirectoryPath() + "/project/create.html.tmpl"})
 		content := struct {
 			Title       string
 			CurrentUser *model.User
@@ -73,7 +71,7 @@ func (c *Controller) ProjectCreateViewController(w http.ResponseWriter, r *http.
 			Title:       "Project Create",
 			CurrentUser: currentUser,
 		}
-		err := template.ExecuteTemplate(w, "base.html", content)
+		err := c.renderer.Template.RenderTemplate(w, "project-create.html", content)
 		if err != nil {
 			panic(err)
 		}
@@ -125,7 +123,6 @@ func (c *Controller) ProjectUpdateViewController(w http.ResponseWriter, r *http.
 	}
 
 	if r.Method == http.MethodGet {
-		template := c.renderer.BuildTemplate("user-project", []string{c.renderer.GetTemplateDirectoryPath() + "/project/update.html.tmpl"})
 		content := struct {
 			Title       string
 			Project     *model.Project
@@ -135,7 +132,7 @@ func (c *Controller) ProjectUpdateViewController(w http.ResponseWriter, r *http.
 			Project:     project,
 			CurrentUser: currentUser,
 		}
-		err = template.ExecuteTemplate(w, "base.html", content)
+		err = c.renderer.Template.RenderTemplate(w, "project-update.html", content)
 		if err != nil {
 			panic(err)
 		}
@@ -203,7 +200,6 @@ func (c *Controller) ProjectListViewController(w http.ResponseWriter, r *http.Re
 		c.renderer.Error(w, http.StatusInternalServerError, ProjectListFailedToGetProjectsErrorMessage, err)
 		return
 	}
-	template := c.renderer.BuildTemplate("project-list", []string{c.renderer.GetTemplateDirectoryPath() + "/project/list.html.tmpl"})
 	content := struct {
 		Title       string
 		Projects    []*model.Project
@@ -213,7 +209,7 @@ func (c *Controller) ProjectListViewController(w http.ResponseWriter, r *http.Re
 		Projects:    projects,
 		CurrentUser: currentUser,
 	}
-	err = template.ExecuteTemplate(w, "base.html", content)
+	err = c.renderer.Template.RenderTemplate(w, "project-list.html", content)
 	if err != nil {
 		panic(err)
 	}

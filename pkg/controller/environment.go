@@ -18,7 +18,6 @@ func (c *Controller) EnvironmentViewController(w http.ResponseWriter, r *http.Re
 		c.renderer.Error(w, http.StatusForbidden, "Forbidden", nil)
 		return
 	}
-	template := c.renderer.BuildTemplate("environment-view", []string{c.renderer.GetTemplateDirectoryPath() + "/environment/view.html.tmpl"})
 	environment, statusCode, err := c.environmentViewData(r)
 	if err != nil {
 		c.renderer.Error(w, statusCode, EnvironmentFailedToGetEnvironmentErrorMessage, err)
@@ -33,7 +32,7 @@ func (c *Controller) EnvironmentViewController(w http.ResponseWriter, r *http.Re
 		Environment: environment,
 		CurrentUser: currentUser,
 	}
-	err = template.ExecuteTemplate(w, "base.html", content)
+	err = c.renderer.Template.RenderTemplate(w, "environment-view.html", content)
 	if err != nil {
 		panic(err)
 	}
@@ -65,7 +64,6 @@ func (c *Controller) EnvironmentCreateViewController(w http.ResponseWriter, r *h
 		return
 	}
 	if r.Method == http.MethodGet {
-		template := c.renderer.BuildTemplate("environment-create", []string{c.renderer.GetTemplateDirectoryPath() + "/environment/create.html.tmpl"})
 		servers, err := c.serverRepository.GetServers()
 		if err != nil {
 			c.renderer.Error(w, http.StatusInternalServerError, EnvironmentCreateFailedToGetServersErrorMessage, err)
@@ -87,7 +85,7 @@ func (c *Controller) EnvironmentCreateViewController(w http.ResponseWriter, r *h
 			Databases:   databases,
 			CurrentUser: currentUser,
 		}
-		err = template.ExecuteTemplate(w, "base.html", content)
+		err = c.renderer.Template.RenderTemplate(w, "environment-create.html", content)
 		if err != nil {
 			panic(err)
 		}
@@ -161,7 +159,6 @@ func (c *Controller) EnvironmentUpdateViewController(w http.ResponseWriter, r *h
 	}
 
 	if r.Method == http.MethodGet {
-		template := c.renderer.BuildTemplate("user-environment", []string{c.renderer.GetTemplateDirectoryPath() + "/environment/update.html.tmpl"})
 		servers, err := c.serverRepository.GetServers()
 		if err != nil {
 			c.renderer.Error(w, http.StatusInternalServerError, EnvironmentUpdateFailedToGetServersErrorMessage, err)
@@ -185,7 +182,7 @@ func (c *Controller) EnvironmentUpdateViewController(w http.ResponseWriter, r *h
 			Databases:   databases,
 			CurrentUser: currentUser,
 		}
-		err = template.ExecuteTemplate(w, "base.html", content)
+		err = c.renderer.Template.RenderTemplate(w, "environment-update.html", content)
 		if err != nil {
 			panic(err)
 		}
@@ -277,7 +274,6 @@ func (c *Controller) EnvironmentListViewController(w http.ResponseWriter, r *htt
 		c.renderer.Error(w, http.StatusInternalServerError, EnvironmentListFailedToGetEnvironmentsErrorMessage, err)
 		return
 	}
-	template := c.renderer.BuildTemplate("environment-list", []string{c.renderer.GetTemplateDirectoryPath() + "/environment/list.html.tmpl"})
 	content := struct {
 		Title        string
 		Environments []*model.Environment
@@ -287,7 +283,7 @@ func (c *Controller) EnvironmentListViewController(w http.ResponseWriter, r *htt
 		Environments: environments,
 		CurrentUser:  currentUser,
 	}
-	err = template.ExecuteTemplate(w, "base.html", content)
+	err = c.renderer.Template.RenderTemplate(w, "environment-list.html", content)
 	if err != nil {
 		panic(err)
 	}

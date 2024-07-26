@@ -18,7 +18,6 @@ func (c *Controller) DomainViewController(w http.ResponseWriter, r *http.Request
 		c.renderer.Error(w, http.StatusForbidden, "Forbidden", nil)
 		return
 	}
-	template := c.renderer.BuildTemplate("domain-view", []string{c.renderer.GetTemplateDirectoryPath() + "/domain/view.html.tmpl"})
 	domain, statusCode, err := c.domainViewData(r)
 	if err != nil {
 		c.renderer.Error(w, statusCode, DomainFailedToGetDomainErrorMessage, err)
@@ -33,7 +32,7 @@ func (c *Controller) DomainViewController(w http.ResponseWriter, r *http.Request
 		Domain:      domain,
 		CurrentUser: currentUser,
 	}
-	err = template.ExecuteTemplate(w, "base.html", content)
+	err = c.renderer.Template.RenderTemplate(w, "domain-view.html", content)
 	if err != nil {
 		panic(err)
 	}
@@ -65,7 +64,6 @@ func (c *Controller) DomainCreateViewController(w http.ResponseWriter, r *http.R
 		return
 	}
 	if r.Method == http.MethodGet {
-		template := c.renderer.BuildTemplate("domain-create", []string{c.renderer.GetTemplateDirectoryPath() + "/domain/create.html.tmpl"})
 		content := struct {
 			Title       string
 			CurrentUser *model.User
@@ -73,7 +71,7 @@ func (c *Controller) DomainCreateViewController(w http.ResponseWriter, r *http.R
 			Title:       "Domain Create",
 			CurrentUser: currentUser,
 		}
-		err := template.ExecuteTemplate(w, "base.html", content)
+		err := c.renderer.Template.RenderTemplate(w, "domain-create.html", content)
 		if err != nil {
 			panic(err)
 		}
@@ -125,7 +123,6 @@ func (c *Controller) DomainUpdateViewController(w http.ResponseWriter, r *http.R
 	}
 
 	if r.Method == http.MethodGet {
-		template := c.renderer.BuildTemplate("user-domain", []string{c.renderer.GetTemplateDirectoryPath() + "/domain/update.html.tmpl"})
 		content := struct {
 			Title       string
 			Domain      *model.Domain
@@ -135,7 +132,7 @@ func (c *Controller) DomainUpdateViewController(w http.ResponseWriter, r *http.R
 			Domain:      domain,
 			CurrentUser: currentUser,
 		}
-		err = template.ExecuteTemplate(w, "base.html", content)
+		err = c.renderer.Template.RenderTemplate(w, "domain-update.html", content)
 		if err != nil {
 			panic(err)
 		}
@@ -203,7 +200,6 @@ func (c *Controller) DomainListViewController(w http.ResponseWriter, r *http.Req
 		c.renderer.Error(w, http.StatusInternalServerError, DomainListFailedToGetDomainsErrorMessage, err)
 		return
 	}
-	template := c.renderer.BuildTemplate("domain-list", []string{c.renderer.GetTemplateDirectoryPath() + "/domain/list.html.tmpl"})
 	content := struct {
 		Title       string
 		Domains     []*model.Domain
@@ -213,7 +209,7 @@ func (c *Controller) DomainListViewController(w http.ResponseWriter, r *http.Req
 		Domains:     domains,
 		CurrentUser: currentUser,
 	}
-	err = template.ExecuteTemplate(w, "base.html", content)
+	err = c.renderer.Template.RenderTemplate(w, "domain-list.html", content)
 	if err != nil {
 		panic(err)
 	}

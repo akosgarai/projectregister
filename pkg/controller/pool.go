@@ -18,7 +18,6 @@ func (c *Controller) PoolViewController(w http.ResponseWriter, r *http.Request) 
 		c.renderer.Error(w, http.StatusForbidden, "Forbidden", nil)
 		return
 	}
-	template := c.renderer.BuildTemplate("pool-view", []string{c.renderer.GetTemplateDirectoryPath() + "/pool/view.html.tmpl"})
 	pool, statusCode, err := c.poolViewData(r)
 	if err != nil {
 		c.renderer.Error(w, statusCode, PoolFailedToGetPoolErrorMessage, err)
@@ -33,7 +32,7 @@ func (c *Controller) PoolViewController(w http.ResponseWriter, r *http.Request) 
 		Pool:        pool,
 		CurrentUser: currentUser,
 	}
-	err = template.ExecuteTemplate(w, "base.html", content)
+	err = c.renderer.Template.RenderTemplate(w, "pool-view.html", content)
 	if err != nil {
 		panic(err)
 	}
@@ -65,7 +64,6 @@ func (c *Controller) PoolCreateViewController(w http.ResponseWriter, r *http.Req
 		return
 	}
 	if r.Method == http.MethodGet {
-		template := c.renderer.BuildTemplate("pool-create", []string{c.renderer.GetTemplateDirectoryPath() + "/pool/create.html.tmpl"})
 		content := struct {
 			Title       string
 			CurrentUser *model.User
@@ -73,7 +71,7 @@ func (c *Controller) PoolCreateViewController(w http.ResponseWriter, r *http.Req
 			Title:       "Pool Create",
 			CurrentUser: currentUser,
 		}
-		err := template.ExecuteTemplate(w, "base.html", content)
+		err := c.renderer.Template.RenderTemplate(w, "pool-create.html", content)
 		if err != nil {
 			panic(err)
 		}
@@ -125,7 +123,6 @@ func (c *Controller) PoolUpdateViewController(w http.ResponseWriter, r *http.Req
 	}
 
 	if r.Method == http.MethodGet {
-		template := c.renderer.BuildTemplate("user-pool", []string{c.renderer.GetTemplateDirectoryPath() + "/pool/update.html.tmpl"})
 		content := struct {
 			Title       string
 			Pool        *model.Pool
@@ -135,7 +132,7 @@ func (c *Controller) PoolUpdateViewController(w http.ResponseWriter, r *http.Req
 			Pool:        pool,
 			CurrentUser: currentUser,
 		}
-		err = template.ExecuteTemplate(w, "base.html", content)
+		err = c.renderer.Template.RenderTemplate(w, "pool-update.html", content)
 		if err != nil {
 			panic(err)
 		}
@@ -203,7 +200,6 @@ func (c *Controller) PoolListViewController(w http.ResponseWriter, r *http.Reque
 		c.renderer.Error(w, http.StatusInternalServerError, PoolListFailedToGetPoolsErrorMessage, err)
 		return
 	}
-	template := c.renderer.BuildTemplate("pool-list", []string{c.renderer.GetTemplateDirectoryPath() + "/pool/list.html.tmpl"})
 	content := struct {
 		Title       string
 		Pools       []*model.Pool
@@ -213,7 +209,7 @@ func (c *Controller) PoolListViewController(w http.ResponseWriter, r *http.Reque
 		Pools:       pools,
 		CurrentUser: currentUser,
 	}
-	err = template.ExecuteTemplate(w, "base.html", content)
+	err = c.renderer.Template.RenderTemplate(w, "pool-list.html", content)
 	if err != nil {
 		panic(err)
 	}

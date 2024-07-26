@@ -40,7 +40,6 @@ func (c *Controller) ApplicationViewController(w http.ResponseWriter, r *http.Re
 		c.renderer.Error(w, http.StatusForbidden, "Forbidden", nil)
 		return
 	}
-	template := c.renderer.BuildTemplate("application-view", []string{c.renderer.GetTemplateDirectoryPath() + "/application/view.html.tmpl"})
 	application, statusCode, err := c.applicationViewData(r)
 	if err != nil {
 		c.renderer.Error(w, statusCode, ApplicationFailedToGetApplicationErrorMessage, err)
@@ -55,7 +54,7 @@ func (c *Controller) ApplicationViewController(w http.ResponseWriter, r *http.Re
 		Application: application,
 		CurrentUser: currentUser,
 	}
-	err = template.ExecuteTemplate(w, "base.html", content)
+	err = c.renderer.Template.RenderTemplate(w, "application-view.html", content)
 	if err != nil {
 		panic(err)
 	}
@@ -87,14 +86,12 @@ func (c *Controller) ApplicationCreateViewController(w http.ResponseWriter, r *h
 		return
 	}
 	if r.Method == http.MethodGet {
-		template := c.renderer.BuildTemplate("application-create", []string{c.renderer.GetTemplateDirectoryPath() + "/application/create.html.tmpl"})
-		// TODO: add the free domains also.
 		content, errorMessage, err := c.createApplicationFormResponse("Application Create", currentUser, &model.Application{})
 		if errorMessage != "" {
 			c.renderer.Error(w, http.StatusInternalServerError, errorMessage, err)
 			return
 		}
-		err = template.ExecuteTemplate(w, "base.html", content)
+		err = c.renderer.Template.RenderTemplate(w, "application-create.html", content)
 		if err != nil {
 			panic(err)
 		}
@@ -142,13 +139,12 @@ func (c *Controller) ApplicationUpdateViewController(w http.ResponseWriter, r *h
 	}
 
 	if r.Method == http.MethodGet {
-		template := c.renderer.BuildTemplate("user-application", []string{c.renderer.GetTemplateDirectoryPath() + "/application/update.html.tmpl"})
 		content, errorMessage, err := c.createApplicationFormResponse("Application Update", currentUser, application)
 		if errorMessage != "" {
 			c.renderer.Error(w, http.StatusInternalServerError, errorMessage, err)
 			return
 		}
-		err = template.ExecuteTemplate(w, "base.html", content)
+		err = c.renderer.Template.RenderTemplate(w, "application-update.html", content)
 		if err != nil {
 			panic(err)
 		}
@@ -212,7 +208,6 @@ func (c *Controller) ApplicationListViewController(w http.ResponseWriter, r *htt
 		c.renderer.Error(w, http.StatusInternalServerError, ApplicationListFailedToGetApplicationsErrorMessage, err)
 		return
 	}
-	template := c.renderer.BuildTemplate("application-list", []string{c.renderer.GetTemplateDirectoryPath() + "/application/list.html.tmpl"})
 	content := struct {
 		Title        string
 		Applications []*model.Application
@@ -222,7 +217,7 @@ func (c *Controller) ApplicationListViewController(w http.ResponseWriter, r *htt
 		Applications: applications,
 		CurrentUser:  currentUser,
 	}
-	err = template.ExecuteTemplate(w, "base.html", content)
+	err = c.renderer.Template.RenderTemplate(w, "application-list.html", content)
 	if err != nil {
 		panic(err)
 	}
@@ -262,8 +257,7 @@ func (c *Controller) ApplicationImportToEnvironmentFormController(w http.Respons
 			Environment: environment,
 			CurrentUser: currentUser,
 		}
-		template := c.renderer.BuildTemplate("application-import", []string{c.renderer.GetTemplateDirectoryPath() + "/application/import.html.tmpl"})
-		err = template.ExecuteTemplate(w, "base.html", content)
+		err = c.renderer.Template.RenderTemplate(w, "application-import.html", content)
 		if err != nil {
 			panic(err)
 		}
@@ -316,8 +310,7 @@ func (c *Controller) ApplicationMappingToEnvironmentFormController(w http.Respon
 			CurrentUser: currentUser,
 			FileID:      fileID,
 		}
-		template := c.renderer.BuildTemplate("application-import", []string{c.renderer.GetTemplateDirectoryPath() + "/application/mapping.html.tmpl"})
-		err = template.ExecuteTemplate(w, "base.html", content)
+		err = c.renderer.Template.RenderTemplate(w, "application-mapping.html", content)
 		if err != nil {
 			panic(err)
 		}
@@ -352,8 +345,7 @@ func (c *Controller) ApplicationMappingToEnvironmentFormController(w http.Respon
 			FileID:      fileID,
 			Result:      results,
 		}
-		template := c.renderer.BuildTemplate("application-import", []string{c.renderer.GetTemplateDirectoryPath() + "/application/import-results.html.tmpl"})
-		err = template.ExecuteTemplate(w, "base.html", content)
+		err = c.renderer.Template.RenderTemplate(w, "application-import-results.html", content)
 		if err != nil {
 			panic(err)
 		}

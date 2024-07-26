@@ -18,7 +18,6 @@ func (c *Controller) ServerViewController(w http.ResponseWriter, r *http.Request
 		c.renderer.Error(w, http.StatusForbidden, "Forbidden", nil)
 		return
 	}
-	template := c.renderer.BuildTemplate("server-view", []string{c.renderer.GetTemplateDirectoryPath() + "/server/view.html.tmpl"})
 	server, statusCode, err := c.serverViewData(r)
 	if err != nil {
 		c.renderer.Error(w, statusCode, ServerFailedToGetServerErrorMessage, err)
@@ -33,7 +32,7 @@ func (c *Controller) ServerViewController(w http.ResponseWriter, r *http.Request
 		Server:      server,
 		CurrentUser: currentUser,
 	}
-	err = template.ExecuteTemplate(w, "base.html", content)
+	err = c.renderer.Template.RenderTemplate(w, "server-view.html", content)
 	if err != nil {
 		panic(err)
 	}
@@ -65,7 +64,6 @@ func (c *Controller) ServerCreateViewController(w http.ResponseWriter, r *http.R
 		return
 	}
 	if r.Method == http.MethodGet {
-		template := c.renderer.BuildTemplate("server-create", []string{c.renderer.GetTemplateDirectoryPath() + "/server/create.html.tmpl"})
 		runtimes, err := c.runtimeRepository.GetRuntimes()
 		if err != nil {
 			c.renderer.Error(w, http.StatusInternalServerError, ServerCreateFailedToGetRuntimesErrorMessage, err)
@@ -87,7 +85,7 @@ func (c *Controller) ServerCreateViewController(w http.ResponseWriter, r *http.R
 			Pools:       pools,
 			CurrentUser: currentUser,
 		}
-		err = template.ExecuteTemplate(w, "base.html", content)
+		err = c.renderer.Template.RenderTemplate(w, "server-create.html", content)
 		if err != nil {
 			panic(err)
 		}
@@ -160,7 +158,6 @@ func (c *Controller) ServerUpdateViewController(w http.ResponseWriter, r *http.R
 	}
 
 	if r.Method == http.MethodGet {
-		template := c.renderer.BuildTemplate("user-server", []string{c.renderer.GetTemplateDirectoryPath() + "/server/update.html.tmpl"})
 		runtimes, err := c.runtimeRepository.GetRuntimes()
 		if err != nil {
 			c.renderer.Error(w, http.StatusInternalServerError, ServerCreateFailedToGetRuntimesErrorMessage, err)
@@ -184,7 +181,7 @@ func (c *Controller) ServerUpdateViewController(w http.ResponseWriter, r *http.R
 			Pools:       pools,
 			CurrentUser: currentUser,
 		}
-		err = template.ExecuteTemplate(w, "base.html", content)
+		err = c.renderer.Template.RenderTemplate(w, "server-update.html", content)
 		if err != nil {
 			panic(err)
 		}
@@ -278,7 +275,6 @@ func (c *Controller) ServerListViewController(w http.ResponseWriter, r *http.Req
 		c.renderer.Error(w, http.StatusInternalServerError, ServerListFailedToGetServersErrorMessage, err)
 		return
 	}
-	template := c.renderer.BuildTemplate("server-list", []string{c.renderer.GetTemplateDirectoryPath() + "/server/list.html.tmpl"})
 	content := struct {
 		Title       string
 		Servers     []*model.Server
@@ -288,7 +284,7 @@ func (c *Controller) ServerListViewController(w http.ResponseWriter, r *http.Req
 		Servers:     servers,
 		CurrentUser: currentUser,
 	}
-	err = template.ExecuteTemplate(w, "base.html", content)
+	err = c.renderer.Template.RenderTemplate(w, "server-list.html", content)
 	if err != nil {
 		panic(err)
 	}

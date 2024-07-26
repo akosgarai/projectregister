@@ -17,7 +17,6 @@ func (c *Controller) UserViewController(w http.ResponseWriter, r *http.Request) 
 		c.renderer.Error(w, http.StatusForbidden, "Forbidden", nil)
 		return
 	}
-	template := c.renderer.BuildTemplate("login", []string{c.renderer.GetTemplateDirectoryPath() + "/user/view.html.tmpl"})
 	u, statusCode, err := c.userViewData(r)
 	if err != nil {
 		c.renderer.Error(w, statusCode, UserFailedToGetUserErrorMessage, err)
@@ -32,7 +31,7 @@ func (c *Controller) UserViewController(w http.ResponseWriter, r *http.Request) 
 		User:        u,
 		CurrentUser: currentUser,
 	}
-	err = template.ExecuteTemplate(w, "base.html", content)
+	err = c.renderer.Template.RenderTemplate(w, "user-view.html", content)
 	if err != nil {
 		panic(err)
 	}
@@ -77,7 +76,6 @@ func (c *Controller) UserCreateViewController(w http.ResponseWriter, r *http.Req
 		return
 	}
 	if r.Method == http.MethodGet {
-		template := c.renderer.BuildTemplate("user-create", []string{c.renderer.GetTemplateDirectoryPath() + "/user/create.html.tmpl"})
 		// get all roles
 		roles, err := c.roleRepository.GetRoles()
 		if err != nil {
@@ -93,7 +91,7 @@ func (c *Controller) UserCreateViewController(w http.ResponseWriter, r *http.Req
 			Roles:       roles,
 			CurrentUser: currentUser,
 		}
-		err = template.ExecuteTemplate(w, "base.html", content)
+		err = c.renderer.Template.RenderTemplate(w, "user-create.html", content)
 		if err != nil {
 			panic(err)
 		}
@@ -192,7 +190,6 @@ func (c *Controller) UserUpdateViewController(w http.ResponseWriter, r *http.Req
 	}
 
 	if r.Method == http.MethodGet {
-		template := c.renderer.BuildTemplate("user-update", []string{c.renderer.GetTemplateDirectoryPath() + "/user/update.html.tmpl"})
 		// get all roles
 		roles, err := c.roleRepository.GetRoles()
 		if err != nil {
@@ -210,7 +207,7 @@ func (c *Controller) UserUpdateViewController(w http.ResponseWriter, r *http.Req
 			Roles:       roles,
 			CurrentUser: currentUser,
 		}
-		err = template.ExecuteTemplate(w, "base.html", content)
+		err = c.renderer.Template.RenderTemplate(w, "user-update.html", content)
 		if err != nil {
 			panic(err)
 		}
@@ -370,7 +367,6 @@ func (c *Controller) UserListViewController(w http.ResponseWriter, r *http.Reque
 		c.renderer.Error(w, http.StatusInternalServerError, UserFailedToGetUserErrorMessage, err)
 		return
 	}
-	template := c.renderer.BuildTemplate("user-list", []string{c.renderer.GetTemplateDirectoryPath() + "/user/list.html.tmpl"})
 	content := struct {
 		Title       string
 		Users       []*model.User
@@ -380,7 +376,7 @@ func (c *Controller) UserListViewController(w http.ResponseWriter, r *http.Reque
 		Users:       users,
 		CurrentUser: currentUser,
 	}
-	err = template.ExecuteTemplate(w, "base.html", content)
+	err = c.renderer.Template.RenderTemplate(w, "user-list.html", content)
 	if err != nil {
 		panic(err)
 	}

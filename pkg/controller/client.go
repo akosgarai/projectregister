@@ -18,7 +18,6 @@ func (c *Controller) ClientViewController(w http.ResponseWriter, r *http.Request
 		c.renderer.Error(w, http.StatusForbidden, "Forbidden", nil)
 		return
 	}
-	template := c.renderer.BuildTemplate("client-view", []string{c.renderer.GetTemplateDirectoryPath() + "/client/view.html.tmpl"})
 	client, statusCode, err := c.clientViewData(r)
 	if err != nil {
 		c.renderer.Error(w, statusCode, ClientFailedToGetClientErrorMessage, err)
@@ -33,7 +32,7 @@ func (c *Controller) ClientViewController(w http.ResponseWriter, r *http.Request
 		Client:      client,
 		CurrentUser: currentUser,
 	}
-	err = template.ExecuteTemplate(w, "base.html", content)
+	err = c.renderer.Template.RenderTemplate(w, "client-view.html", content)
 	if err != nil {
 		panic(err)
 	}
@@ -65,7 +64,6 @@ func (c *Controller) ClientCreateViewController(w http.ResponseWriter, r *http.R
 		return
 	}
 	if r.Method == http.MethodGet {
-		template := c.renderer.BuildTemplate("client-create", []string{c.renderer.GetTemplateDirectoryPath() + "/client/create.html.tmpl"})
 		content := struct {
 			Title       string
 			CurrentUser *model.User
@@ -73,7 +71,7 @@ func (c *Controller) ClientCreateViewController(w http.ResponseWriter, r *http.R
 			Title:       "Client Create",
 			CurrentUser: currentUser,
 		}
-		err := template.ExecuteTemplate(w, "base.html", content)
+		err := c.renderer.Template.RenderTemplate(w, "client-create.html", content)
 		if err != nil {
 			panic(err)
 		}
@@ -125,7 +123,6 @@ func (c *Controller) ClientUpdateViewController(w http.ResponseWriter, r *http.R
 	}
 
 	if r.Method == http.MethodGet {
-		template := c.renderer.BuildTemplate("user-client", []string{c.renderer.GetTemplateDirectoryPath() + "/client/update.html.tmpl"})
 		content := struct {
 			Title       string
 			Client      *model.Client
@@ -135,7 +132,7 @@ func (c *Controller) ClientUpdateViewController(w http.ResponseWriter, r *http.R
 			Client:      client,
 			CurrentUser: currentUser,
 		}
-		err = template.ExecuteTemplate(w, "base.html", content)
+		err = c.renderer.Template.RenderTemplate(w, "client-update.html", content)
 		if err != nil {
 			panic(err)
 		}
@@ -203,7 +200,6 @@ func (c *Controller) ClientListViewController(w http.ResponseWriter, r *http.Req
 		c.renderer.Error(w, http.StatusInternalServerError, ClientListFailedToGetClientsErrorMessage, err)
 		return
 	}
-	template := c.renderer.BuildTemplate("client-list", []string{c.renderer.GetTemplateDirectoryPath() + "/client/list.html.tmpl"})
 	content := struct {
 		Title       string
 		Clients     []*model.Client
@@ -213,7 +209,7 @@ func (c *Controller) ClientListViewController(w http.ResponseWriter, r *http.Req
 		Clients:     clients,
 		CurrentUser: currentUser,
 	}
-	err = template.ExecuteTemplate(w, "base.html", content)
+	err = c.renderer.Template.RenderTemplate(w, "client-list.html", content)
 	if err != nil {
 		panic(err)
 	}

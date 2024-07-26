@@ -18,7 +18,6 @@ func (c *Controller) RuntimeViewController(w http.ResponseWriter, r *http.Reques
 		c.renderer.Error(w, http.StatusForbidden, "Forbidden", nil)
 		return
 	}
-	template := c.renderer.BuildTemplate("runtime-view", []string{c.renderer.GetTemplateDirectoryPath() + "/runtime/view.html.tmpl"})
 	runtime, statusCode, err := c.runtimeViewData(r)
 	if err != nil {
 		c.renderer.Error(w, statusCode, RuntimeFailedToGetRuntimeErrorMessage, err)
@@ -33,7 +32,7 @@ func (c *Controller) RuntimeViewController(w http.ResponseWriter, r *http.Reques
 		Runtime:     runtime,
 		CurrentUser: currentUser,
 	}
-	err = template.ExecuteTemplate(w, "base.html", content)
+	err = c.renderer.Template.RenderTemplate(w, "runtime-view.html", content)
 	if err != nil {
 		panic(err)
 	}
@@ -65,7 +64,6 @@ func (c *Controller) RuntimeCreateViewController(w http.ResponseWriter, r *http.
 		return
 	}
 	if r.Method == http.MethodGet {
-		template := c.renderer.BuildTemplate("runtime-create", []string{c.renderer.GetTemplateDirectoryPath() + "/runtime/create.html.tmpl"})
 		content := struct {
 			Title       string
 			CurrentUser *model.User
@@ -73,7 +71,7 @@ func (c *Controller) RuntimeCreateViewController(w http.ResponseWriter, r *http.
 			Title:       "Runtime Create",
 			CurrentUser: currentUser,
 		}
-		err := template.ExecuteTemplate(w, "base.html", content)
+		err := c.renderer.Template.RenderTemplate(w, "runtime-create.html", content)
 		if err != nil {
 			panic(err)
 		}
@@ -125,7 +123,6 @@ func (c *Controller) RuntimeUpdateViewController(w http.ResponseWriter, r *http.
 	}
 
 	if r.Method == http.MethodGet {
-		template := c.renderer.BuildTemplate("user-runtime", []string{c.renderer.GetTemplateDirectoryPath() + "/runtime/update.html.tmpl"})
 		content := struct {
 			Title       string
 			Runtime     *model.Runtime
@@ -135,7 +132,7 @@ func (c *Controller) RuntimeUpdateViewController(w http.ResponseWriter, r *http.
 			Runtime:     runtime,
 			CurrentUser: currentUser,
 		}
-		err = template.ExecuteTemplate(w, "base.html", content)
+		err = c.renderer.Template.RenderTemplate(w, "runtime-update.html", content)
 		if err != nil {
 			panic(err)
 		}
@@ -203,7 +200,6 @@ func (c *Controller) RuntimeListViewController(w http.ResponseWriter, r *http.Re
 		c.renderer.Error(w, http.StatusInternalServerError, RuntimeListFailedToGetRuntimesErrorMessage, err)
 		return
 	}
-	template := c.renderer.BuildTemplate("runtime-list", []string{c.renderer.GetTemplateDirectoryPath() + "/runtime/list.html.tmpl"})
 	content := struct {
 		Title       string
 		Runtimes    []*model.Runtime
@@ -213,7 +209,7 @@ func (c *Controller) RuntimeListViewController(w http.ResponseWriter, r *http.Re
 		Runtimes:    runtimes,
 		CurrentUser: currentUser,
 	}
-	err = template.ExecuteTemplate(w, "base.html", content)
+	err = c.renderer.Template.RenderTemplate(w, "runtime-list.html", content)
 	if err != nil {
 		panic(err)
 	}

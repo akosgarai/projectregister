@@ -18,7 +18,6 @@ func (c *Controller) RoleViewController(w http.ResponseWriter, r *http.Request) 
 		c.renderer.Error(w, http.StatusForbidden, "Forbidden", nil)
 		return
 	}
-	template := c.renderer.BuildTemplate("role-view", []string{c.renderer.GetTemplateDirectoryPath() + "/role/view.html.tmpl"})
 	role, statusCode, err := c.roleViewData(r)
 	if err != nil {
 		c.renderer.Error(w, statusCode, RoleFailedToGetRoleErrorMessage, err)
@@ -33,7 +32,7 @@ func (c *Controller) RoleViewController(w http.ResponseWriter, r *http.Request) 
 		Role:        role,
 		CurrentUser: currentUser,
 	}
-	err = template.ExecuteTemplate(w, "base.html", content)
+	err = c.renderer.Template.RenderTemplate(w, "role-view.html", content)
 	if err != nil {
 		panic(err)
 	}
@@ -65,7 +64,6 @@ func (c *Controller) RoleCreateViewController(w http.ResponseWriter, r *http.Req
 		return
 	}
 	if r.Method == http.MethodGet {
-		template := c.renderer.BuildTemplate("role-create", []string{c.renderer.GetTemplateDirectoryPath() + "/role/create.html.tmpl"})
 		resources, err := c.resourceRepository.GetResources()
 		if err != nil {
 			c.renderer.Error(w, http.StatusInternalServerError, RoleFailedToGetResourcesErrorMessage, err)
@@ -80,7 +78,7 @@ func (c *Controller) RoleCreateViewController(w http.ResponseWriter, r *http.Req
 			Resources:   resources,
 			CurrentUser: currentUser,
 		}
-		err = template.ExecuteTemplate(w, "base.html", content)
+		err = c.renderer.Template.RenderTemplate(w, "role-create.html", content)
 		if err != nil {
 			panic(err)
 		}
@@ -143,7 +141,6 @@ func (c *Controller) RoleUpdateViewController(w http.ResponseWriter, r *http.Req
 	}
 
 	if r.Method == http.MethodGet {
-		template := c.renderer.BuildTemplate("user-role", []string{c.renderer.GetTemplateDirectoryPath() + "/role/update.html.tmpl"})
 		resources, err := c.resourceRepository.GetResources()
 		if err != nil {
 			c.renderer.Error(w, http.StatusInternalServerError, RoleFailedToGetResourcesErrorMessage, err)
@@ -160,7 +157,7 @@ func (c *Controller) RoleUpdateViewController(w http.ResponseWriter, r *http.Req
 			Resources:   resources,
 			CurrentUser: currentUser,
 		}
-		err = template.ExecuteTemplate(w, "base.html", content)
+		err = c.renderer.Template.RenderTemplate(w, "role-update.html", content)
 		if err != nil {
 			panic(err)
 		}
@@ -239,7 +236,6 @@ func (c *Controller) RoleListViewController(w http.ResponseWriter, r *http.Reque
 		c.renderer.Error(w, http.StatusInternalServerError, RoleListFailedToGetRolesErrorMessage, err)
 		return
 	}
-	template := c.renderer.BuildTemplate("role-list", []string{c.renderer.GetTemplateDirectoryPath() + "/role/list.html.tmpl"})
 	content := struct {
 		Title       string
 		Roles       []*model.Role
@@ -249,7 +245,7 @@ func (c *Controller) RoleListViewController(w http.ResponseWriter, r *http.Reque
 		Roles:       roles,
 		CurrentUser: currentUser,
 	}
-	err = template.ExecuteTemplate(w, "base.html", content)
+	err = c.renderer.Template.RenderTemplate(w, "role-list.html", content)
 	if err != nil {
 		panic(err)
 	}

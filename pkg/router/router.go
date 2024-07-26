@@ -132,5 +132,7 @@ func New(
 	apiRouter.HandleFunc("/user/update/{userId}", routerController.UserUpdateAPIController).Methods("POST")
 	apiRouter.HandleFunc("/user/delete/{userId}", routerController.UserDeleteAPIController).Methods("DELETE")
 	apiRouter.HandleFunc("/user/list", routerController.UserListAPIController)
+
+	routerController.CacheTemplates()
 	return r
 }
