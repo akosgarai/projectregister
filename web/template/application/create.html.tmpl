@@ -1,6 +1,6 @@
 {{define "content"}}
 <div class="form-page">
-	<h1>{{.Title}}</h1>
+	{{template "header" .Header}}
 	<form action="/admin/application/create" method="post">
 		<div class="form-group">
 			<label for="client">Client</label>

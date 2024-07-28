@@ -1,6 +1,6 @@
 {{define "content"}}
 <div class="detail-page">
-	<h1>{{.Title}}</h1>
+	{{template "header" .Header}}
 	<form action="/admin/application/import-to-environment/{{.Environment.ID}}" method="post" enctype="multipart/form-data">
 		<input type="hidden" name="environment_id" value="{{.Environment.ID}}"/>
 		<div class="form-group">

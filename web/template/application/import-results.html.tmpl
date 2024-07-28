@@ -1,6 +1,6 @@
 {{define "content"}}
 <div class="listing-page">
-	<h1>{{.Title}}</h1>
+	{{template "header" .Header}}
 	<table>
 		{{range $rowIndex, $item  := .Result}}
 			<tr>

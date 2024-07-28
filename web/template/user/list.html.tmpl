@@ -1,9 +1,6 @@
 {{define "content"}}
 <div class="listing-page">
-	<h1>{{.Title}}</h1>
-	{{if .CurrentUser.HasPrivilege "users.create"}}
-		<a class="button-link" href="/admin/user/create">Create User</a>
-	{{end}}
+	{{template "header" .Header}}
 	<table >
 		<tr>
 			<th>ID</th>

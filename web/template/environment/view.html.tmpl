@@ -1,12 +1,6 @@
 {{define "content"}}
 <div class="detail-page">
-	<h1>{{.Title}}</h1>
-	{{if .CurrentUser.HasPrivilege "environments.update"}}
-		<a class="button-link" href="/admin/environment/update/{{.Environment.ID}}">Edit Environment</a>
-	{{end}}
-	{{if .CurrentUser.HasPrivilege "applications.create"}}
-		<a class="button-link" href="/admin/application/import-to-environment/{{.Environment.ID}}">Import Applications To This Environment</a>
-	{{end}}
+	{{template "header" .Header}}
 	<div>
 		<p>ID: {{.Environment.ID}}</p>
 		<p>Name: {{.Environment.Name}}</p>

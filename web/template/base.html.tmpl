@@ -10,7 +10,7 @@
 	<body>
 		<div class="container">
 			<div class="panel-left">
-			{{if eq .Title "Login"}}
+			{{if not .SideMenu}}
 				<div class="loader">
 					<div class="electrons">
 						<div class="electron-pair"></div>
@@ -22,39 +22,8 @@
 				<div class="navigation">
 					<ul>
 						<li class="nav-toggle"><a onclick="document.querySelector('.container').classList.toggle('closed')">-><-</a></li>
-						<li><a href="/admin/dashboard">Dashboard</a></li>
-						{{if .CurrentUser.HasPrivilege "users.view"}}
-							<li><a href="/admin/user/list">Users</a></li>
-						{{end}}
-						{{if .CurrentUser.HasPrivilege "roles.view"}}
-							<li><a href="/admin/role/list">Roles</a></li>
-						{{end}}
-						{{if .CurrentUser.HasPrivilege "clients.view"}}
-							<li><a href="/admin/client/list">Clients</a></li>
-						{{end}}
-						{{if .CurrentUser.HasPrivilege "projects.view"}}
-							<li><a href="/admin/project/list">Projects</a></li>
-						{{end}}
-						{{if .CurrentUser.HasPrivilege "domains.view"}}
-							<li><a href="/admin/domain/list">Domains</a></li>
-						{{end}}
-						{{if .CurrentUser.HasPrivilege "environments.view"}}
-							<li><a href="/admin/environment/list">Environments</a></li>
-						{{end}}
-						{{if .CurrentUser.HasPrivilege "runtimes.view"}}
-							<li><a href="/admin/runtime/list">Runtimes</a></li>
-						{{end}}
-						{{if .CurrentUser.HasPrivilege "pools.view"}}
-							<li><a href="/admin/pool/list">Pools</a></li>
-						{{end}}
-						{{if .CurrentUser.HasPrivilege "databases.view"}}
-							<li><a href="/admin/database/list">Databases</a></li>
-						{{end}}
-						{{if .CurrentUser.HasPrivilege "servers.view"}}
-							<li><a href="/admin/server/list">Servers</a></li>
-						{{end}}
-						{{if .CurrentUser.HasPrivilege "applications.view"}}
-							<li><a href="/admin/application/list">Applications</a></li>
+						{{range .SideMenu}}
+							<li><a href="{{.Link}}">{{.Label}}</a></li>
 						{{end}}
 					</ul>
 				</div>

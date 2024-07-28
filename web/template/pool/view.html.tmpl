@@ -1,9 +1,6 @@
 {{define "content"}}
 <div class="detail-page">
-	<h1>{{.Title}}</h1>
-	{{if .CurrentUser.HasPrivilege "pools.update"}}
-		<a class="button-link" href="/admin/pool/update/{{.Pool.ID}}">Edit Pool</a>
-	{{end}}
+	{{template "header" .Header}}
 	<div>
 		<p>ID: {{.Pool.ID}}</p>
 		<p>Name: {{.Pool.Name}}</p>

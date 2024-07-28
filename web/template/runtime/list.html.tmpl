@@ -1,9 +1,6 @@
 {{define "content"}}
 <div class="listing-page">
-	<h1>{{.Title}}</h1>
-	{{if .CurrentUser.HasPrivilege "runtimes.create"}}
-		<a class="button-link" href="/admin/runtime/create">Create Runtime</a>
-	{{end}}
+	{{template "header" .Header}}
 	<table >
 		<tr>
 			<th>ID</th>

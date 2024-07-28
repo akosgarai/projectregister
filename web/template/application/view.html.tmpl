@@ -1,9 +1,6 @@
 {{define "content"}}
 <div class="detail-page">
-	<h1>{{.Title}}</h1>
-	{{if .CurrentUser.HasPrivilege "applications.update"}}
-		<a class="button-link" href="/admin/application/update/{{.Application.ID}}">Edit Application</a>
-	{{end}}
+	{{template "header" .Header}}
 	<div>
 		<p>ID: {{.Application.ID}}</p>
 		<p>Client: {{.Application.Client.Name}}</p>
