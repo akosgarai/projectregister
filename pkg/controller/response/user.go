@@ -39,19 +39,42 @@ func NewUserDetailResponse(currentUser, user *model.User) *UserDetailResponse {
 // UserFormResponse is the struct for the user form responses.
 type UserFormResponse struct {
 	*UserDetailResponse
-	Roles []*model.Role
+	Roles     *model.Roles
+	FormItems []*FormItem
 }
 
 // NewUserFormResponse is a constructor for the UserFormResponse struct.
-func NewUserFormResponse(title string, currentUser, user *model.User, roles []*model.Role) *UserFormResponse {
+func NewUserFormResponse(title string, currentUser, user *model.User, roles *model.Roles) *UserFormResponse {
 	userDetailResponse := NewUserDetailResponse(currentUser, user)
 	userDetailResponse.Header.Title = title
 	userDetailResponse.Title = title
 	// The buttons are unnecessary on the form page.
-	userDetailResponse.Header.Buttons = []*ActionButton{}
+	userDetailResponse.Header.Buttons = []*ActionButton{{Label: "Back", Link: "/admin/user/list", Privilege: "users.view"}}
+	roleID := ""
+	if user.Role != nil && user.Role.ID > 0 {
+		roleID = fmt.Sprintf("%d", user.Role.ID)
+	}
+	formItems := []*FormItem{
+		// Name.
+		{Label: "Name", Type: "text", Name: "name", Value: user.Name, Required: true},
+		// Email.
+		{Label: "Email", Type: "email", Name: "email", Value: user.Email, Required: true},
+		// Password.
+		{Label: "Password", Type: "password", Name: "password", Value: "", Required: false},
+		// Roles.
+		{
+			Label:    "Role",
+			Name:     "role",
+			Type:     "select",
+			Value:    roleID,
+			Required: true,
+			Options:  roles.ToMap(),
+		},
+	}
 	return &UserFormResponse{
 		UserDetailResponse: userDetailResponse,
 		Roles:              roles,
+		FormItems:          formItems,
 	}
 }
 

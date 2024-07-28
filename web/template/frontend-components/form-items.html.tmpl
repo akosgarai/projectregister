@@ -1,0 +1,22 @@
+{{define "formitems"}}
+	<div class="form-group">
+		{{ range . }}
+			<label for="{{.Name}}">{{.Label}}</label>
+			{{if eq .Type "text"}}
+				<input type="{{.Type}}" class="form-control" id="{{.Name}}" name="{{.Name}}" placeholder="{{.Label}}" value="{{.Value}}" {{if eq .Required true}}required{{end}} >
+			{{else if eq .Type "email"}}
+				<input type="{{.Type}}" class="form-control" id="{{.Name}}" name="{{.Name}}" placeholder="{{.Label}}" value="{{.Value}}" {{if eq .Required true}}required{{end}} >
+			{{else if eq .Type "password"}}
+				<input type="{{.Type}}" class="form-control" id="{{.Name}}" name="{{.Name}}" {{if eq .Required true}}required{{end}} >
+			{{else if eq .Type "select"}}
+				{{$selectValue := .Value}}
+				<select class="form-control" id="{{.Name}}" name="{{.Name}}" {{if eq .Required true}}required{{end}} >
+					<option value="">--Pick One--</option>
+					{{range $value, $label := .Options}}
+						{{$stringVal := printf "%d" $value}}
+						<option value="{{$value}}" {{if eq $stringVal $selectValue}}selected{{end}}>{{$label}}</option>
+					{{end}}
+			{{end}}
+		{{end}}
+	</div>
+{{end}}

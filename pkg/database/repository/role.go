@@ -135,9 +135,9 @@ func (r *RoleRepository) DeleteRole(id int64) error {
 
 // GetRoles gets all roles
 // it returns the roles and an error
-func (r *RoleRepository) GetRoles() ([]*model.Role, error) {
+func (r *RoleRepository) GetRoles() (*model.Roles, error) {
 	// get all roles
-	var roles []*model.Role
+	var roles model.Roles
 	query := "SELECT * FROM roles"
 	rows, err := r.db.Query(query)
 	if err != nil {
@@ -152,5 +152,5 @@ func (r *RoleRepository) GetRoles() ([]*model.Role, error) {
 		}
 		roles = append(roles, &role)
 	}
-	return roles, nil
+	return &roles, nil
 }

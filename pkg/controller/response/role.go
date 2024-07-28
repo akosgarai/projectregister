@@ -58,11 +58,11 @@ func NewRoleFormResponse(title string, currentUser *model.User, role *model.Role
 // RoleListResponse is the struct for the role list page.
 type RoleListResponse struct {
 	*Response
-	Roles []*model.Role
+	Roles *model.Roles
 }
 
 // NewRoleListResponse is a constructor for the RoleListResponse struct.
-func NewRoleListResponse(currentUser *model.User, roles []*model.Role) *RoleListResponse {
+func NewRoleListResponse(currentUser *model.User, roles *model.Roles) *RoleListResponse {
 	header := &HeaderBlock{
 		Title:       "Role List",
 		CurrentUser: currentUser,

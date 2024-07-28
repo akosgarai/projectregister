@@ -64,3 +64,14 @@ func NewResponse(title string, user *model.User, header *HeaderBlock) *Response 
 		Header:      header,
 	}
 }
+
+// FormItem is the struct for the form items.
+type FormItem struct {
+	Label    string
+	Name     string
+	Type     string
+	Value    string
+	Required bool
+	// On case of select / checkbox group type we need the options.
+	Options map[int64]string
+}
