@@ -6,6 +6,7 @@ import (
 
 	"github.com/gorilla/mux"
 
+	"github.com/akosgarai/projectregister/pkg/controller/response"
 	"github.com/akosgarai/projectregister/pkg/model"
 )
 
@@ -23,15 +24,7 @@ func (c *Controller) ProjectViewController(w http.ResponseWriter, r *http.Reques
 		c.renderer.Error(w, statusCode, ProjectFailedToGetProjectErrorMessage, err)
 		return
 	}
-	content := struct {
-		Title       string
-		Project     *model.Project
-		CurrentUser *model.User
-	}{
-		Title:       "Project View",
-		Project:     project,
-		CurrentUser: currentUser,
-	}
+	content := response.NewProjectDetailResponse(currentUser, project)
 	err = c.renderer.Template.RenderTemplate(w, "project-view.html", content)
 	if err != nil {
 		panic(err)
@@ -64,13 +57,7 @@ func (c *Controller) ProjectCreateViewController(w http.ResponseWriter, r *http.
 		return
 	}
 	if r.Method == http.MethodGet {
-		content := struct {
-			Title       string
-			CurrentUser *model.User
-		}{
-			Title:       "Project Create",
-			CurrentUser: currentUser,
-		}
+		content := response.NewProjectFormResponse("Project Create", currentUser, &model.Project{})
 		err := c.renderer.Template.RenderTemplate(w, "project-create.html", content)
 		if err != nil {
 			panic(err)
@@ -123,15 +110,7 @@ func (c *Controller) ProjectUpdateViewController(w http.ResponseWriter, r *http.
 	}
 
 	if r.Method == http.MethodGet {
-		content := struct {
-			Title       string
-			Project     *model.Project
-			CurrentUser *model.User
-		}{
-			Title:       "Project Update",
-			Project:     project,
-			CurrentUser: currentUser,
-		}
+		content := response.NewProjectFormResponse("Project Update", currentUser, project)
 		err = c.renderer.Template.RenderTemplate(w, "project-update.html", content)
 		if err != nil {
 			panic(err)
@@ -200,15 +179,7 @@ func (c *Controller) ProjectListViewController(w http.ResponseWriter, r *http.Re
 		c.renderer.Error(w, http.StatusInternalServerError, ProjectListFailedToGetProjectsErrorMessage, err)
 		return
 	}
-	content := struct {
-		Title       string
-		Projects    []*model.Project
-		CurrentUser *model.User
-	}{
-		Title:       "Project List",
-		Projects:    projects,
-		CurrentUser: currentUser,
-	}
+	content := response.NewProjectListResponse(currentUser, projects)
 	err = c.renderer.Template.RenderTemplate(w, "project-list.html", content)
 	if err != nil {
 		panic(err)

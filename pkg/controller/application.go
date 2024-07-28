@@ -7,29 +7,9 @@ import (
 
 	"github.com/gorilla/mux"
 
+	"github.com/akosgarai/projectregister/pkg/controller/response"
 	"github.com/akosgarai/projectregister/pkg/model"
 )
-
-// ApplicationFormResponse is the struct for the application form responses.
-type ApplicationFormResponse struct {
-	Title        string
-	Application  *model.Application
-	Clients      []*model.Client
-	Projects     []*model.Project
-	Environments []*model.Environment
-	Databases    []*model.Database
-	Runtimes     []*model.Runtime
-	Pools        []*model.Pool
-	Domains      []*model.Domain
-	CurrentUser  *model.User
-}
-
-// ApplicationImportRowResult is the struct for the application import row results.
-type ApplicationImportRowResult struct {
-	ErrorMessage string
-	RowData      []string
-	Application  *model.Application
-}
 
 // ApplicationViewController is the controller for the application view page.
 // GET /admin/application/view/{applicationId}
@@ -45,15 +25,7 @@ func (c *Controller) ApplicationViewController(w http.ResponseWriter, r *http.Re
 		c.renderer.Error(w, statusCode, ApplicationFailedToGetApplicationErrorMessage, err)
 		return
 	}
-	content := struct {
-		Title       string
-		Application *model.Application
-		CurrentUser *model.User
-	}{
-		Title:       "Application View",
-		Application: application,
-		CurrentUser: currentUser,
-	}
+	content := response.NewApplicationDetailResponse(currentUser, application)
 	err = c.renderer.Template.RenderTemplate(w, "application-view.html", content)
 	if err != nil {
 		panic(err)
@@ -208,15 +180,7 @@ func (c *Controller) ApplicationListViewController(w http.ResponseWriter, r *htt
 		c.renderer.Error(w, http.StatusInternalServerError, ApplicationListFailedToGetApplicationsErrorMessage, err)
 		return
 	}
-	content := struct {
-		Title        string
-		Applications []*model.Application
-		CurrentUser  *model.User
-	}{
-		Title:        "Application List",
-		Applications: applications,
-		CurrentUser:  currentUser,
-	}
+	content := response.NewApplicationListResponse(currentUser, applications)
 	err = c.renderer.Template.RenderTemplate(w, "application-list.html", content)
 	if err != nil {
 		panic(err)
@@ -248,15 +212,7 @@ func (c *Controller) ApplicationImportToEnvironmentFormController(w http.Respons
 	}
 	// On case of get method load the form template
 	if r.Method == http.MethodGet {
-		content := struct {
-			Title       string
-			Environment *model.Environment
-			CurrentUser *model.User
-		}{
-			Title:       "Import Application to Environment",
-			Environment: environment,
-			CurrentUser: currentUser,
-		}
+		content := response.NewApplicationImportToEnvironmentFormResponse(currentUser, environment)
 		err = c.renderer.Template.RenderTemplate(w, "application-import.html", content)
 		if err != nil {
 			panic(err)
@@ -299,17 +255,7 @@ func (c *Controller) ApplicationMappingToEnvironmentFormController(w http.Respon
 	}
 	// On case of get method load the form template
 	if r.Method == http.MethodGet {
-		content := struct {
-			Title       string
-			Environment *model.Environment
-			FileID      string
-			CurrentUser *model.User
-		}{
-			Title:       "Import Mapping to Environment",
-			Environment: environment,
-			CurrentUser: currentUser,
-			FileID:      fileID,
-		}
+		content := response.NewApplicationMappingToEnvironmentFormResponse(currentUser, environment, fileID)
 		err = c.renderer.Template.RenderTemplate(w, "application-mapping.html", content)
 		if err != nil {
 			panic(err)
@@ -332,19 +278,7 @@ func (c *Controller) ApplicationMappingToEnvironmentFormController(w http.Respon
 			c.renderer.Error(w, http.StatusInternalServerError, "Failed to import", err)
 			return
 		}
-		content := struct {
-			Title       string
-			Environment *model.Environment
-			FileID      string
-			CurrentUser *model.User
-			Result      map[int]ApplicationImportRowResult
-		}{
-			Title:       "Results Mapping to Environment",
-			Environment: environment,
-			CurrentUser: currentUser,
-			FileID:      fileID,
-			Result:      results,
-		}
+		content := response.NewApplicationImportToEnvironmentListResponse(currentUser, environment, fileName, results)
 		err = c.renderer.Template.RenderTemplate(w, "application-import-results.html", content)
 		if err != nil {
 			panic(err)
@@ -353,48 +287,37 @@ func (c *Controller) ApplicationMappingToEnvironmentFormController(w http.Respon
 }
 
 // It creates the content for the application forms.
-func (c *Controller) createApplicationFormResponse(title string, currentUser *model.User, application *model.Application) (ApplicationFormResponse, string, error) {
+func (c *Controller) createApplicationFormResponse(title string, currentUser *model.User, application *model.Application) (*response.ApplicationFormResponse, string, error) {
 	runtimes, err := c.runtimeRepository.GetRuntimes()
 	if err != nil {
-		return ApplicationFormResponse{}, ApplicationCreateFailedToGetRuntimesErrorMessage, err
+		return &response.ApplicationFormResponse{}, ApplicationCreateFailedToGetRuntimesErrorMessage, err
 	}
 	pools, err := c.poolRepository.GetPools()
 	if err != nil {
-		return ApplicationFormResponse{}, ApplicationCreateFailedToGetPoolsErrorMessage, err
+		return &response.ApplicationFormResponse{}, ApplicationCreateFailedToGetPoolsErrorMessage, err
 	}
 	clients, err := c.clientRepository.GetClients()
 	if err != nil {
-		return ApplicationFormResponse{}, ApplicationCreateFailedToGetClientsErrorMessage, err
+		return &response.ApplicationFormResponse{}, ApplicationCreateFailedToGetClientsErrorMessage, err
 	}
 	projects, err := c.projectRepository.GetProjects()
 	if err != nil {
-		return ApplicationFormResponse{}, ApplicationCreateFailedToGetProjectsErrorMessage, err
+		return &response.ApplicationFormResponse{}, ApplicationCreateFailedToGetProjectsErrorMessage, err
 	}
 	environments, err := c.environmentRepository.GetEnvironments()
 	if err != nil {
-		return ApplicationFormResponse{}, ApplicationCreateFailedToGetEnvironmentsErrorMessage, err
+		return &response.ApplicationFormResponse{}, ApplicationCreateFailedToGetEnvironmentsErrorMessage, err
 	}
 	databases, err := c.databaseRepository.GetDatabases()
 	if err != nil {
-		return ApplicationFormResponse{}, ApplicationCreateFailedToGetDatabasesErrorMessage, err
+		return &response.ApplicationFormResponse{}, ApplicationCreateFailedToGetDatabasesErrorMessage, err
 	}
 	domains, err := c.domainRepository.GetFreeDomains()
 	if err != nil {
-		return ApplicationFormResponse{}, ApplicationCreateFailedToGetDomainsErrorMessage, err
+		return &response.ApplicationFormResponse{}, ApplicationCreateFailedToGetDomainsErrorMessage, err
 	}
 
-	return ApplicationFormResponse{
-		Title:        title,
-		Clients:      clients,
-		Projects:     projects,
-		Environments: environments,
-		Databases:    databases,
-		Runtimes:     runtimes,
-		Pools:        pools,
-		Domains:      domains,
-		CurrentUser:  currentUser,
-		Application:  application,
-	}, "", nil
+	return response.NewApplicationFormResponse(title, currentUser, application, clients, projects, environments, databases, runtimes, pools, domains), "", nil
 }
 
 // It validates the application form data. Returns the Application with the validated data, the domain ids, and an error message and error.
@@ -485,17 +408,17 @@ func (c *Controller) storeImportCSVFile(r *http.Request) (string, error) {
 
 // importApplicationToEnvironment imports the applications to the environment.
 // It returns the results and an error.
-func (c *Controller) importApplicationToEnvironment(environmentID int64, fileName string) (map[int]ApplicationImportRowResult, error) {
+func (c *Controller) importApplicationToEnvironment(environmentID int64, fileName string) (map[int]*response.ApplicationImportRowResult, error) {
 	// get the file content
-	response := map[int]ApplicationImportRowResult{}
+	results := map[int]*response.ApplicationImportRowResult{}
 	csvData, err := c.csvStorage.Read(fileName + ".csv")
 	if err != nil {
-		return response, err
+		return results, err
 	}
 	// parse the file content every line represents an application
 	for rowIndex, line := range csvData {
 		// set the response to empty string. it means process went well
-		response[rowIndex] = ApplicationImportRowResult{ErrorMessage: "", RowData: line, Application: nil}
+		results[rowIndex] = &response.ApplicationImportRowResult{ErrorMessage: "", RowData: line, Application: nil}
 		clientName := line[0]
 		projectName := line[1]
 		runtimeName := line[5]
@@ -521,9 +444,9 @@ func (c *Controller) importApplicationToEnvironment(environmentID int64, fileNam
 		if err != nil {
 			client, err = c.clientRepository.CreateClient(clientName)
 			if err != nil {
-				currentData := response[rowIndex]
+				currentData := results[rowIndex]
 				currentData.ErrorMessage = err.Error()
-				response[rowIndex] = currentData
+				results[rowIndex] = currentData
 				continue
 			}
 		}
@@ -533,9 +456,9 @@ func (c *Controller) importApplicationToEnvironment(environmentID int64, fileNam
 		if err != nil {
 			project, err = c.projectRepository.CreateProject(projectName)
 			if err != nil {
-				currentData := response[rowIndex]
+				currentData := results[rowIndex]
 				currentData.ErrorMessage = err.Error()
-				response[rowIndex] = currentData
+				results[rowIndex] = currentData
 				continue
 			}
 		}
@@ -544,9 +467,9 @@ func (c *Controller) importApplicationToEnvironment(environmentID int64, fileNam
 		if err != nil {
 			runtime, err = c.runtimeRepository.CreateRuntime(runtimeName)
 			if err != nil {
-				currentData := response[rowIndex]
+				currentData := results[rowIndex]
 				currentData.ErrorMessage = err.Error()
-				response[rowIndex] = currentData
+				results[rowIndex] = currentData
 				continue
 			}
 		}
@@ -555,9 +478,9 @@ func (c *Controller) importApplicationToEnvironment(environmentID int64, fileNam
 		if err != nil {
 			pool, err = c.poolRepository.CreatePool(poolName)
 			if err != nil {
-				currentData := response[rowIndex]
+				currentData := results[rowIndex]
 				currentData.ErrorMessage = err.Error()
-				response[rowIndex] = currentData
+				results[rowIndex] = currentData
 				continue
 			}
 		}
@@ -566,9 +489,9 @@ func (c *Controller) importApplicationToEnvironment(environmentID int64, fileNam
 		if err != nil {
 			database, err = c.databaseRepository.CreateDatabase(databaseTypeName)
 			if err != nil {
-				currentData := response[rowIndex]
+				currentData := results[rowIndex]
 				currentData.ErrorMessage = err.Error()
-				response[rowIndex] = currentData
+				results[rowIndex] = currentData
 				continue
 			}
 		}
@@ -582,9 +505,9 @@ func (c *Controller) importApplicationToEnvironment(environmentID int64, fileNam
 			if err != nil {
 				domain, err = c.domainRepository.CreateDomain(domainName)
 				if err != nil {
-					currentData := response[rowIndex]
+					currentData := results[rowIndex]
 					currentData.ErrorMessage = err.Error()
-					response[rowIndex] = currentData
+					results[rowIndex] = currentData
 					continue
 				}
 			}
@@ -593,14 +516,14 @@ func (c *Controller) importApplicationToEnvironment(environmentID int64, fileNam
 
 		// create the application
 		app, err := c.applicationRepository.CreateApplication(client.ID, project.ID, environmentID, database.ID, runtime.ID, pool.ID, repository, branch, databaseName, databaseUser, framework, docRoot, domainIDs)
-		currentData := response[rowIndex]
+		currentData := results[rowIndex]
 		if err != nil {
 			currentData.ErrorMessage = err.Error()
-			response[rowIndex] = currentData
+			results[rowIndex] = currentData
 			continue
 		}
 		currentData.Application = app
-		response[rowIndex] = currentData
+		results[rowIndex] = currentData
 	}
-	return response, nil
+	return results, nil
 }

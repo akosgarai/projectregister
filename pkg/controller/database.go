@@ -6,6 +6,7 @@ import (
 
 	"github.com/gorilla/mux"
 
+	"github.com/akosgarai/projectregister/pkg/controller/response"
 	"github.com/akosgarai/projectregister/pkg/model"
 )
 
@@ -23,15 +24,7 @@ func (c *Controller) DatabaseViewController(w http.ResponseWriter, r *http.Reque
 		c.renderer.Error(w, statusCode, DatabaseFailedToGetDatabaseErrorMessage, err)
 		return
 	}
-	content := struct {
-		Title       string
-		Database    *model.Database
-		CurrentUser *model.User
-	}{
-		Title:       "Database View",
-		Database:    database,
-		CurrentUser: currentUser,
-	}
+	content := response.NewDatabaseDetailResponse(currentUser, database)
 	err = c.renderer.Template.RenderTemplate(w, "database-view.html", content)
 	if err != nil {
 		panic(err)
@@ -64,13 +57,7 @@ func (c *Controller) DatabaseCreateViewController(w http.ResponseWriter, r *http
 		return
 	}
 	if r.Method == http.MethodGet {
-		content := struct {
-			Title       string
-			CurrentUser *model.User
-		}{
-			Title:       "Database Create",
-			CurrentUser: currentUser,
-		}
+		content := response.NewDatabaseFormResponse("Database Create", currentUser, &model.Database{})
 		err := c.renderer.Template.RenderTemplate(w, "database-create.html", content)
 		if err != nil {
 			panic(err)
@@ -123,15 +110,7 @@ func (c *Controller) DatabaseUpdateViewController(w http.ResponseWriter, r *http
 	}
 
 	if r.Method == http.MethodGet {
-		content := struct {
-			Title       string
-			Database    *model.Database
-			CurrentUser *model.User
-		}{
-			Title:       "Database Update",
-			Database:    database,
-			CurrentUser: currentUser,
-		}
+		content := response.NewDatabaseFormResponse("Database Update", currentUser, database)
 		err = c.renderer.Template.RenderTemplate(w, "database-update.html", content)
 		if err != nil {
 			panic(err)
@@ -200,15 +179,7 @@ func (c *Controller) DatabaseListViewController(w http.ResponseWriter, r *http.R
 		c.renderer.Error(w, http.StatusInternalServerError, DatabaseListFailedToGetDatabasesErrorMessage, err)
 		return
 	}
-	content := struct {
-		Title       string
-		Databases   []*model.Database
-		CurrentUser *model.User
-	}{
-		Title:       "Database List",
-		Databases:   databases,
-		CurrentUser: currentUser,
-	}
+	content := response.NewDatabaseListResponse(currentUser, databases)
 	err = c.renderer.Template.RenderTemplate(w, "database-list.html", content)
 	if err != nil {
 		panic(err)

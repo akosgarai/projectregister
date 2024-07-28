@@ -6,6 +6,7 @@ import (
 
 	"github.com/gorilla/mux"
 
+	"github.com/akosgarai/projectregister/pkg/controller/response"
 	"github.com/akosgarai/projectregister/pkg/model"
 	"github.com/akosgarai/projectregister/pkg/passwd"
 )
@@ -22,15 +23,7 @@ func (c *Controller) UserViewController(w http.ResponseWriter, r *http.Request) 
 		c.renderer.Error(w, statusCode, UserFailedToGetUserErrorMessage, err)
 		return
 	}
-	content := struct {
-		Title       string
-		User        *model.User
-		CurrentUser *model.User
-	}{
-		Title:       "User View",
-		User:        u,
-		CurrentUser: currentUser,
-	}
+	content := response.NewUserDetailResponse(currentUser, u)
 	err = c.renderer.Template.RenderTemplate(w, "user-view.html", content)
 	if err != nil {
 		panic(err)
@@ -82,15 +75,7 @@ func (c *Controller) UserCreateViewController(w http.ResponseWriter, r *http.Req
 			c.renderer.Error(w, http.StatusInternalServerError, UserFailedToGetRolesErrorMessage, err)
 			return
 		}
-		content := struct {
-			Title       string
-			Roles       []*model.Role
-			CurrentUser *model.User
-		}{
-			Title:       "User Create",
-			Roles:       roles,
-			CurrentUser: currentUser,
-		}
+		content := response.NewUserFormResponse("User Create", currentUser, &model.User{}, roles)
 		err = c.renderer.Template.RenderTemplate(w, "user-create.html", content)
 		if err != nil {
 			panic(err)
@@ -196,17 +181,7 @@ func (c *Controller) UserUpdateViewController(w http.ResponseWriter, r *http.Req
 			c.renderer.Error(w, http.StatusInternalServerError, UserFailedToGetRolesErrorMessage, err)
 			return
 		}
-		content := struct {
-			Title       string
-			User        *model.User
-			Roles       []*model.Role
-			CurrentUser *model.User
-		}{
-			Title:       "User Update",
-			User:        user,
-			Roles:       roles,
-			CurrentUser: currentUser,
-		}
+		content := response.NewUserFormResponse("User Update", currentUser, user, roles)
 		err = c.renderer.Template.RenderTemplate(w, "user-update.html", content)
 		if err != nil {
 			panic(err)
@@ -367,15 +342,7 @@ func (c *Controller) UserListViewController(w http.ResponseWriter, r *http.Reque
 		c.renderer.Error(w, http.StatusInternalServerError, UserFailedToGetUserErrorMessage, err)
 		return
 	}
-	content := struct {
-		Title       string
-		Users       []*model.User
-		CurrentUser *model.User
-	}{
-		Title:       "User List",
-		Users:       users,
-		CurrentUser: currentUser,
-	}
+	content := response.NewUserListResponse(currentUser, users)
 	err = c.renderer.Template.RenderTemplate(w, "user-list.html", content)
 	if err != nil {
 		panic(err)

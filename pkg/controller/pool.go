@@ -6,6 +6,7 @@ import (
 
 	"github.com/gorilla/mux"
 
+	"github.com/akosgarai/projectregister/pkg/controller/response"
 	"github.com/akosgarai/projectregister/pkg/model"
 )
 
@@ -23,15 +24,7 @@ func (c *Controller) PoolViewController(w http.ResponseWriter, r *http.Request) 
 		c.renderer.Error(w, statusCode, PoolFailedToGetPoolErrorMessage, err)
 		return
 	}
-	content := struct {
-		Title       string
-		Pool        *model.Pool
-		CurrentUser *model.User
-	}{
-		Title:       "Pool View",
-		Pool:        pool,
-		CurrentUser: currentUser,
-	}
+	content := response.NewPoolDetailResponse(currentUser, pool)
 	err = c.renderer.Template.RenderTemplate(w, "pool-view.html", content)
 	if err != nil {
 		panic(err)
@@ -64,13 +57,7 @@ func (c *Controller) PoolCreateViewController(w http.ResponseWriter, r *http.Req
 		return
 	}
 	if r.Method == http.MethodGet {
-		content := struct {
-			Title       string
-			CurrentUser *model.User
-		}{
-			Title:       "Pool Create",
-			CurrentUser: currentUser,
-		}
+		content := response.NewPoolFormResponse("Pool Create", currentUser, &model.Pool{})
 		err := c.renderer.Template.RenderTemplate(w, "pool-create.html", content)
 		if err != nil {
 			panic(err)
@@ -123,15 +110,7 @@ func (c *Controller) PoolUpdateViewController(w http.ResponseWriter, r *http.Req
 	}
 
 	if r.Method == http.MethodGet {
-		content := struct {
-			Title       string
-			Pool        *model.Pool
-			CurrentUser *model.User
-		}{
-			Title:       "Pool Update",
-			Pool:        pool,
-			CurrentUser: currentUser,
-		}
+		content := response.NewPoolFormResponse("Pool Update", currentUser, pool)
 		err = c.renderer.Template.RenderTemplate(w, "pool-update.html", content)
 		if err != nil {
 			panic(err)
@@ -200,15 +179,7 @@ func (c *Controller) PoolListViewController(w http.ResponseWriter, r *http.Reque
 		c.renderer.Error(w, http.StatusInternalServerError, PoolListFailedToGetPoolsErrorMessage, err)
 		return
 	}
-	content := struct {
-		Title       string
-		Pools       []*model.Pool
-		CurrentUser *model.User
-	}{
-		Title:       "Pool List",
-		Pools:       pools,
-		CurrentUser: currentUser,
-	}
+	content := response.NewPoolListResponse(currentUser, pools)
 	err = c.renderer.Template.RenderTemplate(w, "pool-list.html", content)
 	if err != nil {
 		panic(err)

@@ -1,7 +1,13 @@
 package controller
 
+import (
+	"github.com/akosgarai/projectregister/pkg/resources"
+)
+
 // CacheTemplates builds the templates and stores them in templates.
 func (c *Controller) CacheTemplates() {
+
+	headerTemplate := c.renderer.GetTemplateDirectoryPath() + "/frontend-components/header.html.tmpl"
 
 	// Template for the login page.
 	c.renderer.Template.AddTemplate("login.html", []string{c.renderer.GetTemplateDirectoryPath() + "/auth/login.html.tmpl"})
@@ -16,19 +22,14 @@ func (c *Controller) CacheTemplates() {
 	// Template for application import results
 	c.renderer.Template.AddTemplate("application-import-results.html", []string{c.renderer.GetTemplateDirectoryPath() + "/application/import-results.html.tmpl"})
 
-	resources := []string{
-		"user", "role", "client", "project", "domain", "environment",
-		"runtime", "pool", "database", "server", "application",
-	}
-
-	for _, resource := range resources {
+	for _, resource := range resources.Resources {
 		// Template for the view.
-		c.renderer.Template.AddTemplate(resource+"-view.html", []string{c.renderer.GetTemplateDirectoryPath() + "/" + resource + "/view.html.tmpl"})
+		c.renderer.Template.AddTemplate(resource+"-view.html", []string{headerTemplate, c.renderer.GetTemplateDirectoryPath() + "/" + resource + "/view.html.tmpl"})
 		// Template for the create.
-		c.renderer.Template.AddTemplate(resource+"-create.html", []string{c.renderer.GetTemplateDirectoryPath() + "/" + resource + "/create.html.tmpl"})
+		c.renderer.Template.AddTemplate(resource+"-create.html", []string{headerTemplate, c.renderer.GetTemplateDirectoryPath() + "/" + resource + "/create.html.tmpl"})
 		// Template for the update.
-		c.renderer.Template.AddTemplate(resource+"-update.html", []string{c.renderer.GetTemplateDirectoryPath() + "/" + resource + "/update.html.tmpl"})
+		c.renderer.Template.AddTemplate(resource+"-update.html", []string{headerTemplate, c.renderer.GetTemplateDirectoryPath() + "/" + resource + "/update.html.tmpl"})
 		// Template for the list.
-		c.renderer.Template.AddTemplate(resource+"-list.html", []string{c.renderer.GetTemplateDirectoryPath() + "/" + resource + "/list.html.tmpl"})
+		c.renderer.Template.AddTemplate(resource+"-list.html", []string{headerTemplate, c.renderer.GetTemplateDirectoryPath() + "/" + resource + "/list.html.tmpl"})
 	}
 }

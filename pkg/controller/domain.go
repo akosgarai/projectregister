@@ -6,6 +6,7 @@ import (
 
 	"github.com/gorilla/mux"
 
+	"github.com/akosgarai/projectregister/pkg/controller/response"
 	"github.com/akosgarai/projectregister/pkg/model"
 )
 
@@ -23,15 +24,7 @@ func (c *Controller) DomainViewController(w http.ResponseWriter, r *http.Request
 		c.renderer.Error(w, statusCode, DomainFailedToGetDomainErrorMessage, err)
 		return
 	}
-	content := struct {
-		Title       string
-		Domain      *model.Domain
-		CurrentUser *model.User
-	}{
-		Title:       "Domain View",
-		Domain:      domain,
-		CurrentUser: currentUser,
-	}
+	content := response.NewDomainDetailResponse(currentUser, domain)
 	err = c.renderer.Template.RenderTemplate(w, "domain-view.html", content)
 	if err != nil {
 		panic(err)
@@ -64,13 +57,7 @@ func (c *Controller) DomainCreateViewController(w http.ResponseWriter, r *http.R
 		return
 	}
 	if r.Method == http.MethodGet {
-		content := struct {
-			Title       string
-			CurrentUser *model.User
-		}{
-			Title:       "Domain Create",
-			CurrentUser: currentUser,
-		}
+		content := response.NewDomainFormResponse("Domain Create", currentUser, &model.Domain{})
 		err := c.renderer.Template.RenderTemplate(w, "domain-create.html", content)
 		if err != nil {
 			panic(err)
@@ -123,15 +110,7 @@ func (c *Controller) DomainUpdateViewController(w http.ResponseWriter, r *http.R
 	}
 
 	if r.Method == http.MethodGet {
-		content := struct {
-			Title       string
-			Domain      *model.Domain
-			CurrentUser *model.User
-		}{
-			Title:       "Domain Update",
-			Domain:      domain,
-			CurrentUser: currentUser,
-		}
+		content := response.NewDomainFormResponse("Domain Update", currentUser, domain)
 		err = c.renderer.Template.RenderTemplate(w, "domain-update.html", content)
 		if err != nil {
 			panic(err)
@@ -200,15 +179,7 @@ func (c *Controller) DomainListViewController(w http.ResponseWriter, r *http.Req
 		c.renderer.Error(w, http.StatusInternalServerError, DomainListFailedToGetDomainsErrorMessage, err)
 		return
 	}
-	content := struct {
-		Title       string
-		Domains     []*model.Domain
-		CurrentUser *model.User
-	}{
-		Title:       "Domain List",
-		Domains:     domains,
-		CurrentUser: currentUser,
-	}
+	content := response.NewDomainListResponse(currentUser, domains)
 	err = c.renderer.Template.RenderTemplate(w, "domain-list.html", content)
 	if err != nil {
 		panic(err)

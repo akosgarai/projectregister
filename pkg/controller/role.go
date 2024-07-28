@@ -6,6 +6,7 @@ import (
 
 	"github.com/gorilla/mux"
 
+	"github.com/akosgarai/projectregister/pkg/controller/response"
 	"github.com/akosgarai/projectregister/pkg/model"
 )
 
@@ -23,15 +24,7 @@ func (c *Controller) RoleViewController(w http.ResponseWriter, r *http.Request) 
 		c.renderer.Error(w, statusCode, RoleFailedToGetRoleErrorMessage, err)
 		return
 	}
-	content := struct {
-		Title       string
-		Role        *model.Role
-		CurrentUser *model.User
-	}{
-		Title:       "Role View",
-		Role:        role,
-		CurrentUser: currentUser,
-	}
+	content := response.NewRoleDetailResponse(currentUser, role)
 	err = c.renderer.Template.RenderTemplate(w, "role-view.html", content)
 	if err != nil {
 		panic(err)
@@ -69,15 +62,7 @@ func (c *Controller) RoleCreateViewController(w http.ResponseWriter, r *http.Req
 			c.renderer.Error(w, http.StatusInternalServerError, RoleFailedToGetResourcesErrorMessage, err)
 			return
 		}
-		content := struct {
-			Title       string
-			Resources   []*model.Resource
-			CurrentUser *model.User
-		}{
-			Title:       "Role Create",
-			Resources:   resources,
-			CurrentUser: currentUser,
-		}
+		content := response.NewRoleFormResponse("Role Create", currentUser, &model.Role{}, resources)
 		err = c.renderer.Template.RenderTemplate(w, "role-create.html", content)
 		if err != nil {
 			panic(err)
@@ -146,17 +131,7 @@ func (c *Controller) RoleUpdateViewController(w http.ResponseWriter, r *http.Req
 			c.renderer.Error(w, http.StatusInternalServerError, RoleFailedToGetResourcesErrorMessage, err)
 			return
 		}
-		content := struct {
-			Title       string
-			Role        *model.Role
-			Resources   []*model.Resource
-			CurrentUser *model.User
-		}{
-			Title:       "Role Update",
-			Role:        role,
-			Resources:   resources,
-			CurrentUser: currentUser,
-		}
+		content := response.NewRoleFormResponse("Role Update", currentUser, role, resources)
 		err = c.renderer.Template.RenderTemplate(w, "role-update.html", content)
 		if err != nil {
 			panic(err)
@@ -236,15 +211,7 @@ func (c *Controller) RoleListViewController(w http.ResponseWriter, r *http.Reque
 		c.renderer.Error(w, http.StatusInternalServerError, RoleListFailedToGetRolesErrorMessage, err)
 		return
 	}
-	content := struct {
-		Title       string
-		Roles       []*model.Role
-		CurrentUser *model.User
-	}{
-		Title:       "Role List",
-		Roles:       roles,
-		CurrentUser: currentUser,
-	}
+	content := response.NewRoleListResponse(currentUser, roles)
 	err = c.renderer.Template.RenderTemplate(w, "role-list.html", content)
 	if err != nil {
 		panic(err)

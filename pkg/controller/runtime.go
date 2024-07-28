@@ -6,6 +6,7 @@ import (
 
 	"github.com/gorilla/mux"
 
+	"github.com/akosgarai/projectregister/pkg/controller/response"
 	"github.com/akosgarai/projectregister/pkg/model"
 )
 
@@ -23,15 +24,7 @@ func (c *Controller) RuntimeViewController(w http.ResponseWriter, r *http.Reques
 		c.renderer.Error(w, statusCode, RuntimeFailedToGetRuntimeErrorMessage, err)
 		return
 	}
-	content := struct {
-		Title       string
-		Runtime     *model.Runtime
-		CurrentUser *model.User
-	}{
-		Title:       "Runtime View",
-		Runtime:     runtime,
-		CurrentUser: currentUser,
-	}
+	content := response.NewRuntimeDetailResponse(currentUser, runtime)
 	err = c.renderer.Template.RenderTemplate(w, "runtime-view.html", content)
 	if err != nil {
 		panic(err)
@@ -64,13 +57,7 @@ func (c *Controller) RuntimeCreateViewController(w http.ResponseWriter, r *http.
 		return
 	}
 	if r.Method == http.MethodGet {
-		content := struct {
-			Title       string
-			CurrentUser *model.User
-		}{
-			Title:       "Runtime Create",
-			CurrentUser: currentUser,
-		}
+		content := response.NewRuntimeFormResponse("Runtime Create", currentUser, &model.Runtime{})
 		err := c.renderer.Template.RenderTemplate(w, "runtime-create.html", content)
 		if err != nil {
 			panic(err)
@@ -123,15 +110,7 @@ func (c *Controller) RuntimeUpdateViewController(w http.ResponseWriter, r *http.
 	}
 
 	if r.Method == http.MethodGet {
-		content := struct {
-			Title       string
-			Runtime     *model.Runtime
-			CurrentUser *model.User
-		}{
-			Title:       "Runtime Update",
-			Runtime:     runtime,
-			CurrentUser: currentUser,
-		}
+		content := response.NewRuntimeFormResponse("Runtime Update", currentUser, runtime)
 		err = c.renderer.Template.RenderTemplate(w, "runtime-update.html", content)
 		if err != nil {
 			panic(err)
@@ -200,15 +179,7 @@ func (c *Controller) RuntimeListViewController(w http.ResponseWriter, r *http.Re
 		c.renderer.Error(w, http.StatusInternalServerError, RuntimeListFailedToGetRuntimesErrorMessage, err)
 		return
 	}
-	content := struct {
-		Title       string
-		Runtimes    []*model.Runtime
-		CurrentUser *model.User
-	}{
-		Title:       "Runtime List",
-		Runtimes:    runtimes,
-		CurrentUser: currentUser,
-	}
+	content := response.NewRuntimeListResponse(currentUser, runtimes)
 	err = c.renderer.Template.RenderTemplate(w, "runtime-list.html", content)
 	if err != nil {
 		panic(err)

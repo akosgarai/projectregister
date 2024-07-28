@@ -6,6 +6,7 @@ import (
 
 	"github.com/gorilla/mux"
 
+	"github.com/akosgarai/projectregister/pkg/controller/response"
 	"github.com/akosgarai/projectregister/pkg/model"
 )
 
@@ -23,15 +24,7 @@ func (c *Controller) ServerViewController(w http.ResponseWriter, r *http.Request
 		c.renderer.Error(w, statusCode, ServerFailedToGetServerErrorMessage, err)
 		return
 	}
-	content := struct {
-		Title       string
-		Server      *model.Server
-		CurrentUser *model.User
-	}{
-		Title:       "Server View",
-		Server:      server,
-		CurrentUser: currentUser,
-	}
+	content := response.NewServerDetailResponse(currentUser, server)
 	err = c.renderer.Template.RenderTemplate(w, "server-view.html", content)
 	if err != nil {
 		panic(err)
@@ -74,17 +67,7 @@ func (c *Controller) ServerCreateViewController(w http.ResponseWriter, r *http.R
 			c.renderer.Error(w, http.StatusInternalServerError, ServerCreateFailedToGetPoolsErrorMessage, err)
 			return
 		}
-		content := struct {
-			Title       string
-			Runtimes    []*model.Runtime
-			Pools       []*model.Pool
-			CurrentUser *model.User
-		}{
-			Title:       "Server Create",
-			Runtimes:    runtimes,
-			Pools:       pools,
-			CurrentUser: currentUser,
-		}
+		content := response.NewServerFormResponse("Server Create", currentUser, &model.Server{}, pools, runtimes)
 		err = c.renderer.Template.RenderTemplate(w, "server-create.html", content)
 		if err != nil {
 			panic(err)
@@ -168,19 +151,7 @@ func (c *Controller) ServerUpdateViewController(w http.ResponseWriter, r *http.R
 			c.renderer.Error(w, http.StatusInternalServerError, ServerCreateFailedToGetPoolsErrorMessage, err)
 			return
 		}
-		content := struct {
-			Title       string
-			Server      *model.Server
-			Runtimes    []*model.Runtime
-			Pools       []*model.Pool
-			CurrentUser *model.User
-		}{
-			Title:       "Server Update",
-			Server:      server,
-			Runtimes:    runtimes,
-			Pools:       pools,
-			CurrentUser: currentUser,
-		}
+		content := response.NewServerFormResponse("Server Update", currentUser, server, pools, runtimes)
 		err = c.renderer.Template.RenderTemplate(w, "server-update.html", content)
 		if err != nil {
 			panic(err)
@@ -275,15 +246,7 @@ func (c *Controller) ServerListViewController(w http.ResponseWriter, r *http.Req
 		c.renderer.Error(w, http.StatusInternalServerError, ServerListFailedToGetServersErrorMessage, err)
 		return
 	}
-	content := struct {
-		Title       string
-		Servers     []*model.Server
-		CurrentUser *model.User
-	}{
-		Title:       "Server List",
-		Servers:     servers,
-		CurrentUser: currentUser,
-	}
+	content := response.NewServerListResponse(currentUser, servers)
 	err = c.renderer.Template.RenderTemplate(w, "server-list.html", content)
 	if err != nil {
 		panic(err)

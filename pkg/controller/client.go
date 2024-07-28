@@ -6,6 +6,7 @@ import (
 
 	"github.com/gorilla/mux"
 
+	"github.com/akosgarai/projectregister/pkg/controller/response"
 	"github.com/akosgarai/projectregister/pkg/model"
 )
 
@@ -23,15 +24,7 @@ func (c *Controller) ClientViewController(w http.ResponseWriter, r *http.Request
 		c.renderer.Error(w, statusCode, ClientFailedToGetClientErrorMessage, err)
 		return
 	}
-	content := struct {
-		Title       string
-		Client      *model.Client
-		CurrentUser *model.User
-	}{
-		Title:       "Client View",
-		Client:      client,
-		CurrentUser: currentUser,
-	}
+	content := response.NewClientDetailResponse(currentUser, client)
 	err = c.renderer.Template.RenderTemplate(w, "client-view.html", content)
 	if err != nil {
 		panic(err)
@@ -64,13 +57,7 @@ func (c *Controller) ClientCreateViewController(w http.ResponseWriter, r *http.R
 		return
 	}
 	if r.Method == http.MethodGet {
-		content := struct {
-			Title       string
-			CurrentUser *model.User
-		}{
-			Title:       "Client Create",
-			CurrentUser: currentUser,
-		}
+		content := response.NewClientFormResponse("Client Create", currentUser, &model.Client{})
 		err := c.renderer.Template.RenderTemplate(w, "client-create.html", content)
 		if err != nil {
 			panic(err)
@@ -123,15 +110,7 @@ func (c *Controller) ClientUpdateViewController(w http.ResponseWriter, r *http.R
 	}
 
 	if r.Method == http.MethodGet {
-		content := struct {
-			Title       string
-			Client      *model.Client
-			CurrentUser *model.User
-		}{
-			Title:       "Client Update",
-			Client:      client,
-			CurrentUser: currentUser,
-		}
+		content := response.NewClientFormResponse("Client Update", currentUser, client)
 		err = c.renderer.Template.RenderTemplate(w, "client-update.html", content)
 		if err != nil {
 			panic(err)
@@ -200,15 +179,7 @@ func (c *Controller) ClientListViewController(w http.ResponseWriter, r *http.Req
 		c.renderer.Error(w, http.StatusInternalServerError, ClientListFailedToGetClientsErrorMessage, err)
 		return
 	}
-	content := struct {
-		Title       string
-		Clients     []*model.Client
-		CurrentUser *model.User
-	}{
-		Title:       "Client List",
-		Clients:     clients,
-		CurrentUser: currentUser,
-	}
+	content := response.NewClientListResponse(currentUser, clients)
 	err = c.renderer.Template.RenderTemplate(w, "client-list.html", content)
 	if err != nil {
 		panic(err)

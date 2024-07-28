@@ -3,6 +3,7 @@ package controller
 import (
 	"net/http"
 
+	"github.com/akosgarai/projectregister/pkg/controller/response"
 	"github.com/akosgarai/projectregister/pkg/model"
 	"github.com/akosgarai/projectregister/pkg/passwd"
 	"github.com/akosgarai/projectregister/pkg/session"
@@ -22,11 +23,7 @@ func (c *Controller) LoginPageController(w http.ResponseWriter, r *http.Request)
 			return
 		}
 	}
-	content := struct {
-		Title string
-	}{
-		Title: "Login",
-	}
+	content := response.NewResponse("Login", &model.User{Role: &model.Role{}})
 	err = c.renderer.Template.RenderTemplate(w, "login.html", content)
 	if err != nil {
 		panic(err)

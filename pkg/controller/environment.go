@@ -6,6 +6,7 @@ import (
 
 	"github.com/gorilla/mux"
 
+	"github.com/akosgarai/projectregister/pkg/controller/response"
 	"github.com/akosgarai/projectregister/pkg/model"
 )
 
@@ -23,15 +24,7 @@ func (c *Controller) EnvironmentViewController(w http.ResponseWriter, r *http.Re
 		c.renderer.Error(w, statusCode, EnvironmentFailedToGetEnvironmentErrorMessage, err)
 		return
 	}
-	content := struct {
-		Title       string
-		Environment *model.Environment
-		CurrentUser *model.User
-	}{
-		Title:       "Environment View",
-		Environment: environment,
-		CurrentUser: currentUser,
-	}
+	content := response.NewEnvironmentDetailResponse(currentUser, environment)
 	err = c.renderer.Template.RenderTemplate(w, "environment-view.html", content)
 	if err != nil {
 		panic(err)
@@ -74,17 +67,7 @@ func (c *Controller) EnvironmentCreateViewController(w http.ResponseWriter, r *h
 			c.renderer.Error(w, http.StatusInternalServerError, EnvironmentCreateFailedToGetDatabasesErrorMessage, err)
 			return
 		}
-		content := struct {
-			Title       string
-			Servers     []*model.Server
-			Databases   []*model.Database
-			CurrentUser *model.User
-		}{
-			Title:       "Environment Create",
-			Servers:     servers,
-			Databases:   databases,
-			CurrentUser: currentUser,
-		}
+		content := response.NewEnvironmentFormResponse("Environment Create", currentUser, &model.Environment{}, servers, databases)
 		err = c.renderer.Template.RenderTemplate(w, "environment-create.html", content)
 		if err != nil {
 			panic(err)
@@ -169,19 +152,7 @@ func (c *Controller) EnvironmentUpdateViewController(w http.ResponseWriter, r *h
 			c.renderer.Error(w, http.StatusInternalServerError, EnvironmentUpdateFailedToGetDatabasesErrorMessage, err)
 			return
 		}
-		content := struct {
-			Title       string
-			Environment *model.Environment
-			Servers     []*model.Server
-			Databases   []*model.Database
-			CurrentUser *model.User
-		}{
-			Title:       "Environment Update",
-			Environment: environment,
-			Servers:     servers,
-			Databases:   databases,
-			CurrentUser: currentUser,
-		}
+		content := response.NewEnvironmentFormResponse("Environment Update", currentUser, environment, servers, databases)
 		err = c.renderer.Template.RenderTemplate(w, "environment-update.html", content)
 		if err != nil {
 			panic(err)
@@ -274,15 +245,7 @@ func (c *Controller) EnvironmentListViewController(w http.ResponseWriter, r *htt
 		c.renderer.Error(w, http.StatusInternalServerError, EnvironmentListFailedToGetEnvironmentsErrorMessage, err)
 		return
 	}
-	content := struct {
-		Title        string
-		Environments []*model.Environment
-		CurrentUser  *model.User
-	}{
-		Title:        "Environment List",
-		Environments: environments,
-		CurrentUser:  currentUser,
-	}
+	content := response.NewEnvironmentListResponse(currentUser, environments)
 	err = c.renderer.Template.RenderTemplate(w, "environment-list.html", content)
 	if err != nil {
 		panic(err)
