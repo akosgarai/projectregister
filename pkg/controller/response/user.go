@@ -9,31 +9,30 @@ import (
 // UserDetailResponse is the struct for the user detail page.
 type UserDetailResponse struct {
 	*Response
-	Header *HeaderBlock
-	User   *model.User
+	User *model.User
 }
 
 // NewUserDetailResponse is a constructor for the UserDetailResponse struct.
 func NewUserDetailResponse(currentUser, user *model.User) *UserDetailResponse {
-	return &UserDetailResponse{
-		Response: NewResponse("User Detail", currentUser),
-		Header: &HeaderBlock{
-			Title:       "User Detail",
-			CurrentUser: currentUser,
-			Buttons: []*ActionButton{
-				{
-					Label:     "Edit",
-					Link:      fmt.Sprintf("/admin/user/update/%d", user.ID),
-					Privilege: "users.update",
-				},
-				{
-					Label:     "Delete",
-					Link:      fmt.Sprintf("/admin/user/delete/%d", user.ID),
-					Privilege: "users.delete",
-				},
+	header := &HeaderBlock{
+		Title:       "User Detail",
+		CurrentUser: currentUser,
+		Buttons: []*ActionButton{
+			{
+				Label:     "Edit",
+				Link:      fmt.Sprintf("/admin/user/update/%d", user.ID),
+				Privilege: "users.update",
+			},
+			{
+				Label:     "Delete",
+				Link:      fmt.Sprintf("/admin/user/delete/%d", user.ID),
+				Privilege: "users.delete",
 			},
 		},
-		User: user,
+	}
+	return &UserDetailResponse{
+		Response: NewResponse("User Detail", currentUser, header),
+		User:     user,
 	}
 }
 
@@ -59,25 +58,24 @@ func NewUserFormResponse(title string, currentUser, user *model.User, roles []*m
 // UserListResponse is the struct for the user list page.
 type UserListResponse struct {
 	*Response
-	Header *HeaderBlock
-	Users  []*model.User
+	Users []*model.User
 }
 
 // NewUserListResponse is a constructor for the UserListResponse struct.
 func NewUserListResponse(currentUser *model.User, users []*model.User) *UserListResponse {
-	return &UserListResponse{
-		Response: NewResponse("User List", currentUser),
-		Header: &HeaderBlock{
-			Title:       "User List",
-			CurrentUser: currentUser,
-			Buttons: []*ActionButton{
-				{
-					Label:     "New",
-					Link:      "/admin/user/create",
-					Privilege: "users.create",
-				},
+	header := &HeaderBlock{
+		Title:       "User List",
+		CurrentUser: currentUser,
+		Buttons: []*ActionButton{
+			{
+				Label:     "New",
+				Link:      "/admin/user/create",
+				Privilege: "users.create",
 			},
 		},
-		Users: users,
+	}
+	return &UserListResponse{
+		Response: NewResponse("User List", currentUser, header),
+		Users:    users,
 	}
 }

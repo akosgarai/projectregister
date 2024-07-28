@@ -23,7 +23,13 @@ func (c *Controller) LoginPageController(w http.ResponseWriter, r *http.Request)
 			return
 		}
 	}
-	content := response.NewResponse("Login", &model.User{Role: &model.Role{}})
+	user := &model.User{Role: &model.Role{}}
+	header := &response.HeaderBlock{
+		Title:       "Import Application to Environment",
+		CurrentUser: user,
+		Buttons:     []*response.ActionButton{},
+	}
+	content := response.NewResponse("Login", &model.User{Role: &model.Role{}}, header)
 	err = c.renderer.Template.RenderTemplate(w, "login.html", content)
 	if err != nil {
 		panic(err)

@@ -9,31 +9,30 @@ import (
 // DomainDetailResponse is the struct for the domain detail page.
 type DomainDetailResponse struct {
 	*Response
-	Header *HeaderBlock
 	Domain *model.Domain
 }
 
 // NewDomainDetailResponse is a constructor for the DomainDetailResponse struct.
 func NewDomainDetailResponse(currentUser *model.User, domain *model.Domain) *DomainDetailResponse {
-	return &DomainDetailResponse{
-		Response: NewResponse("Domain Detail", currentUser),
-		Header: &HeaderBlock{
-			Title:       "Domain Detail",
-			CurrentUser: currentUser,
-			Buttons: []*ActionButton{
-				{
-					Label:     "Edit",
-					Link:      fmt.Sprintf("/admin/domain/update/%d", domain.ID),
-					Privilege: "domains.update",
-				},
-				{
-					Label:     "Delete",
-					Link:      fmt.Sprintf("/admin/domain/delete/%d", domain.ID),
-					Privilege: "domains.delete",
-				},
+	header := &HeaderBlock{
+		Title:       "Domain Detail",
+		CurrentUser: currentUser,
+		Buttons: []*ActionButton{
+			{
+				Label:     "Edit",
+				Link:      fmt.Sprintf("/admin/domain/update/%d", domain.ID),
+				Privilege: "domains.update",
+			},
+			{
+				Label:     "Delete",
+				Link:      fmt.Sprintf("/admin/domain/delete/%d", domain.ID),
+				Privilege: "domains.delete",
 			},
 		},
-		Domain: domain,
+	}
+	return &DomainDetailResponse{
+		Response: NewResponse("Domain Detail", currentUser, header),
+		Domain:   domain,
 	}
 }
 
@@ -57,25 +56,24 @@ func NewDomainFormResponse(title string, currentUser *model.User, domain *model.
 // DomainListResponse is the struct for the domain list page.
 type DomainListResponse struct {
 	*Response
-	Header  *HeaderBlock
 	Domains []*model.Domain
 }
 
 // NewDomainListResponse is a constructor for the DomainListResponse struct.
 func NewDomainListResponse(currentUser *model.User, domains []*model.Domain) *DomainListResponse {
-	return &DomainListResponse{
-		Response: NewResponse("Domain List", currentUser),
-		Header: &HeaderBlock{
-			Title:       "Domain List",
-			CurrentUser: currentUser,
-			Buttons: []*ActionButton{
-				{
-					Label:     "Create",
-					Link:      "/admin/domain/create",
-					Privilege: "domains.create",
-				},
+	header := &HeaderBlock{
+		Title:       "Domain List",
+		CurrentUser: currentUser,
+		Buttons: []*ActionButton{
+			{
+				Label:     "Create",
+				Link:      "/admin/domain/create",
+				Privilege: "domains.create",
 			},
 		},
-		Domains: domains,
+	}
+	return &DomainListResponse{
+		Response: NewResponse("Domain List", currentUser, header),
+		Domains:  domains,
 	}
 }

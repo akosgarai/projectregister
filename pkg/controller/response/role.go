@@ -9,31 +9,30 @@ import (
 // RoleDetailResponse is the struct for the role detail page.
 type RoleDetailResponse struct {
 	*Response
-	Header *HeaderBlock
-	Role   *model.Role
+	Role *model.Role
 }
 
 // NewRoleDetailResponse is a constructor for the RoleDetailResponse struct.
 func NewRoleDetailResponse(currentUser *model.User, role *model.Role) *RoleDetailResponse {
-	return &RoleDetailResponse{
-		Response: NewResponse("Role Detail", currentUser),
-		Header: &HeaderBlock{
-			Title:       "Role Detail",
-			CurrentUser: currentUser,
-			Buttons: []*ActionButton{
-				{
-					Label:     "Edit",
-					Link:      fmt.Sprintf("/admin/role/update/%d", role.ID),
-					Privilege: "roles.update",
-				},
-				{
-					Label:     "Delete",
-					Link:      fmt.Sprintf("/admin/role/delete/%d", role.ID),
-					Privilege: "roles.delete",
-				},
+	header := &HeaderBlock{
+		Title:       "Role Detail",
+		CurrentUser: currentUser,
+		Buttons: []*ActionButton{
+			{
+				Label:     "Edit",
+				Link:      fmt.Sprintf("/admin/role/update/%d", role.ID),
+				Privilege: "roles.update",
+			},
+			{
+				Label:     "Delete",
+				Link:      fmt.Sprintf("/admin/role/delete/%d", role.ID),
+				Privilege: "roles.delete",
 			},
 		},
-		Role: role,
+	}
+	return &RoleDetailResponse{
+		Response: NewResponse("Role Detail", currentUser, header),
+		Role:     role,
 	}
 }
 
@@ -59,25 +58,24 @@ func NewRoleFormResponse(title string, currentUser *model.User, role *model.Role
 // RoleListResponse is the struct for the role list page.
 type RoleListResponse struct {
 	*Response
-	Header *HeaderBlock
-	Roles  []*model.Role
+	Roles []*model.Role
 }
 
 // NewRoleListResponse is a constructor for the RoleListResponse struct.
 func NewRoleListResponse(currentUser *model.User, roles []*model.Role) *RoleListResponse {
-	return &RoleListResponse{
-		Response: NewResponse("Role List", currentUser),
-		Header: &HeaderBlock{
-			Title:       "Role List",
-			CurrentUser: currentUser,
-			Buttons: []*ActionButton{
-				{
-					Label:     "Create",
-					Link:      "/admin/role/create",
-					Privilege: "roles.create",
-				},
+	header := &HeaderBlock{
+		Title:       "Role List",
+		CurrentUser: currentUser,
+		Buttons: []*ActionButton{
+			{
+				Label:     "Create",
+				Link:      "/admin/role/create",
+				Privilege: "roles.create",
 			},
 		},
-		Roles: roles,
+	}
+	return &RoleListResponse{
+		Response: NewResponse("Role List", currentUser, header),
+		Roles:    roles,
 	}
 }

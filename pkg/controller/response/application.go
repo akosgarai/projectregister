@@ -10,30 +10,29 @@ import (
 // It extends the Response struct with a header block and the application.
 type ApplicationDetailResponse struct {
 	*Response
-	Header      *HeaderBlock
 	Application *model.Application
 }
 
 // NewApplicationDetailResponse is a constructor for the ApplicationViewResponse struct.
 func NewApplicationDetailResponse(user *model.User, app *model.Application) *ApplicationDetailResponse {
-	return &ApplicationDetailResponse{
-		Response: NewResponse("Application View", user),
-		Header: &HeaderBlock{
-			Title:       "Application View",
-			CurrentUser: user,
-			Buttons: []*ActionButton{
-				{
-					Label:     "Edit",
-					Link:      fmt.Sprintf("/admin/application/update/%d", app.ID),
-					Privilege: "applications.update",
-				},
-				{
-					Label:     "Delete",
-					Link:      fmt.Sprintf("/admin/application/delete/%d", app.ID),
-					Privilege: "application.delete",
-				},
+	header := &HeaderBlock{
+		Title:       "Application View",
+		CurrentUser: user,
+		Buttons: []*ActionButton{
+			{
+				Label:     "Edit",
+				Link:      fmt.Sprintf("/admin/application/update/%d", app.ID),
+				Privilege: "applications.update",
+			},
+			{
+				Label:     "Delete",
+				Link:      fmt.Sprintf("/admin/application/delete/%d", app.ID),
+				Privilege: "application.delete",
 			},
 		},
+	}
+	return &ApplicationDetailResponse{
+		Response:    NewResponse("Application View", user, header),
 		Application: app,
 	}
 }
@@ -85,25 +84,24 @@ func NewApplicationFormResponse(
 // ApplicationListResponse is the struct for the application list page.
 type ApplicationListResponse struct {
 	*Response
-	Header       *HeaderBlock
 	Applications []*model.Application
 }
 
 // NewApplicationListResponse is a constructor for the ApplicationListResponse struct.
 func NewApplicationListResponse(user *model.User, apps []*model.Application) *ApplicationListResponse {
-	return &ApplicationListResponse{
-		Response: NewResponse("Application List", user),
-		Header: &HeaderBlock{
-			Title:       "Application List",
-			CurrentUser: user,
-			Buttons: []*ActionButton{
-				{
-					Label:     "New",
-					Link:      "/admin/application/create",
-					Privilege: "applications.create",
-				},
+	header := &HeaderBlock{
+		Title:       "Application List",
+		CurrentUser: user,
+		Buttons: []*ActionButton{
+			{
+				Label:     "New",
+				Link:      "/admin/application/create",
+				Privilege: "applications.create",
 			},
 		},
+	}
+	return &ApplicationListResponse{
+		Response:     NewResponse("Application List", user, header),
 		Applications: apps,
 	}
 }
@@ -111,19 +109,18 @@ func NewApplicationListResponse(user *model.User, apps []*model.Application) *Ap
 // ApplicationImportToEnvironmentFormResponse is the struct for the import application to environment form responses.
 type ApplicationImportToEnvironmentFormResponse struct {
 	*Response
-	Header      *HeaderBlock
 	Environment *model.Environment
 }
 
 // NewApplicationImportToEnvironmentFormResponse is a constructor for the ApplicationImportToEnvironmentFormResponse struct.
 func NewApplicationImportToEnvironmentFormResponse(user *model.User, env *model.Environment) *ApplicationImportToEnvironmentFormResponse {
+	header := &HeaderBlock{
+		Title:       "Import Application to Environment",
+		CurrentUser: user,
+		Buttons:     []*ActionButton{},
+	}
 	return &ApplicationImportToEnvironmentFormResponse{
-		Response: NewResponse("Import Application to Environment", user),
-		Header: &HeaderBlock{
-			Title:       "Import Application to Environment",
-			CurrentUser: user,
-			Buttons:     []*ActionButton{},
-		},
+		Response:    NewResponse("Import Application to Environment", user, header),
 		Environment: env,
 	}
 }
@@ -131,20 +128,19 @@ func NewApplicationImportToEnvironmentFormResponse(user *model.User, env *model.
 // ApplicationMappingToEnvironmentFormResponse is the struct for the mapping application to environment form responses.
 type ApplicationMappingToEnvironmentFormResponse struct {
 	*Response
-	Header      *HeaderBlock
 	Environment *model.Environment
 	FileID      string
 }
 
 // NewApplicationMappingToEnvironmentFormResponse is a constructor for the ApplicationMappingToEnvironmentFormResponse struct.
 func NewApplicationMappingToEnvironmentFormResponse(user *model.User, env *model.Environment, fileID string) *ApplicationMappingToEnvironmentFormResponse {
+	header := &HeaderBlock{
+		Title:       "Import Mapping to Environment",
+		CurrentUser: user,
+		Buttons:     []*ActionButton{},
+	}
 	return &ApplicationMappingToEnvironmentFormResponse{
-		Response: NewResponse("Import Mapping to Environment", user),
-		Header: &HeaderBlock{
-			Title:       "Import Mapping to Environment",
-			CurrentUser: user,
-			Buttons:     []*ActionButton{},
-		},
+		Response:    NewResponse("Import Mapping to Environment", user, header),
 		Environment: env,
 		FileID:      fileID,
 	}
@@ -160,7 +156,6 @@ type ApplicationImportRowResult struct {
 // ApplicationImportToEnvironmentListResponse is the struct for the import application to environment list page.
 type ApplicationImportToEnvironmentListResponse struct {
 	*Response
-	Header      *HeaderBlock
 	Environment *model.Environment
 	FileID      string
 	Result      map[int]*ApplicationImportRowResult
@@ -168,13 +163,13 @@ type ApplicationImportToEnvironmentListResponse struct {
 
 // NewApplicationImportToEnvironmentListResponse is a constructor for the ApplicationImportToEnvironmentListResponse struct.
 func NewApplicationImportToEnvironmentListResponse(user *model.User, env *model.Environment, fileID string, result map[int]*ApplicationImportRowResult) *ApplicationImportToEnvironmentListResponse {
+	header := &HeaderBlock{
+		Title:       "Import Application to Environment",
+		CurrentUser: user,
+		Buttons:     []*ActionButton{},
+	}
 	return &ApplicationImportToEnvironmentListResponse{
-		Response: NewResponse("Import Application to Environment", user),
-		Header: &HeaderBlock{
-			Title:       "Import Application to Environment",
-			CurrentUser: user,
-			Buttons:     []*ActionButton{},
-		},
+		Response:    NewResponse("Import Application to Environment", user, header),
 		Environment: env,
 		FileID:      fileID,
 		Result:      result,

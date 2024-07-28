@@ -9,30 +9,29 @@ import (
 // EnvironmentDetailResponse is the struct for the environment detail page.
 type EnvironmentDetailResponse struct {
 	*Response
-	Header      *HeaderBlock
 	Environment *model.Environment
 }
 
 // NewEnvironmentDetailResponse is a constructor for the EnvironmentDetailResponse struct.
 func NewEnvironmentDetailResponse(currentUser *model.User, environment *model.Environment) *EnvironmentDetailResponse {
-	return &EnvironmentDetailResponse{
-		Response: NewResponse("Environment Detail", currentUser),
-		Header: &HeaderBlock{
-			Title:       "Environment Detail",
-			CurrentUser: currentUser,
-			Buttons: []*ActionButton{
-				{
-					Label:     "Edit",
-					Link:      fmt.Sprintf("/admin/environment/update/%d", environment.ID),
-					Privilege: "environments.update",
-				},
-				{
-					Label:     "Delete",
-					Link:      fmt.Sprintf("/admin/environment/delete/%d", environment.ID),
-					Privilege: "environments.delete",
-				},
+	header := &HeaderBlock{
+		Title:       "Environment Detail",
+		CurrentUser: currentUser,
+		Buttons: []*ActionButton{
+			{
+				Label:     "Edit",
+				Link:      fmt.Sprintf("/admin/environment/update/%d", environment.ID),
+				Privilege: "environments.update",
+			},
+			{
+				Label:     "Delete",
+				Link:      fmt.Sprintf("/admin/environment/delete/%d", environment.ID),
+				Privilege: "environments.delete",
 			},
 		},
+	}
+	return &EnvironmentDetailResponse{
+		Response:    NewResponse("Environment Detail", currentUser, header),
 		Environment: environment,
 	}
 }
@@ -61,25 +60,24 @@ func NewEnvironmentFormResponse(title string, currentUser *model.User, environme
 // EnvironmentListResponse is the struct for the environment list page.
 type EnvironmentListResponse struct {
 	*Response
-	Header       *HeaderBlock
 	Environments []*model.Environment
 }
 
 // NewEnvironmentListResponse is a constructor for the EnvironmentListResponse struct.
 func NewEnvironmentListResponse(currentUser *model.User, environments []*model.Environment) *EnvironmentListResponse {
-	return &EnvironmentListResponse{
-		Response: NewResponse("Environment List", currentUser),
-		Header: &HeaderBlock{
-			Title:       "Environment List",
-			CurrentUser: currentUser,
-			Buttons: []*ActionButton{
-				{
-					Label:     "Create",
-					Link:      "/admin/environment/create",
-					Privilege: "environments.create",
-				},
+	header := &HeaderBlock{
+		Title:       "Environment List",
+		CurrentUser: currentUser,
+		Buttons: []*ActionButton{
+			{
+				Label:     "Create",
+				Link:      "/admin/environment/create",
+				Privilege: "environments.create",
 			},
 		},
+	}
+	return &EnvironmentListResponse{
+		Response:     NewResponse("Environment List", currentUser, header),
 		Environments: environments,
 	}
 }

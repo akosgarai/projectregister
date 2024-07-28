@@ -9,30 +9,29 @@ import (
 // DatabaseDetailResponse is the struct for the database detail page.
 type DatabaseDetailResponse struct {
 	*Response
-	Header   *HeaderBlock
 	Database *model.Database
 }
 
 // NewDatabaseDetailResponse is a constructor for the DatabaseDetailResponse struct.
 func NewDatabaseDetailResponse(currentUser *model.User, database *model.Database) *DatabaseDetailResponse {
-	return &DatabaseDetailResponse{
-		Response: NewResponse("Database Detail", currentUser),
-		Header: &HeaderBlock{
-			Title:       "Database Detail",
-			CurrentUser: currentUser,
-			Buttons: []*ActionButton{
-				{
-					Label:     "Edit",
-					Link:      fmt.Sprintf("/admin/database/update/%d", database.ID),
-					Privilege: "databases.update",
-				},
-				{
-					Label:     "Delete",
-					Link:      fmt.Sprintf("/admin/database/delete/%d", database.ID),
-					Privilege: "databases.delete",
-				},
+	header := &HeaderBlock{
+		Title:       "Database Detail",
+		CurrentUser: currentUser,
+		Buttons: []*ActionButton{
+			{
+				Label:     "Edit",
+				Link:      fmt.Sprintf("/admin/database/update/%d", database.ID),
+				Privilege: "databases.update",
+			},
+			{
+				Label:     "Delete",
+				Link:      fmt.Sprintf("/admin/database/delete/%d", database.ID),
+				Privilege: "databases.delete",
 			},
 		},
+	}
+	return &DatabaseDetailResponse{
+		Response: NewResponse("Database Detail", currentUser, header),
 		Database: database,
 	}
 }
@@ -57,25 +56,24 @@ func NewDatabaseFormResponse(title string, currentUser *model.User, database *mo
 // DatabaseListResponse is the struct for the database list page.
 type DatabaseListResponse struct {
 	*Response
-	Header    *HeaderBlock
 	Databases []*model.Database
 }
 
 // NewDatabaseListResponse is a constructor for the DatabaseListResponse struct.
 func NewDatabaseListResponse(currentUser *model.User, databases []*model.Database) *DatabaseListResponse {
-	return &DatabaseListResponse{
-		Response: NewResponse("Database List", currentUser),
-		Header: &HeaderBlock{
-			Title:       "Database List",
-			CurrentUser: currentUser,
-			Buttons: []*ActionButton{
-				{
-					Label:     "Create",
-					Link:      "/admin/database/create",
-					Privilege: "databases.create",
-				},
+	header := &HeaderBlock{
+		Title:       "Database List",
+		CurrentUser: currentUser,
+		Buttons: []*ActionButton{
+			{
+				Label:     "Create",
+				Link:      "/admin/database/create",
+				Privilege: "databases.create",
 			},
 		},
+	}
+	return &DatabaseListResponse{
+		Response:  NewResponse("Database List", currentUser, header),
 		Databases: databases,
 	}
 }

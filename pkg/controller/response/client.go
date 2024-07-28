@@ -9,31 +9,30 @@ import (
 // ClientDetailResponse is the struct for the client detail page.
 type ClientDetailResponse struct {
 	*Response
-	Header *HeaderBlock
 	Client *model.Client
 }
 
 // NewClientDetailResponse is a constructor for the ClientDetailResponse struct.
 func NewClientDetailResponse(currentUser *model.User, client *model.Client) *ClientDetailResponse {
-	return &ClientDetailResponse{
-		Response: NewResponse("Client Detail", currentUser),
-		Header: &HeaderBlock{
-			Title:       "Client Detail",
-			CurrentUser: currentUser,
-			Buttons: []*ActionButton{
-				{
-					Label:     "Edit",
-					Link:      fmt.Sprintf("/admin/client/update/%d", client.ID),
-					Privilege: "clients.update",
-				},
-				{
-					Label:     "Delete",
-					Link:      fmt.Sprintf("/admin/client/delete/%d", client.ID),
-					Privilege: "clients.delete",
-				},
+	header := &HeaderBlock{
+		Title:       "Client Detail",
+		CurrentUser: currentUser,
+		Buttons: []*ActionButton{
+			{
+				Label:     "Edit",
+				Link:      fmt.Sprintf("/admin/client/update/%d", client.ID),
+				Privilege: "clients.update",
+			},
+			{
+				Label:     "Delete",
+				Link:      fmt.Sprintf("/admin/client/delete/%d", client.ID),
+				Privilege: "clients.delete",
 			},
 		},
-		Client: client,
+	}
+	return &ClientDetailResponse{
+		Response: NewResponse("Client Detail", currentUser, header),
+		Client:   client,
 	}
 }
 
@@ -57,25 +56,24 @@ func NewClientFormResponse(title string, currentUser *model.User, client *model.
 // ClientListResponse is the struct for the client list page.
 type ClientListResponse struct {
 	*Response
-	Header  *HeaderBlock
 	Clients []*model.Client
 }
 
 // NewClientListResponse is a constructor for the ClientListResponse struct.
 func NewClientListResponse(currentUser *model.User, clients []*model.Client) *ClientListResponse {
-	return &ClientListResponse{
-		Response: NewResponse("Client List", currentUser),
-		Header: &HeaderBlock{
-			Title:       "Client List",
-			CurrentUser: currentUser,
-			Buttons: []*ActionButton{
-				{
-					Label:     "Create",
-					Link:      "/admin/client/create",
-					Privilege: "clients.create",
-				},
+	header := &HeaderBlock{
+		Title:       "Client List",
+		CurrentUser: currentUser,
+		Buttons: []*ActionButton{
+			{
+				Label:     "Create",
+				Link:      "/admin/client/create",
+				Privilege: "clients.create",
 			},
 		},
-		Clients: clients,
+	}
+	return &ClientListResponse{
+		Response: NewResponse("Client List", currentUser, header),
+		Clients:  clients,
 	}
 }
