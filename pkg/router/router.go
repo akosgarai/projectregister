@@ -58,11 +58,13 @@ func New(
 	adminRouter := r.PathPrefix("/admin").Subrouter()
 	adminRouter.Use(routerController.AuthMiddleware)
 	adminRouter.HandleFunc("/dashboard", routerController.DashboardController)
+
 	adminRouter.HandleFunc("/user/create", routerController.UserCreateViewController).Methods("GET", "POST")
 	adminRouter.HandleFunc("/user/view/{userId}", routerController.UserViewController)
 	adminRouter.HandleFunc("/user/update/{userId}", routerController.UserUpdateViewController).Methods("GET", "POST")
 	adminRouter.HandleFunc("/user/delete/{userId}", routerController.UserDeleteViewController).Methods("POST")
 	adminRouter.HandleFunc("/user/list", routerController.UserListViewController)
+
 	adminRouter.HandleFunc("/role/create", routerController.RoleCreateViewController).Methods("GET", "POST")
 	adminRouter.HandleFunc("/role/view/{roleId}", routerController.RoleViewController)
 	adminRouter.HandleFunc("/role/update/{roleId}", routerController.RoleUpdateViewController).Methods("GET", "POST")
