@@ -1,8 +1,14 @@
 {{define "header"}}
-	<h1>{{.Title}}</h1>
-	{{ range .Buttons }}
+<div>
+	{{if ne .Title ""}}
+		<h1>{{.Title}}</h1>
+	{{end}}
+</div>
+<div>
+{{ range .Buttons }}
 		{{if $.CurrentUser.HasPrivilege .Privilege}}
 			<a class="button-link" href="{{.Link}}">{{.Label}}</a>
 		{{end}}
 	{{end}}
+</div>
 {{end}}
