@@ -218,26 +218,16 @@ table {
 	display: none;
 }
 
-.detail-page,
-.form-page,
-.listing-page,
-.listing-table {
+.content {
 	width: 100%;
 	height: 100%;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-}
-
-.listing-table {
-	align-self: flex-start;
 	overflow-x: auto;
 }
 
-.listing-page {
-	overflow-x: auto;
-}
-.listing-page table {
+.content table {
 	align-self: flex-start;
 }
 

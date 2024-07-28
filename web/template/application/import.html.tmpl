@@ -1,5 +1,4 @@
 {{define "content"}}
-<div class="detail-page">
 	<form action="/admin/application/import-to-environment/{{.Environment.ID}}" method="post" enctype="multipart/form-data">
 		<input type="hidden" name="environment_id" value="{{.Environment.ID}}"/>
 		<div class="form-group">
@@ -8,5 +7,4 @@
 		</div>
 		<button type="submit" class="btn btn-primary">Upload</button>
 	</form>
-</div>
 {{end}}
