@@ -10,17 +10,17 @@ func (c *Controller) CacheTemplates() {
 	headerTemplate := c.renderer.GetTemplateDirectoryPath() + "/frontend-components/header.html.tmpl"
 
 	// Template for the login page.
-	c.renderer.Template.AddTemplate("login.html", []string{c.renderer.GetTemplateDirectoryPath() + "/auth/login.html.tmpl"})
+	c.renderer.Template.AddTemplate("login.html", []string{headerTemplate, c.renderer.GetTemplateDirectoryPath() + "/auth/login.html.tmpl"})
 
 	// Template for the dashboard.
-	c.renderer.Template.AddTemplate("dashboard.html", []string{c.renderer.GetTemplateDirectoryPath() + "/dashboard/index.html.tmpl"})
+	c.renderer.Template.AddTemplate("dashboard.html", []string{headerTemplate, c.renderer.GetTemplateDirectoryPath() + "/dashboard/index.html.tmpl"})
 
 	// Template for application import
-	c.renderer.Template.AddTemplate("application-import.html", []string{c.renderer.GetTemplateDirectoryPath() + "/application/import.html.tmpl"})
+	c.renderer.Template.AddTemplate("application-import.html", []string{headerTemplate, c.renderer.GetTemplateDirectoryPath() + "/application/import.html.tmpl"})
 	// Template for application mapping
-	c.renderer.Template.AddTemplate("application-mapping.html", []string{c.renderer.GetTemplateDirectoryPath() + "/application/mapping.html.tmpl"})
+	c.renderer.Template.AddTemplate("application-mapping.html", []string{headerTemplate, c.renderer.GetTemplateDirectoryPath() + "/application/mapping.html.tmpl"})
 	// Template for application import results
-	c.renderer.Template.AddTemplate("application-import-results.html", []string{c.renderer.GetTemplateDirectoryPath() + "/application/import-results.html.tmpl"})
+	c.renderer.Template.AddTemplate("application-import-results.html", []string{headerTemplate, c.renderer.GetTemplateDirectoryPath() + "/application/import-results.html.tmpl"})
 
 	for _, resource := range resources.Resources {
 		// Template for the view.
