@@ -25,7 +25,7 @@ func (c *Controller) LoginPageController(w http.ResponseWriter, r *http.Request)
 	}
 	user := &model.User{Role: &model.Role{}}
 	header := &response.HeaderBlock{
-		Title:       "Import Application to Environment",
+		Title:       "Login",
 		CurrentUser: user,
 		Buttons:     []*response.ActionButton{},
 	}
