@@ -1,6 +1,5 @@
 {{define "content"}}
 <div class="detail-page">
-	{{template "header" .Header}}
 	<form action="/admin/application/mapping-to-environment/{{.Environment.ID}}/{{.FileID}}" method="post" enctype="multipart/form-data">
 		<input type="hidden" name="environment_id" value="{{.Environment.ID}}"/>
 		<input type="hidden" name="file_id" value="{{.FileID}}"/>
