@@ -1,8 +1,5 @@
 {{define "content"}}
 	<div>
-		<p>ID: {{.Client.ID}}</p>
-		<p>Name: {{.Client.Name}}</p>
-		<p>Created at: {{.Client.CreatedAt}}</p>
-		<p>Updated at: {{.Client.UpdatedAt}}</p>
+		{{template "detailitems" .Details}}
 	</div>
 {{end}}

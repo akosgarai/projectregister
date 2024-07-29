@@ -6,10 +6,16 @@ import (
 	"github.com/akosgarai/projectregister/pkg/model"
 )
 
-// ClientDetailResponse is the struct for the client detail page.
-type ClientDetailResponse struct {
+// ClientResponse is the struct for the client page.
+type ClientResponse struct {
 	*Response
 	Client *model.Client
+}
+
+// ClientDetailResponse is the struct for the client detail page.
+type ClientDetailResponse struct {
+	*ClientResponse
+	Details *DetailItems
 }
 
 // NewClientDetailResponse is a constructor for the ClientDetailResponse struct.
@@ -28,11 +34,25 @@ func NewClientDetailResponse(currentUser *model.User, client *model.Client) *Cli
 				Link:      fmt.Sprintf("/admin/client/delete/%d", client.ID),
 				Privilege: "clients.delete",
 			},
+			{
+				Label:     "List",
+				Link:      "/admin/client/list",
+				Privilege: "clients.view",
+			},
 		},
 	}
+	details := &DetailItems{
+		{Label: "ID", Value: &DetailValues{{Value: fmt.Sprintf("%d", client.ID)}}},
+		{Label: "Name", Value: &DetailValues{{Value: client.Name}}},
+		{Label: "Created At", Value: &DetailValues{{Value: client.CreatedAt}}},
+		{Label: "Updated At", Value: &DetailValues{{Value: client.UpdatedAt}}},
+	}
 	return &ClientDetailResponse{
-		Response: NewResponse("Client Detail", currentUser, header),
-		Client:   client,
+		ClientResponse: &ClientResponse{
+			Response: NewResponse("Client Detail", currentUser, header),
+			Client:   client,
+		},
+		Details: details,
 	}
 }
 

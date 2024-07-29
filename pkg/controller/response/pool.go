@@ -6,10 +6,16 @@ import (
 	"github.com/akosgarai/projectregister/pkg/model"
 )
 
-// PoolDetailResponse is the struct for the pool detail page.
-type PoolDetailResponse struct {
+// PoolResponse is the struct for the pool page.
+type PoolResponse struct {
 	*Response
 	Pool *model.Pool
+}
+
+// PoolDetailResponse is the struct for the pool detail page.
+type PoolDetailResponse struct {
+	*PoolResponse
+	Details *DetailItems
 }
 
 // NewPoolDetailResponse is a constructor for the PoolDetailResponse struct.
@@ -28,11 +34,25 @@ func NewPoolDetailResponse(currentUser *model.User, pool *model.Pool) *PoolDetai
 				Link:      fmt.Sprintf("/admin/pool/delete/%d", pool.ID),
 				Privilege: "pools.delete",
 			},
+			{
+				Label:     "List",
+				Link:      "/admin/pool/list",
+				Privilege: "pools.view",
+			},
 		},
 	}
+	details := &DetailItems{
+		{Label: "ID", Value: &DetailValues{{Value: fmt.Sprintf("%d", pool.ID)}}},
+		{Label: "Name", Value: &DetailValues{{Value: pool.Name}}},
+		{Label: "Created At", Value: &DetailValues{{Value: pool.CreatedAt}}},
+		{Label: "Updated At", Value: &DetailValues{{Value: pool.UpdatedAt}}},
+	}
 	return &PoolDetailResponse{
-		Response: NewResponse("Pool Detail", currentUser, header),
-		Pool:     pool,
+		PoolResponse: &PoolResponse{
+			Response: NewResponse("Pool Detail", currentUser, header),
+			Pool:     pool,
+		},
+		Details: details,
 	}
 }
 

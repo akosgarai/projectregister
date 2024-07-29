@@ -1,22 +1,5 @@
 {{define "content"}}
 	<div>
-		<p>ID: {{.Application.ID}}</p>
-		<p>Client: {{.Application.Client.Name}}</p>
-		<p>Project: {{.Application.Project.Name}}</p>
-		<p>Environment: {{.Application.Environment.Name}}</p>
-		<p>Database: {{.Application.Database.Name}} {{if ne .Application.DBName "" }} {{.Application.DBUser}} / {{.Application.DBName}} {{end}}</p>
-		<p>Runtime: {{.Application.Runtime.Name}}</p>
-		<p>Pool: {{.Application.Pool.Name}}</p>
-		<p>Repository: {{.Application.Repository}} / {{.Application.Branch}}</p>
-		<p>Framework: {{.Application.Framework}}</p>
-		<p>Document Root: {{.Application.DocumentRoot}}</p>
-		<p>Created at: {{.Application.CreatedAt}}</p>
-		<p>Updated at: {{.Application.UpdatedAt}}</p>
-		<p>Domains:</p>
-		<ul>
-			{{range .Application.Domains}}
-				<li>{{.Name}}</li>
-			{{end}}
-		</ul>
+		{{template "detailitems" .Details}}
 	</div>
 {{end}}

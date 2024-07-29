@@ -6,10 +6,16 @@ import (
 	"github.com/akosgarai/projectregister/pkg/model"
 )
 
-// ServerDetailResponse is the struct for the server detail page.
-type ServerDetailResponse struct {
+// ServerResponse is the struct for the server page.
+type ServerResponse struct {
 	*Response
 	Server *model.Server
+}
+
+// ServerDetailResponse is the struct for the server detail page.
+type ServerDetailResponse struct {
+	*ServerResponse
+	Details *DetailItems
 }
 
 // NewServerDetailResponse is a constructor for the ServerDetailResponse struct.
@@ -28,11 +34,41 @@ func NewServerDetailResponse(currentUser *model.User, server *model.Server) *Ser
 				Link:      fmt.Sprintf("/admin/server/delete/%d", server.ID),
 				Privilege: "servers.delete",
 			},
+			{
+				Label:     "List",
+				Link:      "/admin/server/list",
+				Privilege: "servers.view",
+			},
 		},
 	}
+	runtimeValues := DetailValues{}
+	if len(server.Runtimes) > 0 {
+		for _, runtime := range server.Runtimes {
+			runtimeValues = append(runtimeValues, &DetailValue{Value: runtime.Name, Link: fmt.Sprintf("/admin/runtime/view/%d", runtime.ID)})
+		}
+	}
+	poolValues := DetailValues{}
+	if len(server.Pools) > 0 {
+		for _, pool := range server.Pools {
+			poolValues = append(poolValues, &DetailValue{Value: pool.Name, Link: fmt.Sprintf("/admin/pool/view/%d", pool.ID)})
+		}
+	}
+	details := &DetailItems{
+		{Label: "ID", Value: &DetailValues{{Value: fmt.Sprintf("%d", server.ID)}}},
+		{Label: "Name", Value: &DetailValues{{Value: server.Name}}},
+		{Label: "Remote Address", Value: &DetailValues{{Value: server.RemoteAddr}}},
+		{Label: "Description", Value: &DetailValues{{Value: server.Description}}},
+		{Label: "Created At", Value: &DetailValues{{Value: server.CreatedAt}}},
+		{Label: "Updated At", Value: &DetailValues{{Value: server.UpdatedAt}}},
+		{Label: "Runtimes", Value: &runtimeValues},
+		{Label: "Pools", Value: &poolValues},
+	}
 	return &ServerDetailResponse{
-		Response: NewResponse("Server Detail", currentUser, header),
-		Server:   server,
+		ServerResponse: &ServerResponse{
+			Response: NewResponse("Server Detail", currentUser, header),
+			Server:   server,
+		},
+		Details: details,
 	}
 }
 

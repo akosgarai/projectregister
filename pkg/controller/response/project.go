@@ -6,10 +6,16 @@ import (
 	"github.com/akosgarai/projectregister/pkg/model"
 )
 
-// ProjectDetailResponse is the struct for the project detail page.
-type ProjectDetailResponse struct {
+// ProjectResponse is the struct for the project page.
+type ProjectResponse struct {
 	*Response
 	Project *model.Project
+}
+
+// ProjectDetailResponse is the struct for the project detail page.
+type ProjectDetailResponse struct {
+	*ProjectResponse
+	Details *DetailItems
 }
 
 // NewProjectDetailResponse is a constructor for the ProjectDetailResponse struct.
@@ -28,11 +34,25 @@ func NewProjectDetailResponse(currentUser *model.User, project *model.Project) *
 				Link:      fmt.Sprintf("/admin/project/delete/%d", project.ID),
 				Privilege: "projects.delete",
 			},
+			{
+				Label:     "List",
+				Link:      "/admin/project/list",
+				Privilege: "projects.view",
+			},
 		},
 	}
+	details := &DetailItems{
+		{Label: "ID", Value: &DetailValues{{Value: fmt.Sprintf("%d", project.ID)}}},
+		{Label: "Name", Value: &DetailValues{{Value: project.Name}}},
+		{Label: "Created At", Value: &DetailValues{{Value: project.CreatedAt}}},
+		{Label: "Updated At", Value: &DetailValues{{Value: project.UpdatedAt}}},
+	}
 	return &ProjectDetailResponse{
-		Response: NewResponse("Project Detail", currentUser, header),
-		Project:  project,
+		ProjectResponse: &ProjectResponse{
+			Response: NewResponse("Project Detail", currentUser, header),
+			Project:  project,
+		},
+		Details: details,
 	}
 }
 

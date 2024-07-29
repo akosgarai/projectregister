@@ -6,11 +6,16 @@ import (
 	"github.com/akosgarai/projectregister/pkg/model"
 )
 
-// ApplicationDetailResponse is the struct for the application view response.
-// It extends the Response struct with a header block and the application.
-type ApplicationDetailResponse struct {
+// ApplicationResponse is the struct for the application page.
+type ApplicationResponse struct {
 	*Response
 	Application *model.Application
+}
+
+// ApplicationDetailResponse is the struct for the application view response.
+type ApplicationDetailResponse struct {
+	*ApplicationResponse
+	Details *DetailItems
 }
 
 // NewApplicationDetailResponse is a constructor for the ApplicationViewResponse struct.
@@ -29,11 +34,54 @@ func NewApplicationDetailResponse(user *model.User, app *model.Application) *App
 				Link:      fmt.Sprintf("/admin/application/delete/%d", app.ID),
 				Privilege: "application.delete",
 			},
+			{
+				Label:     "List",
+				Link:      "/admin/application/list",
+				Privilege: "applications.view",
+			},
 		},
 	}
+	dbValues := &DetailValues{
+		{Value: app.Database.Name, Link: fmt.Sprintf("/admin/database/view/%d", app.Database.ID)},
+	}
+	if app.DBName != "" {
+		*dbValues = append(*dbValues, &DetailValue{Value: app.DBUser + " / " + app.DBName})
+	}
+	codebaseValues := &DetailValues{}
+	if app.Repository != "" {
+		value := app.Repository
+		if app.Branch != "" {
+			value = fmt.Sprintf("%s (%s)", app.Repository, app.Branch)
+		}
+		*codebaseValues = append(*codebaseValues, &DetailValue{Value: value, Link: app.Repository})
+	}
+	domainValues := &DetailValues{}
+	if app.Domains != nil {
+		for _, domain := range app.Domains {
+			*domainValues = append(*domainValues, &DetailValue{Value: domain.Name, Link: fmt.Sprintf("/admin/domain/view/%d", domain.ID)})
+		}
+	}
+	details := &DetailItems{
+		{Label: "ID", Value: &DetailValues{{Value: fmt.Sprintf("%d", app.ID)}}},
+		{Label: "Client", Value: &DetailValues{{Value: app.Client.Name, Link: fmt.Sprintf("/admin/client/view/%d", app.Client.ID)}}},
+		{Label: "Project", Value: &DetailValues{{Value: app.Project.Name, Link: fmt.Sprintf("/admin/project/view/%d", app.Project.ID)}}},
+		{Label: "Environment", Value: &DetailValues{{Value: app.Environment.Name, Link: fmt.Sprintf("/admin/environment/view/%d", app.Environment.ID)}}},
+		{Label: "Database", Value: dbValues},
+		{Label: "Runtime", Value: &DetailValues{{Value: app.Runtime.Name, Link: fmt.Sprintf("/admin/runtime/view/%d", app.Runtime.ID)}}},
+		{Label: "Pool", Value: &DetailValues{{Value: app.Pool.Name, Link: fmt.Sprintf("/admin/pool/view/%d", app.Pool.ID)}}},
+		{Label: "Codebase", Value: codebaseValues},
+		{Label: "Framework", Value: &DetailValues{{Value: app.Framework}}},
+		{Label: "Document Root", Value: &DetailValues{{Value: app.DocumentRoot}}},
+		{Label: "Created At", Value: &DetailValues{{Value: app.CreatedAt}}},
+		{Label: "Updated At", Value: &DetailValues{{Value: app.UpdatedAt}}},
+		{Label: "Domains", Value: domainValues},
+	}
 	return &ApplicationDetailResponse{
-		Response:    NewResponse("Application View", user, header),
-		Application: app,
+		ApplicationResponse: &ApplicationResponse{
+			Response:    NewResponse("Application View", user, header),
+			Application: app,
+		},
+		Details: details,
 	}
 }
 

@@ -1,8 +1,5 @@
 {{define "content"}}
 	<div>
-		<p>ID: {{.Pool.ID}}</p>
-		<p>Name: {{.Pool.Name}}</p>
-		<p>Created at: {{.Pool.CreatedAt}}</p>
-		<p>Updated at: {{.Pool.UpdatedAt}}</p>
+		{{template "detailitems" .Details}}
 	</div>
 {{end}}

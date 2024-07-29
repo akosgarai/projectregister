@@ -20,9 +20,10 @@
 				</select>
 			{{else if eq .Type "checkboxgroup"}}
 				{{$selected := .SelectedOptions}}
+				{{$inputName := .Name}}
 				{{range $value, $name := .Options}}
 					<div class="checkbox">
-						<input type="checkbox" id="r_{{$value}}" name="resources" value="{{$value}}" {{if $selected.IsSelected $value}}checked{{end}}>
+						<input type="checkbox" id="r_{{$value}}" name="{{$inputName}}" value="{{$value}}" {{if $selected.IsSelected $value}}checked{{end}}>
 						<label for="r_{{$value}}">{{$name}}</label>
 					</div>
 				{{end}}

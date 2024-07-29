@@ -6,10 +6,16 @@ import (
 	"github.com/akosgarai/projectregister/pkg/model"
 )
 
-// DatabaseDetailResponse is the struct for the database detail page.
-type DatabaseDetailResponse struct {
+// DatabaseResponse is the struct for the database page.
+type DatabaseResponse struct {
 	*Response
 	Database *model.Database
+}
+
+// DatabaseDetailResponse is the struct for the database detail page.
+type DatabaseDetailResponse struct {
+	*DatabaseResponse
+	Details *DetailItems
 }
 
 // NewDatabaseDetailResponse is a constructor for the DatabaseDetailResponse struct.
@@ -28,11 +34,25 @@ func NewDatabaseDetailResponse(currentUser *model.User, database *model.Database
 				Link:      fmt.Sprintf("/admin/database/delete/%d", database.ID),
 				Privilege: "databases.delete",
 			},
+			{
+				Label:     "List",
+				Link:      "/admin/database/list",
+				Privilege: "databases.view",
+			},
 		},
 	}
+	details := &DetailItems{
+		{Label: "ID", Value: &DetailValues{{Value: fmt.Sprintf("%d", database.ID)}}},
+		{Label: "Name", Value: &DetailValues{{Value: database.Name}}},
+		{Label: "Created At", Value: &DetailValues{{Value: database.CreatedAt}}},
+		{Label: "Updated At", Value: &DetailValues{{Value: database.UpdatedAt}}},
+	}
 	return &DatabaseDetailResponse{
-		Response: NewResponse("Database Detail", currentUser, header),
-		Database: database,
+		DatabaseResponse: &DatabaseResponse{
+			Response: NewResponse("Database Detail", currentUser, header),
+			Database: database,
+		},
+		Details: details,
 	}
 }
 

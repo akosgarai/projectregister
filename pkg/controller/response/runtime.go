@@ -6,10 +6,16 @@ import (
 	"github.com/akosgarai/projectregister/pkg/model"
 )
 
-// RuntimeDetailResponse is the struct for the runtime detail page.
-type RuntimeDetailResponse struct {
+// RuntimeResponse is the struct for the runtime page.
+type RuntimeResponse struct {
 	*Response
 	Runtime *model.Runtime
+}
+
+// RuntimeDetailResponse is the struct for the runtime detail page.
+type RuntimeDetailResponse struct {
+	*RuntimeResponse
+	Details *DetailItems
 }
 
 // NewRuntimeDetailResponse is a constructor for the RuntimeDetailResponse struct.
@@ -28,11 +34,25 @@ func NewRuntimeDetailResponse(currentUser *model.User, runtime *model.Runtime) *
 				Link:      fmt.Sprintf("/admin/runtime/delete/%d", runtime.ID),
 				Privilege: "runtimes.delete",
 			},
+			{
+				Label:     "List",
+				Link:      "/admin/runtime/list",
+				Privilege: "runtimes.view",
+			},
 		},
 	}
+	details := &DetailItems{
+		{Label: "ID", Value: &DetailValues{{Value: fmt.Sprintf("%d", runtime.ID)}}},
+		{Label: "Name", Value: &DetailValues{{Value: runtime.Name}}},
+		{Label: "Created At", Value: &DetailValues{{Value: runtime.CreatedAt}}},
+		{Label: "Updated At", Value: &DetailValues{{Value: runtime.UpdatedAt}}},
+	}
 	return &RuntimeDetailResponse{
-		Response: NewResponse("Runtime Detail", currentUser, header),
-		Runtime:  runtime,
+		RuntimeResponse: &RuntimeResponse{
+			Response: NewResponse("Runtime Detail", currentUser, header),
+			Runtime:  runtime,
+		},
+		Details: details,
 	}
 }
 

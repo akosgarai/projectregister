@@ -6,10 +6,16 @@ import (
 	"github.com/akosgarai/projectregister/pkg/model"
 )
 
-// DomainDetailResponse is the struct for the domain detail page.
-type DomainDetailResponse struct {
+// DomainResponse is the struct for the domain page.
+type DomainResponse struct {
 	*Response
 	Domain *model.Domain
+}
+
+// DomainDetailResponse is the struct for the domain detail page.
+type DomainDetailResponse struct {
+	*DomainResponse
+	Details *DetailItems
 }
 
 // NewDomainDetailResponse is a constructor for the DomainDetailResponse struct.
@@ -28,11 +34,25 @@ func NewDomainDetailResponse(currentUser *model.User, domain *model.Domain) *Dom
 				Link:      fmt.Sprintf("/admin/domain/delete/%d", domain.ID),
 				Privilege: "domains.delete",
 			},
+			{
+				Label:     "List",
+				Link:      "/admin/domain/list",
+				Privilege: "domains.view",
+			},
 		},
 	}
+	details := &DetailItems{
+		{Label: "ID", Value: &DetailValues{{Value: fmt.Sprintf("%d", domain.ID)}}},
+		{Label: "Name", Value: &DetailValues{{Value: domain.Name, Link: domain.Name}}},
+		{Label: "Created At", Value: &DetailValues{{Value: domain.CreatedAt}}},
+		{Label: "Updated At", Value: &DetailValues{{Value: domain.UpdatedAt}}},
+	}
 	return &DomainDetailResponse{
-		Response: NewResponse("Domain Detail", currentUser, header),
-		Domain:   domain,
+		DomainResponse: &DomainResponse{
+			Response: NewResponse("Domain Detail", currentUser, header),
+			Domain:   domain,
+		},
+		Details: details,
 	}
 }
 
