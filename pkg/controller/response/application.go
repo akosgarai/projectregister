@@ -60,29 +60,57 @@ func NewApplicationFormResponse(
 	appDetailResponse.Title = title
 	appDetailResponse.Header.Title = title
 	appDetailResponse.Header.Buttons = []*ActionButton{{Label: "Back", Link: "/admin/application/list", Privilege: "applications.view"}}
+	selectedClients := SelectedOptions{}
+	selectedProjects := SelectedOptions{}
+	selectedEnvironments := SelectedOptions{}
+	selectedDatabases := SelectedOptions{}
+	selectedRuntimes := SelectedOptions{}
+	selectedPools := SelectedOptions{}
 	selectedDomains := SelectedOptions{}
+	if app.Client != nil {
+		selectedClients = SelectedOptions{app.Client.ID}
+	}
+	if app.Project != nil {
+		selectedProjects = SelectedOptions{app.Project.ID}
+	}
+	if app.Environment != nil {
+		selectedEnvironments = SelectedOptions{app.Environment.ID}
+	}
+	if app.Database != nil {
+		selectedDatabases = SelectedOptions{app.Database.ID}
+	}
+	if app.Runtime != nil {
+		selectedRuntimes = SelectedOptions{app.Runtime.ID}
+	}
+	if app.Pool != nil {
+		selectedPools = SelectedOptions{app.Pool.ID}
+	}
 	if app.Domains != nil {
 		for _, domain := range app.Domains {
 			selectedDomains = append(selectedDomains, domain.ID)
 		}
 	}
+	// add the application domains to the domains list.
+	for _, domain := range app.Domains {
+		*domains = append(*domains, domain)
+	}
 	formItems := []*FormItem{
 		// Client.
-		{Label: "Client", Type: "select", Name: "client", Options: clients.ToMap(), Required: true},
+		{Label: "Client", Type: "select", Name: "client", Options: clients.ToMap(), SelectedOptions: selectedClients, Required: true},
 		// Project.
-		{Label: "Project", Type: "select", Name: "project", Options: projects.ToMap(), Required: true},
+		{Label: "Project", Type: "select", Name: "project", Options: projects.ToMap(), SelectedOptions: selectedProjects, Required: true},
 		// Environment.
-		{Label: "Environment", Type: "select", Name: "environment", Options: envs.ToMap(), Required: true},
+		{Label: "Environment", Type: "select", Name: "environment", Options: envs.ToMap(), SelectedOptions: selectedEnvironments, Required: true},
 		// Database.
-		{Label: "Database", Type: "select", Name: "database", Options: dbs.ToMap(), Required: true},
+		{Label: "Database", Type: "select", Name: "database", Options: dbs.ToMap(), SelectedOptions: selectedDatabases, Required: true},
 		// DB Name.
 		{Label: "DB Name", Type: "text", Name: "db_name", Value: app.DBName, Required: true},
 		// DB User.
 		{Label: "DB User", Type: "text", Name: "db_user", Value: app.DBUser, Required: true},
 		// Runtime.
-		{Label: "Runtime", Type: "select", Name: "runtime", Options: runtimes.ToMap(), Required: true},
+		{Label: "Runtime", Type: "select", Name: "runtime", Options: runtimes.ToMap(), SelectedOptions: selectedRuntimes, Required: true},
 		// Pool.
-		{Label: "Pool", Type: "select", Name: "pool", Options: pools.ToMap(), Required: true},
+		{Label: "Pool", Type: "select", Name: "pool", Options: pools.ToMap(), SelectedOptions: selectedPools, Required: true},
 		// Repo URL.
 		{Label: "Repository", Type: "text", Name: "repository", Value: app.Repository},
 		// Branch.

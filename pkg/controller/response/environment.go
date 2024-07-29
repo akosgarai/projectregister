@@ -68,9 +68,9 @@ func NewEnvironmentFormResponse(title string, currentUser *model.User, environme
 		// Description.
 		{Label: "Description", Type: "textarea", Name: "description", Value: environment.Description},
 		// Servers.
-		{Label: "Servers", Type: "select", Name: "servers", Options: servers.ToMap(), SelectedOptions: selectedServers},
+		{Label: "Servers", Type: "checkboxgroup", Name: "servers", Options: servers.ToMap(), SelectedOptions: selectedServers},
 		// Databases.
-		{Label: "Databases", Type: "select", Name: "databases", Options: databases.ToMap(), SelectedOptions: selectedDatabases},
+		{Label: "Databases", Type: "checkboxgroup", Name: "databases", Options: databases.ToMap(), SelectedOptions: selectedDatabases},
 	}
 	return &EnvironmentFormResponse{
 		EnvironmentDetailResponse: environmentDetailResponse,

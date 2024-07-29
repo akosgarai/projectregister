@@ -17,6 +17,7 @@
 					{{range $value, $label := .Options}}
 						<option value="{{$value}}" {{if $selected.IsSelected $value}}selected{{end}}>{{$label}}</option>
 					{{end}}
+				</select>
 			{{else if eq .Type "checkboxgroup"}}
 				{{$selected := .SelectedOptions}}
 				{{range $value, $name := .Options}}
