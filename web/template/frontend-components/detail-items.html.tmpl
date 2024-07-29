@@ -1,0 +1,30 @@
+{{define "detailitems"}}
+	{{range .}}
+		<div>
+			<label>{{.Label}}</label>
+			{{if gt (len .Value) 1}}
+				<ul>
+					{{range .Value}}
+						<li>
+							{{if .Link}}
+								<a href="{{.Link}}">{{.Value}}</a>
+							{{else}}
+								{{.Value}}
+							{{end}}
+						</li>
+					{{end}}
+				</ul>
+			{{else}}
+				{{range .Value}}
+					<p>
+						{{if .Link}}
+							<a href="{{.Link}}">{{.Value}}</a>
+						{{else}}
+							{{.Value}}
+						{{end}}
+					</p>
+				{{end}}
+			{{end}}
+		</div>
+	{{end}}
+{{end}}

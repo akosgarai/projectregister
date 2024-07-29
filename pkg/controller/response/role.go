@@ -6,10 +6,16 @@ import (
 	"github.com/akosgarai/projectregister/pkg/model"
 )
 
-// RoleDetailResponse is the struct for the role detail page.
-type RoleDetailResponse struct {
+// RoleResponse is the base struct for the role responses.
+type RoleResponse struct {
 	*Response
 	Role *model.Role
+}
+
+// RoleDetailResponse is the struct for the role detail page.
+type RoleDetailResponse struct {
+	*RoleResponse
+	Details *DetailItems
 }
 
 // NewRoleDetailResponse is a constructor for the RoleDetailResponse struct.
@@ -35,9 +41,25 @@ func NewRoleDetailResponse(currentUser *model.User, role *model.Role) *RoleDetai
 			},
 		},
 	}
+	resourceValues := DetailValues{}
+	if len(role.Resources) > 0 {
+		for _, resource := range role.Resources {
+			resourceValues = append(resourceValues, &DetailValue{Value: resource.Name})
+		}
+	}
+	details := &DetailItems{
+		{Label: "ID", Value: &DetailValues{{Value: fmt.Sprintf("%d", role.ID)}}},
+		{Label: "Name", Value: &DetailValues{{Value: role.Name}}},
+		{Label: "Created At", Value: &DetailValues{{Value: role.CreatedAt}}},
+		{Label: "Updated At", Value: &DetailValues{{Value: role.UpdatedAt}}},
+		{Label: "Resources", Value: &resourceValues},
+	}
 	return &RoleDetailResponse{
-		Response: NewResponse("Role Detail", currentUser, header),
-		Role:     role,
+		RoleResponse: &RoleResponse{
+			Response: NewResponse("Role Detail", currentUser, header),
+			Role:     role,
+		},
+		Details: details,
 	}
 }
 

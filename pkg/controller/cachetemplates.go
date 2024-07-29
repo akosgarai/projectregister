@@ -9,6 +9,7 @@ func (c *Controller) CacheTemplates() {
 
 	headerTemplate := c.renderer.GetTemplateDirectoryPath() + "/frontend-components/header.html.tmpl"
 	formItemsTemplate := c.renderer.GetTemplateDirectoryPath() + "/frontend-components/form-items.html.tmpl"
+	detailItemsTemplate := c.renderer.GetTemplateDirectoryPath() + "/frontend-components/detail-items.html.tmpl"
 
 	// Template for the login page.
 	c.renderer.Template.AddTemplate("login.html", []string{headerTemplate, c.renderer.GetTemplateDirectoryPath() + "/auth/login.html.tmpl"})
@@ -25,7 +26,7 @@ func (c *Controller) CacheTemplates() {
 
 	for _, resource := range resources.Resources {
 		// Template for the view.
-		c.renderer.Template.AddTemplate(resource+"-view.html", []string{headerTemplate, c.renderer.GetTemplateDirectoryPath() + "/" + resource + "/view.html.tmpl"})
+		c.renderer.Template.AddTemplate(resource+"-view.html", []string{headerTemplate, detailItemsTemplate, c.renderer.GetTemplateDirectoryPath() + "/" + resource + "/view.html.tmpl"})
 		// Template for the create.
 		c.renderer.Template.AddTemplate(resource+"-create.html", []string{headerTemplate, formItemsTemplate, c.renderer.GetTemplateDirectoryPath() + "/" + resource + "/create.html.tmpl"})
 		// Template for the update.

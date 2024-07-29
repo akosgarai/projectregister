@@ -1,14 +1,5 @@
 {{define "content"}}
 	<div>
-		<p>ID: {{.Role.ID}}</p>
-		<p>Name: {{.Role.Name}}</p>
-		<p>Created at: {{.Role.CreatedAt}}</p>
-		<p>Updated at: {{.Role.UpdatedAt}}</p>
-		<p>Resources:</p>
-		<ul>
-			{{range .Role.Resources}}
-				<li>{{.Name}}</li>
-			{{end}}
-		</ul>
+		{{template "detailitems" .Details}}
 	</div>
 {{end}}

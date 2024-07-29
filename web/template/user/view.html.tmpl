@@ -1,8 +1,5 @@
 {{define "content"}}
 	<div>
-		<p>ID: {{.User.ID}}</p>
-		<p>Name: {{.User.Name}}</p>
-		<p>Email: {{.User.Email}}</p>
-		<p>Role: {{.User.Role.Name}}</p>
+		{{template "detailitems" .Details}}
 	</div>
 {{end}}

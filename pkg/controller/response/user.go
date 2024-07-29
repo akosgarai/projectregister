@@ -6,10 +6,16 @@ import (
 	"github.com/akosgarai/projectregister/pkg/model"
 )
 
-// UserDetailResponse is the struct for the user detail page.
-type UserDetailResponse struct {
+// UserResponse is the struct for the user page.
+type UserResponse struct {
 	*Response
 	User *model.User
+}
+
+// UserDetailResponse is the struct for the user detail page.
+type UserDetailResponse struct {
+	*UserResponse
+	Details *DetailItems
 }
 
 // NewUserDetailResponse is a constructor for the UserDetailResponse struct.
@@ -28,11 +34,30 @@ func NewUserDetailResponse(currentUser, user *model.User) *UserDetailResponse {
 				Link:      fmt.Sprintf("/admin/user/delete/%d", user.ID),
 				Privilege: "users.delete",
 			},
+			{
+				Label:     "List",
+				Link:      "/admin/user/list",
+				Privilege: "users.view",
+			},
 		},
 	}
+	roleLink := ""
+	if currentUser.HasPrivilege("roles.view") {
+		roleLink = fmt.Sprintf("/admin/role/view/%d", user.Role.ID)
+	}
+	roleValue := DetailValues{{Value: user.Role.Name, Link: roleLink}}
+	details := &DetailItems{
+		{Label: "ID", Value: &DetailValues{{Value: fmt.Sprintf("%d", user.ID)}}},
+		{Label: "Name", Value: &DetailValues{{Value: user.Name}}},
+		{Label: "Email", Value: &DetailValues{{Value: user.Email}}},
+		{Label: "Role", Value: &roleValue},
+	}
 	return &UserDetailResponse{
-		Response: NewResponse("User Detail", currentUser, header),
-		User:     user,
+		UserResponse: &UserResponse{
+			Response: NewResponse("User Detail", currentUser, header),
+			User:     user,
+		},
+		Details: details,
 	}
 }
 
