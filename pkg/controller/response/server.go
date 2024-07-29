@@ -39,8 +39,7 @@ func NewServerDetailResponse(currentUser *model.User, server *model.Server) *Ser
 // ServerFormResponse is the struct for the server form responses.
 type ServerFormResponse struct {
 	*ServerDetailResponse
-	Pools    *model.Pools
-	Runtimes *model.Runtimes
+	FormItems []*FormItem
 }
 
 // NewServerFormResponse is a constructor for the ServerFormResponse struct.
@@ -49,22 +48,45 @@ func NewServerFormResponse(title string, currentUser *model.User, server *model.
 	serverDetailResponse.Header.Title = title
 	serverDetailResponse.Title = title
 	// The buttons are unnecessary on the form page.
-	serverDetailResponse.Header.Buttons = []*ActionButton{}
+	serverDetailResponse.Header.Buttons = []*ActionButton{{Label: "List", Link: fmt.Sprintf("/admin/server/list"), Privilege: "servers.view"}}
+	selectedPools := SelectedOptions{}
+	selectedRuntimes := SelectedOptions{}
+	if server.Pools != nil {
+		for _, pool := range server.Pools {
+			selectedPools = append(selectedPools, pool.ID)
+		}
+	}
+	if server.Runtimes != nil {
+		for _, runtime := range server.Runtimes {
+			selectedRuntimes = append(selectedRuntimes, runtime.ID)
+		}
+	}
+	formItems := []*FormItem{
+		// Name.
+		{Label: "Name", Type: "text", Name: "name", Value: server.Name, Required: true},
+		// Remote address.
+		{Label: "Remote Address", Type: "text", Name: "remote_address", Value: server.RemoteAddr, Required: true},
+		// Description.
+		{Label: "Description", Type: "textarea", Name: "description", Value: server.Description, Required: false},
+		// Pool.
+		{Label: "Pool", Type: "checkboxgroup", Name: "pools", Options: pools.ToMap(), SelectedOptions: selectedPools},
+		// Runtime.
+		{Label: "Runtime", Type: "checkboxgroup", Name: "runtimes", Options: runtimes.ToMap(), SelectedOptions: selectedRuntimes},
+	}
 	return &ServerFormResponse{
 		ServerDetailResponse: serverDetailResponse,
-		Pools:                pools,
-		Runtimes:             runtimes,
+		FormItems:            formItems,
 	}
 }
 
 // ServerListResponse is the struct for the server list page.
 type ServerListResponse struct {
 	*Response
-	Servers []*model.Server
+	Servers *model.Servers
 }
 
 // NewServerListResponse is a constructor for the ServerListResponse struct.
-func NewServerListResponse(currentUser *model.User, servers []*model.Server) *ServerListResponse {
+func NewServerListResponse(currentUser *model.User, servers *model.Servers) *ServerListResponse {
 	header := &HeaderBlock{
 		Title:       "Server List",
 		CurrentUser: currentUser,

@@ -33,6 +33,20 @@ func (s *Server) HasPool(pool string) bool {
 	return false
 }
 
+// Servers type is a slice of Server
+type Servers []*Server
+
+// ToMap converts the Servers to a map
+// The key is the server ID
+// The value is the server Name
+func (s Servers) ToMap() map[int64]string {
+	result := make(map[int64]string)
+	for _, server := range s {
+		result[server.ID] = server.Name
+	}
+	return result
+}
+
 // ServerRepository interface
 type ServerRepository interface {
 	CreateServer(name, description, remoteAddress string, runtimes, pools []int64) (*Server, error)
@@ -41,5 +55,5 @@ type ServerRepository interface {
 	GetServerByID(id int64) (*Server, error)
 	UpdateServer(server *Server) error
 	DeleteServer(id int64) error
-	GetServers() ([]*Server, error)
+	GetServers() (*Servers, error)
 }

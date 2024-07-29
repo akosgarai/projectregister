@@ -156,9 +156,9 @@ func (r *ServerRepository) DeleteServer(id int64) error {
 
 // GetServers gets all servers
 // it returns the servers and an error
-func (r *ServerRepository) GetServers() ([]*model.Server, error) {
+func (r *ServerRepository) GetServers() (*model.Servers, error) {
 	// get all servers
-	var servers []*model.Server
+	var servers model.Servers
 	query := "SELECT * FROM servers"
 	rows, err := r.db.Query(query)
 	if err != nil {
@@ -177,7 +177,7 @@ func (r *ServerRepository) GetServers() ([]*model.Server, error) {
 		}
 		servers = append(servers, serverWithRelations)
 	}
-	return servers, nil
+	return &servers, nil
 }
 
 // withRelations function gets a server as input and returns a server with the relations
