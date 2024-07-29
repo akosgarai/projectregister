@@ -65,6 +65,19 @@ func NewResponse(title string, user *model.User, header *HeaderBlock) *Response 
 	}
 }
 
+// SelectedOptions is the struct for the selected options.
+type SelectedOptions []int64
+
+// IsSelected is a helper function to check if the option is selected.
+func (so SelectedOptions) IsSelected(option int64) bool {
+	for _, selected := range so {
+		if selected == option {
+			return true
+		}
+	}
+	return false
+}
+
 // FormItem is the struct for the form items.
 type FormItem struct {
 	Label    string
@@ -74,4 +87,6 @@ type FormItem struct {
 	Required bool
 	// On case of select / checkbox group type we need the options.
 	Options map[int64]string
+	// selected options. for select / checkbox group.
+	SelectedOptions SelectedOptions
 }
