@@ -139,9 +139,9 @@ func (r *EnvironmentRepository) DeleteEnvironment(id int64) error {
 
 // GetEnvironments gets all environments
 // it returns the environments and an error
-func (r *EnvironmentRepository) GetEnvironments() ([]*model.Environment, error) {
+func (r *EnvironmentRepository) GetEnvironments() (*model.Environments, error) {
 	// get all environments
-	var environments []*model.Environment
+	var environments model.Environments
 	query := "SELECT * FROM environments"
 	rows, err := r.db.Query(query)
 	if err != nil {
@@ -160,7 +160,7 @@ func (r *EnvironmentRepository) GetEnvironments() ([]*model.Environment, error) 
 		}
 		environments = append(environments, environmentWithRelations)
 	}
-	return environments, nil
+	return &environments, nil
 }
 
 // withRelations function gets a environment as input and returns a environment with the relations

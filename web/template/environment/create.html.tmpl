@@ -1,27 +1,6 @@
 {{define "content"}}
 	<form action="/admin/environment/create" method="post">
-		<div class="form-group">
-			<label for="name">Name</label>
-			<input type="text" class="form-control" id="name" name="name" value="" required>
-		</div>
-		<div class="form-group">
-			<label for="description">Description</label>
-			<textarea class="form-control" id="description" name="description" ></textarea>
-		</div>
-		<label for="servers">Servers</label>
-		{{range .Servers}}
-			<div class="checkbox">
-				<input type="checkbox" id="s_{{.ID}}" name="server_id" value="{{.ID}}">
-				<label for="s_{{.ID}}">{{.Name}}</label>
-			</div>
-		{{end}}
-		<label for="databases">Databases</label>
-		{{range .Databases}}
-			<div class="checkbox">
-				<input type="checkbox" id="d_{{.ID}}" name="database_id" value="{{.ID}}">
-				<label for="d_{{.ID}}">{{.Name}}</label>
-			</div>
-		{{end}}
+		{{template "formitems" .FormItems}}
 		<input type="submit" value="Create">
 	</form>
 {{end}}

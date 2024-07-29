@@ -31,6 +31,20 @@ func (e *Environment) HasDatabase(database string) bool {
 	return false
 }
 
+// Environments type is a slice of Environment
+type Environments []*Environment
+
+// ToMap converts the Environments to a map
+// The key is the environment ID
+// The value is the environment Name
+func (e Environments) ToMap() map[int64]string {
+	result := make(map[int64]string)
+	for _, environment := range e {
+		result[environment.ID] = environment.Name
+	}
+	return result
+}
+
 // EnvironmentRepository interface
 type EnvironmentRepository interface {
 	CreateEnvironment(name, description string, serverIDs, databaseIDs []int64) (*Environment, error)
@@ -38,5 +52,5 @@ type EnvironmentRepository interface {
 	GetEnvironmentByID(id int64) (*Environment, error)
 	UpdateEnvironment(client *Environment) error
 	DeleteEnvironment(id int64) error
-	GetEnvironments() ([]*Environment, error)
+	GetEnvironments() (*Environments, error)
 }
