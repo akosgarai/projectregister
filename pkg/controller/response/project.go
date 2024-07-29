@@ -39,6 +39,7 @@ func NewProjectDetailResponse(currentUser *model.User, project *model.Project) *
 // ProjectFormResponse is the struct for the project form responses.
 type ProjectFormResponse struct {
 	*ProjectDetailResponse
+	FormItems []*FormItem
 }
 
 // NewProjectFormResponse is a constructor for the ProjectFormResponse struct.
@@ -47,20 +48,25 @@ func NewProjectFormResponse(title string, currentUser *model.User, project *mode
 	projectDetailResponse.Header.Title = title
 	projectDetailResponse.Title = title
 	// The buttons are unnecessary on the form page.
-	projectDetailResponse.Header.Buttons = []*ActionButton{}
+	projectDetailResponse.Header.Buttons = []*ActionButton{{Label: "List", Link: fmt.Sprintf("/admin/project/list"), Privilege: "projects.view"}}
+	formItems := []*FormItem{
+		// Name.
+		{Label: "Name", Type: "text", Name: "name", Value: project.Name, Required: true},
+	}
 	return &ProjectFormResponse{
 		ProjectDetailResponse: projectDetailResponse,
+		FormItems:             formItems,
 	}
 }
 
 // ProjectListResponse is the struct for the project list page.
 type ProjectListResponse struct {
 	*Response
-	Projects []*model.Project
+	Projects *model.Projects
 }
 
 // NewProjectListResponse is a constructor for the ProjectListResponse struct.
-func NewProjectListResponse(currentUser *model.User, projects []*model.Project) *ProjectListResponse {
+func NewProjectListResponse(currentUser *model.User, projects *model.Projects) *ProjectListResponse {
 	header := &HeaderBlock{
 		Title:       "Project List",
 		CurrentUser: currentUser,

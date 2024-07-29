@@ -74,9 +74,9 @@ func (r *ProjectRepository) DeleteProject(id int64) error {
 
 // GetProjects gets all projects
 // it returns the projects and an error
-func (r *ProjectRepository) GetProjects() ([]*model.Project, error) {
+func (r *ProjectRepository) GetProjects() (*model.Projects, error) {
 	// get all projects
-	var projects []*model.Project
+	var projects model.Projects
 	query := "SELECT * FROM projects"
 	rows, err := r.db.Query(query)
 	if err != nil {
@@ -91,5 +91,5 @@ func (r *ProjectRepository) GetProjects() ([]*model.Project, error) {
 		}
 		projects = append(projects, &project)
 	}
-	return projects, nil
+	return &projects, nil
 }
