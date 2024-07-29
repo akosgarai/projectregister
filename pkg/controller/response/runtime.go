@@ -39,6 +39,7 @@ func NewRuntimeDetailResponse(currentUser *model.User, runtime *model.Runtime) *
 // RuntimeFormResponse is the struct for the runtime form responses.
 type RuntimeFormResponse struct {
 	*RuntimeDetailResponse
+	FormItems []*FormItem
 }
 
 // NewRuntimeFormResponse is a constructor for the RuntimeFormResponse struct.
@@ -47,20 +48,25 @@ func NewRuntimeFormResponse(title string, currentUser *model.User, runtime *mode
 	runtimeDetailResponse.Header.Title = title
 	runtimeDetailResponse.Title = title
 	// The buttons are unnecessary on the form page.
-	runtimeDetailResponse.Header.Buttons = []*ActionButton{}
+	runtimeDetailResponse.Header.Buttons = []*ActionButton{{Label: "List", Link: fmt.Sprintf("/admin/runtime/list"), Privilege: "runtimes.view"}}
+	formItems := []*FormItem{
+		// Name.
+		{Label: "Name", Type: "text", Name: "name", Value: runtime.Name, Required: true},
+	}
 	return &RuntimeFormResponse{
 		RuntimeDetailResponse: runtimeDetailResponse,
+		FormItems:             formItems,
 	}
 }
 
 // RuntimeListResponse is the struct for the runtime list page.
 type RuntimeListResponse struct {
 	*Response
-	Runtimes []*model.Runtime
+	Runtimes *model.Runtimes
 }
 
 // NewRuntimeListResponse is a constructor for the RuntimeListResponse struct.
-func NewRuntimeListResponse(currentUser *model.User, runtimes []*model.Runtime) *RuntimeListResponse {
+func NewRuntimeListResponse(currentUser *model.User, runtimes *model.Runtimes) *RuntimeListResponse {
 	header := &HeaderBlock{
 		Title:       "Runtime List",
 		CurrentUser: currentUser,

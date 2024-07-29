@@ -1,9 +1,6 @@
 {{define "content"}}
 	<form action="/admin/runtime/update/{{.Runtime.ID}}" method="post">
-		<div class="form-group">
-			<label for="name">Name</label>
-			<input type="text" class="form-control" id="name" name="name" value="{{.Runtime.Name}}" required>
-		</div>
+		{{template "formitems" .FormItems}}
 		<input type="submit" value="Update">
 	</form>
 {{end}}

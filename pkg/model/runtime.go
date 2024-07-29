@@ -8,6 +8,20 @@ type Runtime struct {
 	UpdatedAt string
 }
 
+// Runtimes type is a slice of Runtime
+type Runtimes []*Runtime
+
+// ToMap converts the Runtimes to a map
+// The key is the runtime ID
+// The value is the runtime Name
+func (r Runtimes) ToMap() map[int64]string {
+	result := make(map[int64]string)
+	for _, runtime := range r {
+		result[runtime.ID] = runtime.Name
+	}
+	return result
+}
+
 // RuntimeRepository interface
 type RuntimeRepository interface {
 	CreateRuntime(name string) (*Runtime, error)
@@ -15,5 +29,5 @@ type RuntimeRepository interface {
 	GetRuntimeByID(id int64) (*Runtime, error)
 	UpdateRuntime(client *Runtime) error
 	DeleteRuntime(id int64) error
-	GetRuntimes() ([]*Runtime, error)
+	GetRuntimes() (*Runtimes, error)
 }

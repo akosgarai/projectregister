@@ -74,9 +74,9 @@ func (r *RuntimeRepository) DeleteRuntime(id int64) error {
 
 // GetRuntimes gets all runtimes
 // it returns the runtimes and an error
-func (r *RuntimeRepository) GetRuntimes() ([]*model.Runtime, error) {
+func (r *RuntimeRepository) GetRuntimes() (*model.Runtimes, error) {
 	// get all runtimes
-	var runtimes []*model.Runtime
+	var runtimes model.Runtimes
 	query := "SELECT * FROM runtimes"
 	rows, err := r.db.Query(query)
 	if err != nil {
@@ -91,5 +91,5 @@ func (r *RuntimeRepository) GetRuntimes() ([]*model.Runtime, error) {
 		}
 		runtimes = append(runtimes, &runtime)
 	}
-	return runtimes, nil
+	return &runtimes, nil
 }

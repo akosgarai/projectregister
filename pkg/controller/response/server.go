@@ -40,11 +40,11 @@ func NewServerDetailResponse(currentUser *model.User, server *model.Server) *Ser
 type ServerFormResponse struct {
 	*ServerDetailResponse
 	Pools    *model.Pools
-	Runtimes []*model.Runtime
+	Runtimes *model.Runtimes
 }
 
 // NewServerFormResponse is a constructor for the ServerFormResponse struct.
-func NewServerFormResponse(title string, currentUser *model.User, server *model.Server, pools *model.Pools, runtimes []*model.Runtime) *ServerFormResponse {
+func NewServerFormResponse(title string, currentUser *model.User, server *model.Server, pools *model.Pools, runtimes *model.Runtimes) *ServerFormResponse {
 	serverDetailResponse := NewServerDetailResponse(currentUser, server)
 	serverDetailResponse.Header.Title = title
 	serverDetailResponse.Title = title
