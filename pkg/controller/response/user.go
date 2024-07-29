@@ -51,8 +51,10 @@ func NewUserFormResponse(title string, currentUser, user *model.User, roles *mod
 	// The buttons are unnecessary on the form page.
 	userDetailResponse.Header.Buttons = []*ActionButton{{Label: "Back", Link: "/admin/user/list", Privilege: "users.view"}}
 	roleID := ""
+	selectedOptions := SelectedOptions{0}
 	if user.Role != nil && user.Role.ID > 0 {
 		roleID = fmt.Sprintf("%d", user.Role.ID)
+		selectedOptions[0] = user.Role.ID
 	}
 	formItems := []*FormItem{
 		// Name.
@@ -63,12 +65,13 @@ func NewUserFormResponse(title string, currentUser, user *model.User, roles *mod
 		{Label: "Password", Type: "password", Name: "password", Value: "", Required: false},
 		// Roles.
 		{
-			Label:    "Role",
-			Name:     "role",
-			Type:     "select",
-			Value:    roleID,
-			Required: true,
-			Options:  roles.ToMap(),
+			Label:           "Role",
+			Name:            "role",
+			Type:            "select",
+			Value:           roleID,
+			Required:        true,
+			Options:         roles.ToMap(),
+			SelectedOptions: selectedOptions,
 		},
 	}
 	return &UserFormResponse{

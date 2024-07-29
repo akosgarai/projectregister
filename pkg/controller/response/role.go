@@ -28,6 +28,11 @@ func NewRoleDetailResponse(currentUser *model.User, role *model.Role) *RoleDetai
 				Link:      fmt.Sprintf("/admin/role/delete/%d", role.ID),
 				Privilege: "roles.delete",
 			},
+			{
+				Label:     "List",
+				Link:      fmt.Sprintf("/admin/role/list"),
+				Privilege: "roles.view",
+			},
 		},
 	}
 	return &RoleDetailResponse{
@@ -39,19 +44,31 @@ func NewRoleDetailResponse(currentUser *model.User, role *model.Role) *RoleDetai
 // RoleFormResponse is the struct for the role form responses.
 type RoleFormResponse struct {
 	*RoleDetailResponse
-	Resources []*model.Resource
+	FormItems []*FormItem
 }
 
 // NewRoleFormResponse is a constructor for the RoleFormResponse struct.
-func NewRoleFormResponse(title string, currentUser *model.User, role *model.Role, resources []*model.Resource) *RoleFormResponse {
+func NewRoleFormResponse(title string, currentUser *model.User, role *model.Role, resources *model.Resources) *RoleFormResponse {
 	roleDetailResponse := NewRoleDetailResponse(currentUser, role)
 	roleDetailResponse.Header.Title = title
 	roleDetailResponse.Title = title
 	// The buttons are unnecessary on the form page.
-	roleDetailResponse.Header.Buttons = []*ActionButton{}
+	roleDetailResponse.Header.Buttons = []*ActionButton{{Label: "List", Link: fmt.Sprintf("/admin/role/list"), Privilege: "roles.view"}}
+	selectedOptions := SelectedOptions{}
+	for _, resource := range role.Resources {
+		if role.HasResource(resource.Name) {
+			selectedOptions = append(selectedOptions, resource.ID)
+		}
+	}
+	formItems := []*FormItem{
+		// Name.
+		{Label: "Name", Type: "text", Name: "name", Value: role.Name, Required: true},
+		// Resources.
+		{Label: "Resources", Type: "checkboxgroup", Name: "resources", Value: "", Required: true, Options: resources.ToMap(), SelectedOptions: selectedOptions},
+	}
 	return &RoleFormResponse{
 		RoleDetailResponse: roleDetailResponse,
-		Resources:          resources,
+		FormItems:          formItems,
 	}
 }
 

@@ -1,17 +1,6 @@
 {{define "content"}}
 	<form action="/admin/role/update/{{.Role.ID}}" method="post">
-		<div class="form-group">
-			<label for="name">Name</label>
-			<input type="text" class="form-control" id="name" name="name" value="{{.Role.Name}}" required>
-		</div>
-		<div class="form-group">
-		{{range .Resources}}
-			<div class="checkbox">
-				<input type="checkbox" id="r_{{.ID}}" name="resources" value="{{.ID}}" {{if  $.Role.HasResource .Name}} checked {{end}}>
-				<label for="r_{{.ID}}">{{.Name}}</label>
-			</div>
-		{{end}}
-		</div>
+		{{template "formitems" .FormItems}}
 		<input type="submit" value="Update">
 	</form>
 {{end}}

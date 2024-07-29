@@ -9,13 +9,20 @@
 			{{else if eq .Type "password"}}
 				<input type="{{.Type}}" class="form-control" id="{{.Name}}" name="{{.Name}}" {{if eq .Required true}}required{{end}} >
 			{{else if eq .Type "select"}}
-				{{$selectValue := .Value}}
+				{{$selected := .SelectedOptions}}
 				<select class="form-control" id="{{.Name}}" name="{{.Name}}" {{if eq .Required true}}required{{end}} >
 					<option value="">--Pick One--</option>
 					{{range $value, $label := .Options}}
-						{{$stringVal := printf "%d" $value}}
-						<option value="{{$value}}" {{if eq $stringVal $selectValue}}selected{{end}}>{{$label}}</option>
+						<option value="{{$value}}" {{if $selected.IsSelected $value}}selected{{end}}>{{$label}}</option>
 					{{end}}
+			{{else if eq .Type "checkboxgroup"}}
+				{{$selected := .SelectedOptions}}
+				{{range $value, $name := .Options}}
+					<div class="checkbox">
+						<input type="checkbox" id="r_{{$value}}" name="resources" value="{{$value}}" {{if $selected.IsSelected $value}}checked{{end}}>
+						<label for="r_{{$value}}">{{$name}}</label>
+					</div>
+				{{end}}
 			{{end}}
 		{{end}}
 	</div>

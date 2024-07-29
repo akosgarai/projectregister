@@ -1,15 +1,6 @@
 {{define "content"}}
 	<form action="/admin/role/create" method="post">
-		<div class="form-group">
-			<label for="name">Name</label>
-			<input type="text" class="form-control" id="name" name="name" value="" required>
-		</div>
-		{{range .Resources}}
-			<div class="checkbox">
-				<input type="checkbox" id="r_{{.ID}}" name="resources" value="{{.ID}}">
-				<label for="r_{{.ID}}">{{.Name}}</label>
-			</div>
-		{{end}}
+		{{template "formitems" .FormItems}}
 		<input type="submit" value="Create">
 	</form>
 {{end}}

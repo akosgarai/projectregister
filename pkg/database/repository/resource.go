@@ -19,9 +19,9 @@ func NewResourceRepository(db *database.DB) *ResourceRepository {
 
 // GetResources gets all resources
 // it returns the resources and an error
-func (r *ResourceRepository) GetResources() ([]*model.Resource, error) {
+func (r *ResourceRepository) GetResources() (*model.Resources, error) {
 	// get all resources
-	var resources []*model.Resource
+	var resources model.Resources
 	query := "SELECT * FROM resources"
 	rows, err := r.db.Query(query)
 	if err != nil {
@@ -36,5 +36,5 @@ func (r *ResourceRepository) GetResources() ([]*model.Resource, error) {
 		}
 		resources = append(resources, &res)
 	}
-	return resources, nil
+	return &resources, nil
 }
