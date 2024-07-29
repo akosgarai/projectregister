@@ -118,9 +118,9 @@ func (a *ApplicationRepository) DeleteApplication(id int64) error {
 
 // GetApplications gets all applications
 // it returns the applications and an error
-func (a *ApplicationRepository) GetApplications() ([]*model.Application, error) {
+func (a *ApplicationRepository) GetApplications() (*model.Applications, error) {
 	// get all applications
-	var applications []*model.Application
+	var applications model.Applications
 	query := "SELECT id FROM applications"
 	rows, err := a.db.Query(query)
 	if err != nil {
@@ -139,7 +139,7 @@ func (a *ApplicationRepository) GetApplications() ([]*model.Application, error) 
 		}
 		applications = append(applications, applicationWithRelations)
 	}
-	return applications, nil
+	return &applications, nil
 }
 
 // withRelations function gets a application as input and returns a application with the relations

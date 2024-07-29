@@ -33,11 +33,14 @@ func (a *Application) HasDomain(domain string) bool {
 	return false
 }
 
+// Applications type is a slice of Application
+type Applications []*Application
+
 // ApplicationRepository interface
 type ApplicationRepository interface {
 	CreateApplication(clientID, projectID, environmentID, databaseID, runtimeID, poolID int64, repository, branch, dbName, dbUser, framework, docRoot string, domains []int64) (*Application, error)
 	GetApplicationByID(id int64) (*Application, error)
 	UpdateApplication(application *Application) error
 	DeleteApplication(id int64) error
-	GetApplications() ([]*Application, error)
+	GetApplications() (*Applications, error)
 }

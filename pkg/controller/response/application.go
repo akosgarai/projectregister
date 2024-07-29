@@ -40,15 +40,7 @@ func NewApplicationDetailResponse(user *model.User, app *model.Application) *App
 // ApplicationFormResponse is the struct for the application form responses.
 type ApplicationFormResponse struct {
 	*ApplicationDetailResponse
-
-	Clients      *model.Clients
-	Projects     *model.Projects
-	Environments *model.Environments
-	Databases    *model.Databases
-	Runtimes     *model.Runtimes
-	Pools        *model.Pools
-	Domains      *model.Domains
-	CurrentUser  *model.User
+	FormItems []*FormItem
 }
 
 // NewApplicationFormResponse is a constructor for the ApplicationFormResponse struct.
@@ -67,28 +59,55 @@ func NewApplicationFormResponse(
 	appDetailResponse := NewApplicationDetailResponse(user, app)
 	appDetailResponse.Title = title
 	appDetailResponse.Header.Title = title
-	appDetailResponse.Header.Buttons = []*ActionButton{}
+	appDetailResponse.Header.Buttons = []*ActionButton{{Label: "Back", Link: "/admin/application/list", Privilege: "applications.view"}}
+	selectedDomains := SelectedOptions{}
+	if app.Domains != nil {
+		for _, domain := range app.Domains {
+			selectedDomains = append(selectedDomains, domain.ID)
+		}
+	}
+	formItems := []*FormItem{
+		// Client.
+		{Label: "Client", Type: "select", Name: "client", Options: clients.ToMap(), Required: true},
+		// Project.
+		{Label: "Project", Type: "select", Name: "project", Options: projects.ToMap(), Required: true},
+		// Environment.
+		{Label: "Environment", Type: "select", Name: "environment", Options: envs.ToMap(), Required: true},
+		// Database.
+		{Label: "Database", Type: "select", Name: "database", Options: dbs.ToMap(), Required: true},
+		// DB Name.
+		{Label: "DB Name", Type: "text", Name: "db_name", Value: app.DBName, Required: true},
+		// DB User.
+		{Label: "DB User", Type: "text", Name: "db_user", Value: app.DBUser, Required: true},
+		// Runtime.
+		{Label: "Runtime", Type: "select", Name: "runtime", Options: runtimes.ToMap(), Required: true},
+		// Pool.
+		{Label: "Pool", Type: "select", Name: "pool", Options: pools.ToMap(), Required: true},
+		// Repo URL.
+		{Label: "Repository", Type: "text", Name: "repository", Value: app.Repository},
+		// Branch.
+		{Label: "Branch", Type: "text", Name: "branch", Value: app.Branch},
+		// Framework
+		{Label: "Framework", Type: "text", Name: "framework", Value: app.Framework},
+		// Document root.
+		{Label: "Document Root", Type: "text", Name: "document_root", Value: app.DocumentRoot},
+		// Domains.
+		{Label: "Domains", Type: "checkboxgroup", Name: "domains", Options: domains.ToMap(), SelectedOptions: selectedDomains},
+	}
 	return &ApplicationFormResponse{
 		ApplicationDetailResponse: appDetailResponse,
-		Clients:                   clients,
-		Projects:                  projects,
-		Environments:              envs,
-		Databases:                 dbs,
-		Runtimes:                  runtimes,
-		Pools:                     pools,
-		Domains:                   domains,
-		CurrentUser:               user,
+		FormItems:                 formItems,
 	}
 }
 
 // ApplicationListResponse is the struct for the application list page.
 type ApplicationListResponse struct {
 	*Response
-	Applications []*model.Application
+	Applications *model.Applications
 }
 
 // NewApplicationListResponse is a constructor for the ApplicationListResponse struct.
-func NewApplicationListResponse(user *model.User, apps []*model.Application) *ApplicationListResponse {
+func NewApplicationListResponse(user *model.User, apps *model.Applications) *ApplicationListResponse {
 	header := &HeaderBlock{
 		Title:       "Application List",
 		CurrentUser: user,
