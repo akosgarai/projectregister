@@ -39,7 +39,6 @@ func NewUserDetailResponse(currentUser, user *model.User) *UserDetailResponse {
 // UserFormResponse is the struct for the user form responses.
 type UserFormResponse struct {
 	*UserDetailResponse
-	Roles     *model.Roles
 	FormItems []*FormItem
 }
 
@@ -76,7 +75,6 @@ func NewUserFormResponse(title string, currentUser, user *model.User, roles *mod
 	}
 	return &UserFormResponse{
 		UserDetailResponse: userDetailResponse,
-		Roles:              roles,
 		FormItems:          formItems,
 	}
 }
