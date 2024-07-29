@@ -39,6 +39,7 @@ func NewPoolDetailResponse(currentUser *model.User, pool *model.Pool) *PoolDetai
 // PoolFormResponse is the struct for the pool form responses.
 type PoolFormResponse struct {
 	*PoolDetailResponse
+	FormItems []*FormItem
 }
 
 // NewPoolFormResponse is a constructor for the PoolFormResponse struct.
@@ -47,20 +48,25 @@ func NewPoolFormResponse(title string, currentUser *model.User, pool *model.Pool
 	poolDetailResponse.Header.Title = title
 	poolDetailResponse.Title = title
 	// The buttons are unnecessary on the form page.
-	poolDetailResponse.Header.Buttons = []*ActionButton{}
+	poolDetailResponse.Header.Buttons = []*ActionButton{{Label: "List", Link: fmt.Sprintf("/admin/pool/list"), Privilege: "pools.view"}}
+	formItems := []*FormItem{
+		// Name.
+		{Label: "Name", Type: "text", Name: "name", Value: pool.Name, Required: true},
+	}
 	return &PoolFormResponse{
 		PoolDetailResponse: poolDetailResponse,
+		FormItems:          formItems,
 	}
 }
 
 // PoolListResponse is the struct for the pool list page.
 type PoolListResponse struct {
 	*Response
-	Pools []*model.Pool
+	Pools *model.Pools
 }
 
 // NewPoolListResponse is a constructor for the PoolListResponse struct.
-func NewPoolListResponse(currentUser *model.User, pools []*model.Pool) *PoolListResponse {
+func NewPoolListResponse(currentUser *model.User, pools *model.Pools) *PoolListResponse {
 	header := &HeaderBlock{
 		Title:       "Pool List",
 		CurrentUser: currentUser,

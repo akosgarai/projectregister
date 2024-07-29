@@ -46,7 +46,7 @@ type ApplicationFormResponse struct {
 	Environments []*model.Environment
 	Databases    *model.Databases
 	Runtimes     []*model.Runtime
-	Pools        []*model.Pool
+	Pools        *model.Pools
 	Domains      []*model.Domain
 	CurrentUser  *model.User
 }
@@ -61,7 +61,7 @@ func NewApplicationFormResponse(
 	envs []*model.Environment,
 	dbs *model.Databases,
 	runtimes []*model.Runtime,
-	pools []*model.Pool,
+	pools *model.Pools,
 	domains []*model.Domain,
 ) *ApplicationFormResponse {
 	appDetailResponse := NewApplicationDetailResponse(user, app)

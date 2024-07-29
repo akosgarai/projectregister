@@ -74,9 +74,9 @@ func (r *PoolRepository) DeletePool(id int64) error {
 
 // GetPools gets all pools
 // it returns the pools and an error
-func (r *PoolRepository) GetPools() ([]*model.Pool, error) {
+func (r *PoolRepository) GetPools() (*model.Pools, error) {
 	// get all pools
-	var pools []*model.Pool
+	var pools model.Pools
 	query := "SELECT * FROM pools"
 	rows, err := r.db.Query(query)
 	if err != nil {
@@ -91,5 +91,5 @@ func (r *PoolRepository) GetPools() ([]*model.Pool, error) {
 		}
 		pools = append(pools, &pool)
 	}
-	return pools, nil
+	return &pools, nil
 }
