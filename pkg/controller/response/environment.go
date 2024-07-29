@@ -40,11 +40,11 @@ func NewEnvironmentDetailResponse(currentUser *model.User, environment *model.En
 type EnvironmentFormResponse struct {
 	*EnvironmentDetailResponse
 	Servers   []*model.Server
-	Databases []*model.Database
+	Databases *model.Databases
 }
 
 // NewEnvironmentFormResponse is a constructor for the EnvironmentFormResponse struct.
-func NewEnvironmentFormResponse(title string, currentUser *model.User, environment *model.Environment, servers []*model.Server, databases []*model.Database) *EnvironmentFormResponse {
+func NewEnvironmentFormResponse(title string, currentUser *model.User, environment *model.Environment, servers []*model.Server, databases *model.Databases) *EnvironmentFormResponse {
 	environmentDetailResponse := NewEnvironmentDetailResponse(currentUser, environment)
 	environmentDetailResponse.Header.Title = title
 	environmentDetailResponse.Title = title

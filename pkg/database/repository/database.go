@@ -74,9 +74,9 @@ func (r *DatabaseRepository) DeleteDatabase(id int64) error {
 
 // GetDatabases gets all databases
 // it returns the databases and an error
-func (r *DatabaseRepository) GetDatabases() ([]*model.Database, error) {
+func (r *DatabaseRepository) GetDatabases() (*model.Databases, error) {
 	// get all databases
-	var databases []*model.Database
+	var databases model.Databases
 	query := "SELECT * FROM databases"
 	rows, err := r.db.Query(query)
 	if err != nil {
@@ -91,5 +91,5 @@ func (r *DatabaseRepository) GetDatabases() ([]*model.Database, error) {
 		}
 		databases = append(databases, &database)
 	}
-	return databases, nil
+	return &databases, nil
 }

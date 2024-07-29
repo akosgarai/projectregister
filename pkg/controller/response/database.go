@@ -39,6 +39,7 @@ func NewDatabaseDetailResponse(currentUser *model.User, database *model.Database
 // DatabaseFormResponse is the struct for the database form responses.
 type DatabaseFormResponse struct {
 	*DatabaseDetailResponse
+	FormItems []*FormItem
 }
 
 // NewDatabaseFormResponse is a constructor for the DatabaseFormResponse struct.
@@ -47,20 +48,25 @@ func NewDatabaseFormResponse(title string, currentUser *model.User, database *mo
 	databaseDetailResponse.Header.Title = title
 	databaseDetailResponse.Title = title
 	// The buttons are unnecessary on the form page.
-	databaseDetailResponse.Header.Buttons = []*ActionButton{}
+	databaseDetailResponse.Header.Buttons = []*ActionButton{{Label: "List", Link: fmt.Sprintf("/admin/database/list"), Privilege: "databases.view"}}
+	formItems := []*FormItem{
+		// Name.
+		{Label: "Name", Type: "text", Name: "name", Value: database.Name, Required: true},
+	}
 	return &DatabaseFormResponse{
 		DatabaseDetailResponse: databaseDetailResponse,
+		FormItems:              formItems,
 	}
 }
 
 // DatabaseListResponse is the struct for the database list page.
 type DatabaseListResponse struct {
 	*Response
-	Databases []*model.Database
+	Databases *model.Databases
 }
 
 // NewDatabaseListResponse is a constructor for the DatabaseListResponse struct.
-func NewDatabaseListResponse(currentUser *model.User, databases []*model.Database) *DatabaseListResponse {
+func NewDatabaseListResponse(currentUser *model.User, databases *model.Databases) *DatabaseListResponse {
 	header := &HeaderBlock{
 		Title:       "Database List",
 		CurrentUser: currentUser,
