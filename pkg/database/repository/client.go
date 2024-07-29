@@ -74,9 +74,9 @@ func (r *ClientRepository) DeleteClient(id int64) error {
 
 // GetClients gets all clients
 // it returns the clients and an error
-func (r *ClientRepository) GetClients() ([]*model.Client, error) {
+func (r *ClientRepository) GetClients() (*model.Clients, error) {
 	// get all clients
-	var clients []*model.Client
+	var clients model.Clients
 	query := "SELECT * FROM clients"
 	rows, err := r.db.Query(query)
 	if err != nil {
@@ -91,5 +91,5 @@ func (r *ClientRepository) GetClients() ([]*model.Client, error) {
 		}
 		clients = append(clients, &client)
 	}
-	return clients, nil
+	return &clients, nil
 }

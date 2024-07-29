@@ -41,7 +41,7 @@ func NewApplicationDetailResponse(user *model.User, app *model.Application) *App
 type ApplicationFormResponse struct {
 	*ApplicationDetailResponse
 
-	Clients      []*model.Client
+	Clients      *model.Clients
 	Projects     []*model.Project
 	Environments []*model.Environment
 	Databases    []*model.Database
@@ -56,7 +56,7 @@ func NewApplicationFormResponse(
 	title string,
 	user *model.User,
 	app *model.Application,
-	clients []*model.Client,
+	clients *model.Clients,
 	projects []*model.Project,
 	envs []*model.Environment,
 	dbs []*model.Database,

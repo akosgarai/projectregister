@@ -39,6 +39,7 @@ func NewClientDetailResponse(currentUser *model.User, client *model.Client) *Cli
 // ClientFormResponse is the struct for the client form responses.
 type ClientFormResponse struct {
 	*ClientDetailResponse
+	FormItems []*FormItem
 }
 
 // NewClientFormResponse is a constructor for the ClientFormResponse struct.
@@ -47,20 +48,25 @@ func NewClientFormResponse(title string, currentUser *model.User, client *model.
 	clientDetailResponse.Header.Title = title
 	clientDetailResponse.Title = title
 	// The buttons are unnecessary on the form page.
-	clientDetailResponse.Header.Buttons = []*ActionButton{}
+	clientDetailResponse.Header.Buttons = []*ActionButton{{Label: "List", Link: fmt.Sprintf("/admin/client/list"), Privilege: "clients.view"}}
+	formItems := []*FormItem{
+		// Name.
+		{Label: "Name", Type: "text", Name: "name", Value: client.Name, Required: true},
+	}
 	return &ClientFormResponse{
 		ClientDetailResponse: clientDetailResponse,
+		FormItems:            formItems,
 	}
 }
 
 // ClientListResponse is the struct for the client list page.
 type ClientListResponse struct {
 	*Response
-	Clients []*model.Client
+	Clients *model.Clients
 }
 
 // NewClientListResponse is a constructor for the ClientListResponse struct.
-func NewClientListResponse(currentUser *model.User, clients []*model.Client) *ClientListResponse {
+func NewClientListResponse(currentUser *model.User, clients *model.Clients) *ClientListResponse {
 	header := &HeaderBlock{
 		Title:       "Client List",
 		CurrentUser: currentUser,

@@ -1,9 +1,6 @@
 {{define "content"}}
 	<form action="/admin/client/create" method="post">
-		<div class="form-group">
-			<label for="name">Name</label>
-			<input type="text" class="form-control" id="name" name="name" value="" required>
-		</div>
+		{{template "formitems" .FormItems}}
 		<input type="submit" value="Create">
 	</form>
 {{end}}
