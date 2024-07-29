@@ -39,6 +39,7 @@ func NewDomainDetailResponse(currentUser *model.User, domain *model.Domain) *Dom
 // DomainFormResponse is the struct for the domain form responses.
 type DomainFormResponse struct {
 	*DomainDetailResponse
+	FormItems []*FormItem
 }
 
 // NewDomainFormResponse is a constructor for the DomainFormResponse struct.
@@ -47,20 +48,25 @@ func NewDomainFormResponse(title string, currentUser *model.User, domain *model.
 	domainDetailResponse.Header.Title = title
 	domainDetailResponse.Title = title
 	// The buttons are unnecessary on the form page.
-	domainDetailResponse.Header.Buttons = []*ActionButton{}
+	domainDetailResponse.Header.Buttons = []*ActionButton{{Label: "Back", Link: "/admin/domain/list", Privilege: "domains.view"}}
+	formItems := []*FormItem{
+		// Name.
+		{Label: "Name", Type: "text", Name: "name", Value: domain.Name, Required: true},
+	}
 	return &DomainFormResponse{
 		DomainDetailResponse: domainDetailResponse,
+		FormItems:            formItems,
 	}
 }
 
 // DomainListResponse is the struct for the domain list page.
 type DomainListResponse struct {
 	*Response
-	Domains []*model.Domain
+	Domains *model.Domains
 }
 
 // NewDomainListResponse is a constructor for the DomainListResponse struct.
-func NewDomainListResponse(currentUser *model.User, domains []*model.Domain) *DomainListResponse {
+func NewDomainListResponse(currentUser *model.User, domains *model.Domains) *DomainListResponse {
 	header := &HeaderBlock{
 		Title:       "Domain List",
 		CurrentUser: currentUser,

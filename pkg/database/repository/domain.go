@@ -74,9 +74,9 @@ func (r *DomainRepository) DeleteDomain(id int64) error {
 
 // GetDomains gets all domains
 // it returns the domains and an error
-func (r *DomainRepository) GetDomains() ([]*model.Domain, error) {
+func (r *DomainRepository) GetDomains() (*model.Domains, error) {
 	// get all domains
-	var domains []*model.Domain
+	var domains model.Domains
 	query := "SELECT * FROM domains"
 	rows, err := r.db.Query(query)
 	if err != nil {
@@ -91,14 +91,14 @@ func (r *DomainRepository) GetDomains() ([]*model.Domain, error) {
 		}
 		domains = append(domains, &domain)
 	}
-	return domains, nil
+	return &domains, nil
 }
 
 // GetFreeDomains gets all domains without any relation
 // it returns the domains and an error
-func (r *DomainRepository) GetFreeDomains() ([]*model.Domain, error) {
+func (r *DomainRepository) GetFreeDomains() (*model.Domains, error) {
 	// get all domains
-	var domains []*model.Domain
+	var domains model.Domains
 	query := "SELECT * FROM domains WHERE id NOT IN (SELECT domain_id FROM application_to_domains)"
 	rows, err := r.db.Query(query)
 	if err != nil {
@@ -113,5 +113,5 @@ func (r *DomainRepository) GetFreeDomains() ([]*model.Domain, error) {
 		}
 		domains = append(domains, &domain)
 	}
-	return domains, nil
+	return &domains, nil
 }

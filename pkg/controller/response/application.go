@@ -47,7 +47,7 @@ type ApplicationFormResponse struct {
 	Databases    *model.Databases
 	Runtimes     *model.Runtimes
 	Pools        *model.Pools
-	Domains      []*model.Domain
+	Domains      *model.Domains
 	CurrentUser  *model.User
 }
 
@@ -62,7 +62,7 @@ func NewApplicationFormResponse(
 	dbs *model.Databases,
 	runtimes *model.Runtimes,
 	pools *model.Pools,
-	domains []*model.Domain,
+	domains *model.Domains,
 ) *ApplicationFormResponse {
 	appDetailResponse := NewApplicationDetailResponse(user, app)
 	appDetailResponse.Title = title
