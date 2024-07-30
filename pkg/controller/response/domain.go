@@ -82,7 +82,7 @@ func NewDomainFormResponse(title string, currentUser *model.User, domain *model.
 // DomainListResponse is the struct for the domain list page.
 type DomainListResponse struct {
 	*Response
-	Domains *model.Domains
+	Listing *Listing
 }
 
 // NewDomainListResponse is a constructor for the DomainListResponse struct.
@@ -98,8 +98,34 @@ func NewDomainListResponse(currentUser *model.User, domains *model.Domains) *Dom
 			},
 		},
 	}
+	listingHeader := &ListingHeader{
+		Headers: []string{"ID", "Name", "Actions"},
+	}
+	// create the rows
+	listingRows := ListingRows{}
+	userCanEdit := currentUser.HasPrivilege("domains.update")
+	userCanDelete := currentUser.HasPrivilege("domains.delete")
+	for _, domain := range *domains {
+		columns := ListingColumns{}
+		idColumn := &ListingColumn{&ListingColumnValues{{Value: fmt.Sprintf("%d", domain.ID)}}}
+		columns = append(columns, idColumn)
+		nameColumn := &ListingColumn{&ListingColumnValues{{Value: domain.Name}}}
+		columns = append(columns, nameColumn)
+		actionsColumn := ListingColumn{&ListingColumnValues{
+			{Value: "View", Link: fmt.Sprintf("/admin/domain/detail/%d", domain.ID)},
+		}}
+		if userCanEdit {
+			*actionsColumn.Values = append(*actionsColumn.Values, &ListingColumnValue{Value: "Update", Link: fmt.Sprintf("/admin/domain/update/%d", domain.ID)})
+		}
+		if userCanDelete {
+			*actionsColumn.Values = append(*actionsColumn.Values, &ListingColumnValue{Value: "Delete", Link: fmt.Sprintf("/admin/domain/delete/%d", domain.ID), Form: true})
+		}
+		columns = append(columns, &actionsColumn)
+
+		listingRows = append(listingRows, &ListingRow{Columns: &columns})
+	}
 	return &DomainListResponse{
 		Response: NewResponse("Domain List", currentUser, header),
-		Domains:  domains,
+		Listing:  &Listing{Header: listingHeader, Rows: &listingRows},
 	}
 }

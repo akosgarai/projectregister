@@ -82,7 +82,7 @@ func NewPoolFormResponse(title string, currentUser *model.User, pool *model.Pool
 // PoolListResponse is the struct for the pool list page.
 type PoolListResponse struct {
 	*Response
-	Pools *model.Pools
+	Listing *Listing
 }
 
 // NewPoolListResponse is a constructor for the PoolListResponse struct.
@@ -98,8 +98,34 @@ func NewPoolListResponse(currentUser *model.User, pools *model.Pools) *PoolListR
 			},
 		},
 	}
+	listingHeader := &ListingHeader{
+		Headers: []string{"ID", "Name", "Actions"},
+	}
+	// create the rows
+	listingRows := ListingRows{}
+	userCanEdit := currentUser.HasPrivilege("pools.update")
+	userCanDelete := currentUser.HasPrivilege("pools.delete")
+	for _, pool := range *pools {
+		columns := ListingColumns{}
+		idColumn := &ListingColumn{&ListingColumnValues{{Value: fmt.Sprintf("%d", pool.ID)}}}
+		columns = append(columns, idColumn)
+		nameColumn := &ListingColumn{&ListingColumnValues{{Value: pool.Name}}}
+		columns = append(columns, nameColumn)
+		actionsColumn := ListingColumn{&ListingColumnValues{
+			{Value: "View", Link: fmt.Sprintf("/admin/pool/detail/%d", pool.ID)},
+		}}
+		if userCanEdit {
+			*actionsColumn.Values = append(*actionsColumn.Values, &ListingColumnValue{Value: "Update", Link: fmt.Sprintf("/admin/pool/update/%d", pool.ID)})
+		}
+		if userCanDelete {
+			*actionsColumn.Values = append(*actionsColumn.Values, &ListingColumnValue{Value: "Delete", Link: fmt.Sprintf("/admin/pool/delete/%d", pool.ID), Form: true})
+		}
+		columns = append(columns, &actionsColumn)
+
+		listingRows = append(listingRows, &ListingRow{Columns: &columns})
+	}
 	return &PoolListResponse{
 		Response: NewResponse("Pool List", currentUser, header),
-		Pools:    pools,
+		Listing:  &Listing{Header: listingHeader, Rows: &listingRows},
 	}
 }

@@ -82,7 +82,7 @@ func NewProjectFormResponse(title string, currentUser *model.User, project *mode
 // ProjectListResponse is the struct for the project list page.
 type ProjectListResponse struct {
 	*Response
-	Projects *model.Projects
+	Listing *Listing
 }
 
 // NewProjectListResponse is a constructor for the ProjectListResponse struct.
@@ -98,8 +98,34 @@ func NewProjectListResponse(currentUser *model.User, projects *model.Projects) *
 			},
 		},
 	}
+	listingHeader := &ListingHeader{
+		Headers: []string{"ID", "Name", "Actions"},
+	}
+	// create the rows
+	listingRows := ListingRows{}
+	userCanEdit := currentUser.HasPrivilege("projects.update")
+	userCanDelete := currentUser.HasPrivilege("projects.delete")
+	for _, project := range *projects {
+		columns := ListingColumns{}
+		idColumn := &ListingColumn{&ListingColumnValues{{Value: fmt.Sprintf("%d", project.ID)}}}
+		columns = append(columns, idColumn)
+		nameColumn := &ListingColumn{&ListingColumnValues{{Value: project.Name}}}
+		columns = append(columns, nameColumn)
+		actionsColumn := ListingColumn{&ListingColumnValues{
+			{Value: "View", Link: fmt.Sprintf("/admin/project/detail/%d", project.ID)},
+		}}
+		if userCanEdit {
+			*actionsColumn.Values = append(*actionsColumn.Values, &ListingColumnValue{Value: "Update", Link: fmt.Sprintf("/admin/project/update/%d", project.ID)})
+		}
+		if userCanDelete {
+			*actionsColumn.Values = append(*actionsColumn.Values, &ListingColumnValue{Value: "Delete", Link: fmt.Sprintf("/admin/project/delete/%d", project.ID), Form: true})
+		}
+		columns = append(columns, &actionsColumn)
+
+		listingRows = append(listingRows, &ListingRow{Columns: &columns})
+	}
 	return &ProjectListResponse{
 		Response: NewResponse("Project List", currentUser, header),
-		Projects: projects,
+		Listing:  &Listing{Header: listingHeader, Rows: &listingRows},
 	}
 }

@@ -82,7 +82,7 @@ func NewDatabaseFormResponse(title string, currentUser *model.User, database *mo
 // DatabaseListResponse is the struct for the database list page.
 type DatabaseListResponse struct {
 	*Response
-	Databases *model.Databases
+	Listing *Listing
 }
 
 // NewDatabaseListResponse is a constructor for the DatabaseListResponse struct.
@@ -98,8 +98,34 @@ func NewDatabaseListResponse(currentUser *model.User, databases *model.Databases
 			},
 		},
 	}
+	listingHeader := &ListingHeader{
+		Headers: []string{"ID", "Name", "Actions"},
+	}
+	// create the rows
+	listingRows := ListingRows{}
+	userCanEdit := currentUser.HasPrivilege("databases.update")
+	userCanDelete := currentUser.HasPrivilege("databases.delete")
+	for _, database := range *databases {
+		columns := ListingColumns{}
+		idColumn := &ListingColumn{&ListingColumnValues{{Value: fmt.Sprintf("%d", database.ID)}}}
+		columns = append(columns, idColumn)
+		nameColumn := &ListingColumn{&ListingColumnValues{{Value: database.Name}}}
+		columns = append(columns, nameColumn)
+		actionsColumn := ListingColumn{&ListingColumnValues{
+			{Value: "View", Link: fmt.Sprintf("/admin/database/detail/%d", database.ID)},
+		}}
+		if userCanEdit {
+			*actionsColumn.Values = append(*actionsColumn.Values, &ListingColumnValue{Value: "Update", Link: fmt.Sprintf("/admin/database/update/%d", database.ID)})
+		}
+		if userCanDelete {
+			*actionsColumn.Values = append(*actionsColumn.Values, &ListingColumnValue{Value: "Delete", Link: fmt.Sprintf("/admin/database/delete/%d", database.ID), Form: true})
+		}
+		columns = append(columns, &actionsColumn)
+
+		listingRows = append(listingRows, &ListingRow{Columns: &columns})
+	}
 	return &DatabaseListResponse{
-		Response:  NewResponse("Database List", currentUser, header),
-		Databases: databases,
+		Response: NewResponse("Database List", currentUser, header),
+		Listing:  &Listing{Header: listingHeader, Rows: &listingRows},
 	}
 }

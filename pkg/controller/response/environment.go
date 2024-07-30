@@ -117,7 +117,7 @@ func NewEnvironmentFormResponse(title string, currentUser *model.User, environme
 // EnvironmentListResponse is the struct for the environment list page.
 type EnvironmentListResponse struct {
 	*Response
-	Environments *model.Environments
+	Listing *Listing
 }
 
 // NewEnvironmentListResponse is a constructor for the EnvironmentListResponse struct.
@@ -133,8 +133,36 @@ func NewEnvironmentListResponse(currentUser *model.User, environments *model.Env
 			},
 		},
 	}
+	listingHeader := &ListingHeader{
+		Headers: []string{"ID", "Name", "Description", "Actions"},
+	}
+	// create the rows
+	listingRows := ListingRows{}
+	userCanEdit := currentUser.HasPrivilege("environments.update")
+	userCanDelete := currentUser.HasPrivilege("environments.delete")
+	for _, environment := range *environments {
+		columns := ListingColumns{}
+		idColumn := &ListingColumn{&ListingColumnValues{{Value: fmt.Sprintf("%d", environment.ID)}}}
+		columns = append(columns, idColumn)
+		nameColumn := &ListingColumn{&ListingColumnValues{{Value: environment.Name}}}
+		columns = append(columns, nameColumn)
+		desctiptionColumn := &ListingColumn{&ListingColumnValues{{Value: environment.Description}}}
+		columns = append(columns, desctiptionColumn)
+		actionsColumn := ListingColumn{&ListingColumnValues{
+			{Value: "View", Link: fmt.Sprintf("/admin/environment/detail/%d", environment.ID)},
+		}}
+		if userCanEdit {
+			*actionsColumn.Values = append(*actionsColumn.Values, &ListingColumnValue{Value: "Update", Link: fmt.Sprintf("/admin/environment/update/%d", environment.ID)})
+		}
+		if userCanDelete {
+			*actionsColumn.Values = append(*actionsColumn.Values, &ListingColumnValue{Value: "Delete", Link: fmt.Sprintf("/admin/environment/delete/%d", environment.ID), Form: true})
+		}
+		columns = append(columns, &actionsColumn)
+
+		listingRows = append(listingRows, &ListingRow{Columns: &columns})
+	}
 	return &EnvironmentListResponse{
-		Response:     NewResponse("Environment List", currentUser, header),
-		Environments: environments,
+		Response: NewResponse("Environment List", currentUser, header),
+		Listing:  &Listing{Header: listingHeader, Rows: &listingRows},
 	}
 }

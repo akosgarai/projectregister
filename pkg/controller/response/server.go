@@ -118,7 +118,7 @@ func NewServerFormResponse(title string, currentUser *model.User, server *model.
 // ServerListResponse is the struct for the server list page.
 type ServerListResponse struct {
 	*Response
-	Servers *model.Servers
+	Listing *Listing
 }
 
 // NewServerListResponse is a constructor for the ServerListResponse struct.
@@ -134,8 +134,38 @@ func NewServerListResponse(currentUser *model.User, servers *model.Servers) *Ser
 			},
 		},
 	}
+	listingHeader := &ListingHeader{
+		Headers: []string{"ID", "Name", "Remote Address", "Description", "Actions"},
+	}
+	// create the rows
+	listingRows := ListingRows{}
+	userCanEdit := currentUser.HasPrivilege("servers.update")
+	userCanDelete := currentUser.HasPrivilege("servers.delete")
+	for _, server := range *servers {
+		columns := ListingColumns{}
+		idColumn := &ListingColumn{&ListingColumnValues{{Value: fmt.Sprintf("%d", server.ID)}}}
+		columns = append(columns, idColumn)
+		nameColumn := &ListingColumn{&ListingColumnValues{{Value: server.Name}}}
+		columns = append(columns, nameColumn)
+		remoteAddrColumn := &ListingColumn{&ListingColumnValues{{Value: server.RemoteAddr}}}
+		columns = append(columns, remoteAddrColumn)
+		desctiptionColumn := &ListingColumn{&ListingColumnValues{{Value: server.Description}}}
+		columns = append(columns, desctiptionColumn)
+		actionsColumn := ListingColumn{&ListingColumnValues{
+			{Value: "View", Link: fmt.Sprintf("/admin/server/detail/%d", server.ID)},
+		}}
+		if userCanEdit {
+			*actionsColumn.Values = append(*actionsColumn.Values, &ListingColumnValue{Value: "Update", Link: fmt.Sprintf("/admin/server/update/%d", server.ID)})
+		}
+		if userCanDelete {
+			*actionsColumn.Values = append(*actionsColumn.Values, &ListingColumnValue{Value: "Delete", Link: fmt.Sprintf("/admin/server/delete/%d", server.ID), Form: true})
+		}
+		columns = append(columns, &actionsColumn)
+
+		listingRows = append(listingRows, &ListingRow{Columns: &columns})
+	}
 	return &ServerListResponse{
 		Response: NewResponse("Server List", currentUser, header),
-		Servers:  servers,
+		Listing:  &Listing{Header: listingHeader, Rows: &listingRows},
 	}
 }

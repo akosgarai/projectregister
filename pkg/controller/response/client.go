@@ -82,7 +82,7 @@ func NewClientFormResponse(title string, currentUser *model.User, client *model.
 // ClientListResponse is the struct for the client list page.
 type ClientListResponse struct {
 	*Response
-	Clients *model.Clients
+	Listing *Listing
 }
 
 // NewClientListResponse is a constructor for the ClientListResponse struct.
@@ -98,8 +98,34 @@ func NewClientListResponse(currentUser *model.User, clients *model.Clients) *Cli
 			},
 		},
 	}
+	listingHeader := &ListingHeader{
+		Headers: []string{"ID", "Name", "Actions"},
+	}
+	// create the rows
+	listingRows := ListingRows{}
+	userCanEdit := currentUser.HasPrivilege("clients.update")
+	userCanDelete := currentUser.HasPrivilege("clients.delete")
+	for _, client := range *clients {
+		columns := ListingColumns{}
+		idColumn := &ListingColumn{&ListingColumnValues{{Value: fmt.Sprintf("%d", client.ID)}}}
+		columns = append(columns, idColumn)
+		nameColumn := &ListingColumn{&ListingColumnValues{{Value: client.Name}}}
+		columns = append(columns, nameColumn)
+		actionsColumn := ListingColumn{&ListingColumnValues{
+			{Value: "View", Link: fmt.Sprintf("/admin/client/detail/%d", client.ID)},
+		}}
+		if userCanEdit {
+			*actionsColumn.Values = append(*actionsColumn.Values, &ListingColumnValue{Value: "Update", Link: fmt.Sprintf("/admin/client/update/%d", client.ID)})
+		}
+		if userCanDelete {
+			*actionsColumn.Values = append(*actionsColumn.Values, &ListingColumnValue{Value: "Delete", Link: fmt.Sprintf("/admin/client/delete/%d", client.ID), Form: true})
+		}
+		columns = append(columns, &actionsColumn)
+
+		listingRows = append(listingRows, &ListingRow{Columns: &columns})
+	}
 	return &ClientListResponse{
 		Response: NewResponse("Client List", currentUser, header),
-		Clients:  clients,
+		Listing:  &Listing{Header: listingHeader, Rows: &listingRows},
 	}
 }

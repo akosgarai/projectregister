@@ -1,29 +1,3 @@
 {{define "content"}}
-	<table >
-		<tr>
-			<th>ID</th>
-			<th>Name</th>
-			<th>Description</th>
-			<th>Actions</th>
-		</tr>
-		{{ range .Environments }}
-			<tr>
-				<td>{{.ID}}</td>
-				<td>{{.Name}}</td>
-				<td>{{.Description}}</td>
-				<td>
-					<a href="/admin/environment/view/{{.ID}}">View</a>
-					{{if $.CurrentUser.HasPrivilege "environments.update"}}
-						<a href="/admin/environment/update/{{.ID}}">Edit</a>
-					{{end}}
-
-					{{if $.CurrentUser.HasPrivilege "environments.delete"}}
-					<form action="/admin/environment/delete/{{.ID}}" method="post">
-						<input type="submit" value="Delete">
-					</form>
-					{{end}}
-				</td>
-			</tr>
-		{{end}}
-	</table>
+	{{template "listing" .Listing}}
 {{end}}

@@ -82,7 +82,7 @@ func NewRuntimeFormResponse(title string, currentUser *model.User, runtime *mode
 // RuntimeListResponse is the struct for the runtime list page.
 type RuntimeListResponse struct {
 	*Response
-	Runtimes *model.Runtimes
+	Listing *Listing
 }
 
 // NewRuntimeListResponse is a constructor for the RuntimeListResponse struct.
@@ -98,8 +98,34 @@ func NewRuntimeListResponse(currentUser *model.User, runtimes *model.Runtimes) *
 			},
 		},
 	}
+	listingHeader := &ListingHeader{
+		Headers: []string{"ID", "Name", "Actions"},
+	}
+	// create the rows
+	listingRows := ListingRows{}
+	userCanEdit := currentUser.HasPrivilege("runtimes.update")
+	userCanDelete := currentUser.HasPrivilege("runtimes.delete")
+	for _, runtime := range *runtimes {
+		columns := ListingColumns{}
+		idColumn := &ListingColumn{&ListingColumnValues{{Value: fmt.Sprintf("%d", runtime.ID)}}}
+		columns = append(columns, idColumn)
+		nameColumn := &ListingColumn{&ListingColumnValues{{Value: runtime.Name}}}
+		columns = append(columns, nameColumn)
+		actionsColumn := ListingColumn{&ListingColumnValues{
+			{Value: "View", Link: fmt.Sprintf("/admin/runtime/detail/%d", runtime.ID)},
+		}}
+		if userCanEdit {
+			*actionsColumn.Values = append(*actionsColumn.Values, &ListingColumnValue{Value: "Update", Link: fmt.Sprintf("/admin/runtime/update/%d", runtime.ID)})
+		}
+		if userCanDelete {
+			*actionsColumn.Values = append(*actionsColumn.Values, &ListingColumnValue{Value: "Delete", Link: fmt.Sprintf("/admin/runtime/delete/%d", runtime.ID), Form: true})
+		}
+		columns = append(columns, &actionsColumn)
+
+		listingRows = append(listingRows, &ListingRow{Columns: &columns})
+	}
 	return &RuntimeListResponse{
 		Response: NewResponse("Runtime List", currentUser, header),
-		Runtimes: runtimes,
+		Listing:  &Listing{Header: listingHeader, Rows: &listingRows},
 	}
 }

@@ -1,27 +1,3 @@
 {{define "content"}}
-	<table >
-		<tr>
-			<th>ID</th>
-			<th>Name</th>
-			<th>Actions</th>
-		</tr>
-		{{ range .Projects }}
-			<tr>
-				<td>{{.ID}}</td>
-				<td>{{.Name}}</td>
-				<td>
-					<a href="/admin/project/view/{{.ID}}">View</a>
-					{{if $.CurrentUser.HasPrivilege "projects.update"}}
-						<a href="/admin/project/update/{{.ID}}">Edit</a>
-					{{end}}
-
-					{{if $.CurrentUser.HasPrivilege "projects.delete"}}
-					<form action="/admin/project/delete/{{.ID}}" method="post">
-						<input type="submit" value="Delete">
-					</form>
-					{{end}}
-				</td>
-			</tr>
-		{{end}}
-	</table>
+	{{template "listing" .Listing}}
 {{end}}

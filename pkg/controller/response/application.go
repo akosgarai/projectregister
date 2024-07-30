@@ -179,7 +179,7 @@ func NewApplicationFormResponse(
 // ApplicationListResponse is the struct for the application list page.
 type ApplicationListResponse struct {
 	*Response
-	Applications *model.Applications
+	Listing *Listing
 }
 
 // NewApplicationListResponse is a constructor for the ApplicationListResponse struct.
@@ -195,9 +195,93 @@ func NewApplicationListResponse(user *model.User, apps *model.Applications) *App
 			},
 		},
 	}
+	listingHeader := &ListingHeader{
+		Headers: []string{"ID", "Client", "Project", "Environment", "Database", "Runtime", "Pool", "Codebase", "Framework", "Document Root", "Domains", "Created At", "Updated At", "Actions"},
+	}
+	// create the rows
+	listingRows := ListingRows{}
+	userCanEdit := user.HasPrivilege("applications.update")
+	userCanDelete := user.HasPrivilege("applications.delete")
+	for _, application := range *apps {
+		columns := ListingColumns{}
+		idColumn := &ListingColumn{&ListingColumnValues{{Value: fmt.Sprintf("%d", application.ID)}}}
+		columns = append(columns, idColumn)
+		clientViewLink := ""
+		if user.HasPrivilege("clients.view") {
+			clientViewLink = fmt.Sprintf("/admin/client/view/%d", application.Client.ID)
+		}
+		clientColumn := &ListingColumn{&ListingColumnValues{{Value: application.Client.Name, Link: clientViewLink}}}
+		columns = append(columns, clientColumn)
+		projectViewLink := ""
+		if user.HasPrivilege("projects.view") {
+			projectViewLink = fmt.Sprintf("/admin/project/view/%d", application.Project.ID)
+		}
+		projectColumn := &ListingColumn{&ListingColumnValues{{Value: application.Project.Name, Link: projectViewLink}}}
+		columns = append(columns, projectColumn)
+		environmentViewLink := ""
+		if user.HasPrivilege("environments.view") {
+			environmentViewLink = fmt.Sprintf("/admin/environment/view/%d", application.Environment.ID)
+		}
+		environmentColumn := &ListingColumn{&ListingColumnValues{{Value: application.Environment.Name, Link: environmentViewLink}}}
+		columns = append(columns, environmentColumn)
+		databaseViewLink := ""
+		if user.HasPrivilege("databases.view") {
+			databaseViewLink = fmt.Sprintf("/admin/database/view/%d", application.Database.ID)
+		}
+		databaseColumn := &ListingColumn{&ListingColumnValues{{Value: application.Database.Name, Link: databaseViewLink}}}
+		if application.DBName != "" {
+			*databaseColumn.Values = append(*databaseColumn.Values, &ListingColumnValue{Value: application.DBUser + " / " + application.DBName})
+		}
+		columns = append(columns, databaseColumn)
+		runtimeViewLink := ""
+		if user.HasPrivilege("runtimes.view") {
+			runtimeViewLink = fmt.Sprintf("/admin/runtime/view/%d", application.Runtime.ID)
+		}
+		runtimeColumn := &ListingColumn{&ListingColumnValues{{Value: application.Runtime.Name, Link: runtimeViewLink}}}
+		columns = append(columns, runtimeColumn)
+		poolViewLink := ""
+		if user.HasPrivilege("pools.view") {
+			poolViewLink = fmt.Sprintf("/admin/pool/view/%d", application.Pool.ID)
+		}
+		poolColumn := &ListingColumn{&ListingColumnValues{{Value: application.Pool.Name, Link: poolViewLink}}}
+		columns = append(columns, poolColumn)
+		codebaseColumn := &ListingColumn{&ListingColumnValues{{Value: application.Repository, Link: application.Repository}}}
+		if application.Branch != "" {
+			*codebaseColumn.Values = append(*codebaseColumn.Values, &ListingColumnValue{Value: application.Branch})
+		}
+		columns = append(columns, codebaseColumn)
+		frameworkColumn := &ListingColumn{&ListingColumnValues{{Value: application.Framework}}}
+		columns = append(columns, frameworkColumn)
+		documentRootColumn := &ListingColumn{&ListingColumnValues{{Value: application.DocumentRoot}}}
+		columns = append(columns, documentRootColumn)
+		domainsColumn := &ListingColumn{&ListingColumnValues{}}
+		if application.Domains != nil {
+			for _, domain := range application.Domains {
+				*domainsColumn.Values = append(*domainsColumn.Values, &ListingColumnValue{Value: domain.Name, Link: fmt.Sprintf("/admin/domain/view/%d", domain.ID)})
+			}
+		}
+		columns = append(columns, domainsColumn)
+		createAtColumn := &ListingColumn{&ListingColumnValues{{Value: application.CreatedAt}}}
+		columns = append(columns, createAtColumn)
+		updateAtColumn := &ListingColumn{&ListingColumnValues{{Value: application.UpdatedAt}}}
+		columns = append(columns, updateAtColumn)
+
+		actionsColumn := ListingColumn{&ListingColumnValues{
+			{Value: "View", Link: fmt.Sprintf("/admin/application/detail/%d", application.ID)},
+		}}
+		if userCanEdit {
+			*actionsColumn.Values = append(*actionsColumn.Values, &ListingColumnValue{Value: "Update", Link: fmt.Sprintf("/admin/application/update/%d", application.ID)})
+		}
+		if userCanDelete {
+			*actionsColumn.Values = append(*actionsColumn.Values, &ListingColumnValue{Value: "Delete", Link: fmt.Sprintf("/admin/application/delete/%d", application.ID), Form: true})
+		}
+		columns = append(columns, &actionsColumn)
+
+		listingRows = append(listingRows, &ListingRow{Columns: &columns})
+	}
 	return &ApplicationListResponse{
-		Response:     NewResponse("Application List", user, header),
-		Applications: apps,
+		Response: NewResponse("Application List", user, header),
+		Listing:  &Listing{Header: listingHeader, Rows: &listingRows},
 	}
 }
 

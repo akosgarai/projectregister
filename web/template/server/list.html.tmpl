@@ -1,31 +1,3 @@
 {{define "content"}}
-	<table >
-		<tr>
-			<th>ID</th>
-			<th>Name</th>
-			<th>Remote Address</th>
-			<th>Description</th>
-			<th>Actions</th>
-		</tr>
-		{{ range .Servers }}
-			<tr>
-				<td>{{.ID}}</td>
-				<td>{{.Name}}</td>
-				<td>{{.RemoteAddr}}</td>
-				<td>{{.Description}}</td>
-				<td>
-					<a href="/admin/server/view/{{.ID}}">View</a>
-					{{if $.CurrentUser.HasPrivilege "servers.update"}}
-						<a href="/admin/server/update/{{.ID}}">Edit</a>
-					{{end}}
-
-					{{if $.CurrentUser.HasPrivilege "servers.delete"}}
-					<form action="/admin/server/delete/{{.ID}}" method="post">
-						<input type="submit" value="Delete">
-					</form>
-					{{end}}
-				</td>
-			</tr>
-		{{end}}
-	</table>
+	{{template "listing" .Listing}}
 {{end}}
