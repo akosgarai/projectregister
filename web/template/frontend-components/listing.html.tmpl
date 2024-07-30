@@ -1,0 +1,34 @@
+{{define "listing"}}
+	<table>
+		<thead>
+			<tr>
+				{{range .Header.Headers}}
+					<th>{{.}}</th>
+				{{end}}
+			</tr>
+		</thead>
+		<tbody>
+			{{range .Rows}}
+				<tr>
+					{{range .Columns}}
+						<td>
+							{{range .Values}}
+								{{if ne .Link ""}}
+									{{if .Form}}
+										<form action="{{.Link}}" method="post">
+											<input type="submit" value="{{.Value}}">
+										</form>
+									{{else}}
+										<a href="{{.Link}}">{{.Value}}</a>
+									{{end}}
+								{{else}}
+									{{.Value}}
+								{{end}}
+							{{end}}
+						</td>
+					{{end}}
+				</tr>
+			{{end}}
+	</table>
+{{end}}
+

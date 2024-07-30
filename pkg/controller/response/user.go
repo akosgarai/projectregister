@@ -107,7 +107,7 @@ func NewUserFormResponse(title string, currentUser, user *model.User, roles *mod
 // UserListResponse is the struct for the user list page.
 type UserListResponse struct {
 	*Response
-	Users []*model.User
+	Listing *Listing
 }
 
 // NewUserListResponse is a constructor for the UserListResponse struct.
@@ -123,8 +123,53 @@ func NewUserListResponse(currentUser *model.User, users []*model.User) *UserList
 			},
 		},
 	}
+	listingHeader := &ListingHeader{
+		Headers: []string{"ID", "Name", "Email", "Role", "Actions"},
+	}
+	// create the rows
+	listingRows := ListingRows{}
+	userCanViewRoles := currentUser.HasPrivilege("roles.view")
+	userCanUpdateUsers := currentUser.HasPrivilege("users.update")
+	userCanDeleteUsers := currentUser.HasPrivilege("users.delete")
+	for _, user := range users {
+		columns := ListingColumns{}
+		// ID
+		idColumn := ListingColumn{&ListingColumnValues{{Value: fmt.Sprintf("%d", user.ID)}}}
+		columns = append(columns, &idColumn)
+		// Name
+		nameColumn := ListingColumn{&ListingColumnValues{{Value: user.Name}}}
+		columns = append(columns, &nameColumn)
+		// Email
+		emailColumn := ListingColumn{&ListingColumnValues{{Value: user.Email}}}
+		columns = append(columns, &emailColumn)
+		// Role
+		roleLink := ""
+		if userCanViewRoles {
+			roleLink = fmt.Sprintf("/admin/role/view/%d", user.Role.ID)
+		}
+		roleColumn := ListingColumn{&ListingColumnValues{{Value: user.Role.Name, Link: roleLink}}}
+		// Actions
+		columns = append(columns, &roleColumn)
+		actionsColumn := ListingColumn{&ListingColumnValues{
+			// view link
+			{Value: "View", Link: fmt.Sprintf("/admin/user/view/%d", user.ID)},
+		}}
+		if userCanUpdateUsers {
+			*actionsColumn.Values = append(*actionsColumn.Values, &ListingColumnValue{Value: "Update", Link: fmt.Sprintf("/admin/user/update/%d", user.ID)})
+		}
+		if userCanDeleteUsers {
+			*actionsColumn.Values = append(*actionsColumn.Values, &ListingColumnValue{Value: "Delete", Link: fmt.Sprintf("/admin/user/delete/%d", user.ID), Form: true})
+		}
+		columns = append(columns, &actionsColumn)
+
+		row := ListingRow{Columns: &columns}
+		listingRows = append(listingRows, &row)
+	}
 	return &UserListResponse{
 		Response: NewResponse("User List", currentUser, header),
-		Users:    users,
+		Listing: &Listing{
+			Header: listingHeader,
+			Rows:   &listingRows,
+		},
 	}
 }

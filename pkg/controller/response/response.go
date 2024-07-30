@@ -111,3 +111,46 @@ type DetailItem struct {
 
 // DetailItems is the struct for the detail items.
 type DetailItems []*DetailItem
+
+// ListingHeader is the struct for the listing header.
+// It contains the header elements of the listing.
+type ListingHeader struct {
+	Headers []string
+}
+
+// ListingRow is the struct for the listing item.
+// It contains the values of the item.
+type ListingRow struct {
+	Columns *ListingColumns
+}
+
+// ListingRows is the struct for the listing items.
+type ListingRows []*ListingRow
+
+// ListingColumn is the struct for the listing column.
+type ListingColumn struct {
+	Values *ListingColumnValues
+}
+
+// ListingColumns is the struct for the listing columns.
+type ListingColumns []*ListingColumn
+
+// ListingColumnValue is the struct for a listing column entry (one column might contain multiple values).
+// It contains the value of the column.
+// Also contains the link if it is a link.
+// On case of the Form set to true, the link is the action of a POST form.
+type ListingColumnValue struct {
+	Value string
+	Link  string
+	Form  bool
+}
+
+// ListingColumnValues is the struct for the listing column values.
+type ListingColumnValues []*ListingColumnValue
+
+// Listing is the struct for the listing response.
+// It contains the header block and the list items.
+type Listing struct {
+	Header *ListingHeader
+	Rows   *ListingRows
+}
