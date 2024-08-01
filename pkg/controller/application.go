@@ -181,7 +181,7 @@ func (c *Controller) ApplicationListViewController(w http.ResponseWriter, r *htt
 		return
 	}
 	content := response.NewApplicationListResponse(currentUser, applications)
-	err = c.renderer.Template.RenderTemplate(w, "application-list.html", content)
+	err = c.renderer.Template.RenderTemplate(w, "listing-page.html", content)
 	if err != nil {
 		panic(err)
 	}

@@ -180,7 +180,7 @@ func (c *Controller) ClientListViewController(w http.ResponseWriter, r *http.Req
 		return
 	}
 	content := response.NewClientListResponse(currentUser, clients)
-	err = c.renderer.Template.RenderTemplate(w, "client-list.html", content)
+	err = c.renderer.Template.RenderTemplate(w, "listing-page.html", content)
 	if err != nil {
 		panic(err)
 	}

@@ -247,7 +247,7 @@ func (c *Controller) ServerListViewController(w http.ResponseWriter, r *http.Req
 		return
 	}
 	content := response.NewServerListResponse(currentUser, servers)
-	err = c.renderer.Template.RenderTemplate(w, "server-list.html", content)
+	err = c.renderer.Template.RenderTemplate(w, "listing-page.html", content)
 	if err != nil {
 		panic(err)
 	}

@@ -180,7 +180,7 @@ func (c *Controller) ProjectListViewController(w http.ResponseWriter, r *http.Re
 		return
 	}
 	content := response.NewProjectListResponse(currentUser, projects)
-	err = c.renderer.Template.RenderTemplate(w, "project-list.html", content)
+	err = c.renderer.Template.RenderTemplate(w, "listing-page.html", content)
 	if err != nil {
 		panic(err)
 	}

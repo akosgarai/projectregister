@@ -180,7 +180,7 @@ func (c *Controller) DomainListViewController(w http.ResponseWriter, r *http.Req
 		return
 	}
 	content := response.NewDomainListResponse(currentUser, domains)
-	err = c.renderer.Template.RenderTemplate(w, "domain-list.html", content)
+	err = c.renderer.Template.RenderTemplate(w, "listing-page.html", content)
 	if err != nil {
 		panic(err)
 	}

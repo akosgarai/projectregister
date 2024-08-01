@@ -343,7 +343,7 @@ func (c *Controller) UserListViewController(w http.ResponseWriter, r *http.Reque
 		return
 	}
 	content := response.NewUserListResponse(currentUser, users)
-	err = c.renderer.Template.RenderTemplate(w, "user-list.html", content)
+	err = c.renderer.Template.RenderTemplate(w, "listing-page.html", content)
 	if err != nil {
 		panic(err)
 	}

@@ -1,14 +1,14 @@
-{{define "listing"}}
+{{define "content"}}
 	<table>
 		<thead>
 			<tr>
-				{{range .Header.Headers}}
+				{{range .Listing.Header.Headers}}
 					<th>{{.}}</th>
 				{{end}}
 			</tr>
 		</thead>
 		<tbody>
-			{{range .Rows}}
+			{{range .Listing.Rows}}
 				<tr>
 					{{range .Columns}}
 						<td>

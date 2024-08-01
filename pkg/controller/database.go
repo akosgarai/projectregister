@@ -180,7 +180,7 @@ func (c *Controller) DatabaseListViewController(w http.ResponseWriter, r *http.R
 		return
 	}
 	content := response.NewDatabaseListResponse(currentUser, databases)
-	err = c.renderer.Template.RenderTemplate(w, "database-list.html", content)
+	err = c.renderer.Template.RenderTemplate(w, "listing-page.html", content)
 	if err != nil {
 		panic(err)
 	}

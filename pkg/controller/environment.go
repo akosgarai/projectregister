@@ -246,7 +246,7 @@ func (c *Controller) EnvironmentListViewController(w http.ResponseWriter, r *htt
 		return
 	}
 	content := response.NewEnvironmentListResponse(currentUser, environments)
-	err = c.renderer.Template.RenderTemplate(w, "environment-list.html", content)
+	err = c.renderer.Template.RenderTemplate(w, "listing-page.html", content)
 	if err != nil {
 		panic(err)
 	}

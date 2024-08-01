@@ -32,7 +32,7 @@ func (c *Controller) CacheTemplates() {
 		c.renderer.Template.AddTemplate(resource+"-create.html", []string{headerTemplate, formItemsTemplate, c.renderer.GetTemplateDirectoryPath() + "/" + resource + "/create.html.tmpl"})
 		// Template for the update.
 		c.renderer.Template.AddTemplate(resource+"-update.html", []string{headerTemplate, formItemsTemplate, c.renderer.GetTemplateDirectoryPath() + "/" + resource + "/update.html.tmpl"})
-		// Template for the list.
-		c.renderer.Template.AddTemplate(resource+"-list.html", []string{headerTemplate, listingItemsTemplate, c.renderer.GetTemplateDirectoryPath() + "/" + resource + "/list.html.tmpl"})
 	}
+	// Template for the list.
+	c.renderer.Template.AddTemplate("listing-page.html", []string{headerTemplate, listingItemsTemplate})
 }

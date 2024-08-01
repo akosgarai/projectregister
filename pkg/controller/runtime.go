@@ -180,7 +180,7 @@ func (c *Controller) RuntimeListViewController(w http.ResponseWriter, r *http.Re
 		return
 	}
 	content := response.NewRuntimeListResponse(currentUser, runtimes)
-	err = c.renderer.Template.RenderTemplate(w, "runtime-list.html", content)
+	err = c.renderer.Template.RenderTemplate(w, "listing-page.html", content)
 	if err != nil {
 		panic(err)
 	}

@@ -212,7 +212,7 @@ func (c *Controller) RoleListViewController(w http.ResponseWriter, r *http.Reque
 		return
 	}
 	content := response.NewRoleListResponse(currentUser, roles)
-	err = c.renderer.Template.RenderTemplate(w, "role-list.html", content)
+	err = c.renderer.Template.RenderTemplate(w, "listing-page.html", content)
 	if err != nil {
 		panic(err)
 	}
