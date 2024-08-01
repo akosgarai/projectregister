@@ -127,7 +127,7 @@ func NewRoleListResponse(currentUser *model.User, roles *model.Roles) *RoleListR
 		nameColumn := &ListingColumn{&ListingColumnValues{{Value: role.Name}}}
 		columns = append(columns, nameColumn)
 		actionsColumn := ListingColumn{&ListingColumnValues{
-			{Value: "View", Link: fmt.Sprintf("/admin/role/detail/%d", role.ID)},
+			{Value: "View", Link: fmt.Sprintf("/admin/role/view/%d", role.ID)},
 		}}
 		if userCanEdit {
 			*actionsColumn.Values = append(*actionsColumn.Values, &ListingColumnValue{Value: "Update", Link: fmt.Sprintf("/admin/role/update/%d", role.ID)})

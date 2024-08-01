@@ -152,7 +152,7 @@ func NewServerListResponse(currentUser *model.User, servers *model.Servers) *Ser
 		desctiptionColumn := &ListingColumn{&ListingColumnValues{{Value: server.Description}}}
 		columns = append(columns, desctiptionColumn)
 		actionsColumn := ListingColumn{&ListingColumnValues{
-			{Value: "View", Link: fmt.Sprintf("/admin/server/detail/%d", server.ID)},
+			{Value: "View", Link: fmt.Sprintf("/admin/server/view/%d", server.ID)},
 		}}
 		if userCanEdit {
 			*actionsColumn.Values = append(*actionsColumn.Values, &ListingColumnValue{Value: "Update", Link: fmt.Sprintf("/admin/server/update/%d", server.ID)})

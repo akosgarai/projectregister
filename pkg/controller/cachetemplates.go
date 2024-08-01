@@ -26,13 +26,13 @@ func (c *Controller) CacheTemplates() {
 	c.renderer.Template.AddTemplate("application-import-results.html", []string{headerTemplate, c.renderer.GetTemplateDirectoryPath() + "/application/import-results.html.tmpl"})
 
 	for _, resource := range resources.Resources {
-		// Template for the view.
-		c.renderer.Template.AddTemplate(resource+"-view.html", []string{headerTemplate, detailItemsTemplate, c.renderer.GetTemplateDirectoryPath() + "/" + resource + "/view.html.tmpl"})
 		// Template for the create.
 		c.renderer.Template.AddTemplate(resource+"-create.html", []string{headerTemplate, formItemsTemplate, c.renderer.GetTemplateDirectoryPath() + "/" + resource + "/create.html.tmpl"})
 		// Template for the update.
 		c.renderer.Template.AddTemplate(resource+"-update.html", []string{headerTemplate, formItemsTemplate, c.renderer.GetTemplateDirectoryPath() + "/" + resource + "/update.html.tmpl"})
 	}
+	// Template for the view.
+	c.renderer.Template.AddTemplate("detail-page.html", []string{headerTemplate, detailItemsTemplate})
 	// Template for the list.
 	c.renderer.Template.AddTemplate("listing-page.html", []string{headerTemplate, listingItemsTemplate})
 }

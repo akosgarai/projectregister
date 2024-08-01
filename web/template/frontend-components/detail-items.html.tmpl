@@ -1,5 +1,6 @@
-{{define "detailitems"}}
-	{{range .}}
+{{define "content"}}
+<div>
+	{{range .Details}}
 		<div>
 			<label>{{.Label}}</label>
 			{{if gt (len .Value) 1}}
@@ -27,4 +28,5 @@
 			{{end}}
 		</div>
 	{{end}}
+</div>
 {{end}}

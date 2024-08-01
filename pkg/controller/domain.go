@@ -25,7 +25,7 @@ func (c *Controller) DomainViewController(w http.ResponseWriter, r *http.Request
 		return
 	}
 	content := response.NewDomainDetailResponse(currentUser, domain)
-	err = c.renderer.Template.RenderTemplate(w, "domain-view.html", content)
+	err = c.renderer.Template.RenderTemplate(w, "detail-page.html", content)
 	if err != nil {
 		panic(err)
 	}

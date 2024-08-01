@@ -112,7 +112,7 @@ func NewRuntimeListResponse(currentUser *model.User, runtimes *model.Runtimes) *
 		nameColumn := &ListingColumn{&ListingColumnValues{{Value: runtime.Name}}}
 		columns = append(columns, nameColumn)
 		actionsColumn := ListingColumn{&ListingColumnValues{
-			{Value: "View", Link: fmt.Sprintf("/admin/runtime/detail/%d", runtime.ID)},
+			{Value: "View", Link: fmt.Sprintf("/admin/runtime/view/%d", runtime.ID)},
 		}}
 		if userCanEdit {
 			*actionsColumn.Values = append(*actionsColumn.Values, &ListingColumnValue{Value: "Update", Link: fmt.Sprintf("/admin/runtime/update/%d", runtime.ID)})

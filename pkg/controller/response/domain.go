@@ -112,7 +112,7 @@ func NewDomainListResponse(currentUser *model.User, domains *model.Domains) *Dom
 		nameColumn := &ListingColumn{&ListingColumnValues{{Value: domain.Name}}}
 		columns = append(columns, nameColumn)
 		actionsColumn := ListingColumn{&ListingColumnValues{
-			{Value: "View", Link: fmt.Sprintf("/admin/domain/detail/%d", domain.ID)},
+			{Value: "View", Link: fmt.Sprintf("/admin/domain/view/%d", domain.ID)},
 		}}
 		if userCanEdit {
 			*actionsColumn.Values = append(*actionsColumn.Values, &ListingColumnValue{Value: "Update", Link: fmt.Sprintf("/admin/domain/update/%d", domain.ID)})

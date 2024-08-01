@@ -24,7 +24,7 @@ func (c *Controller) UserViewController(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 	content := response.NewUserDetailResponse(currentUser, u)
-	err = c.renderer.Template.RenderTemplate(w, "user-view.html", content)
+	err = c.renderer.Template.RenderTemplate(w, "detail-page.html", content)
 	if err != nil {
 		panic(err)
 	}

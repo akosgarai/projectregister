@@ -267,7 +267,7 @@ func NewApplicationListResponse(user *model.User, apps *model.Applications) *App
 		columns = append(columns, updateAtColumn)
 
 		actionsColumn := ListingColumn{&ListingColumnValues{
-			{Value: "View", Link: fmt.Sprintf("/admin/application/detail/%d", application.ID)},
+			{Value: "View", Link: fmt.Sprintf("/admin/application/view/%d", application.ID)},
 		}}
 		if userCanEdit {
 			*actionsColumn.Values = append(*actionsColumn.Values, &ListingColumnValue{Value: "Update", Link: fmt.Sprintf("/admin/application/update/%d", application.ID)})

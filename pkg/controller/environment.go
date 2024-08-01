@@ -25,7 +25,7 @@ func (c *Controller) EnvironmentViewController(w http.ResponseWriter, r *http.Re
 		return
 	}
 	content := response.NewEnvironmentDetailResponse(currentUser, environment)
-	err = c.renderer.Template.RenderTemplate(w, "environment-view.html", content)
+	err = c.renderer.Template.RenderTemplate(w, "detail-page.html", content)
 	if err != nil {
 		panic(err)
 	}

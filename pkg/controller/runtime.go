@@ -25,7 +25,7 @@ func (c *Controller) RuntimeViewController(w http.ResponseWriter, r *http.Reques
 		return
 	}
 	content := response.NewRuntimeDetailResponse(currentUser, runtime)
-	err = c.renderer.Template.RenderTemplate(w, "runtime-view.html", content)
+	err = c.renderer.Template.RenderTemplate(w, "detail-page.html", content)
 	if err != nil {
 		panic(err)
 	}

@@ -25,7 +25,7 @@ func (c *Controller) ClientViewController(w http.ResponseWriter, r *http.Request
 		return
 	}
 	content := response.NewClientDetailResponse(currentUser, client)
-	err = c.renderer.Template.RenderTemplate(w, "client-view.html", content)
+	err = c.renderer.Template.RenderTemplate(w, "detail-page.html", content)
 	if err != nil {
 		panic(err)
 	}

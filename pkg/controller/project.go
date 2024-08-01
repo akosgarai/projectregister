@@ -25,7 +25,7 @@ func (c *Controller) ProjectViewController(w http.ResponseWriter, r *http.Reques
 		return
 	}
 	content := response.NewProjectDetailResponse(currentUser, project)
-	err = c.renderer.Template.RenderTemplate(w, "project-view.html", content)
+	err = c.renderer.Template.RenderTemplate(w, "detail-page.html", content)
 	if err != nil {
 		panic(err)
 	}

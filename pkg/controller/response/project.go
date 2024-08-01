@@ -112,7 +112,7 @@ func NewProjectListResponse(currentUser *model.User, projects *model.Projects) *
 		nameColumn := &ListingColumn{&ListingColumnValues{{Value: project.Name}}}
 		columns = append(columns, nameColumn)
 		actionsColumn := ListingColumn{&ListingColumnValues{
-			{Value: "View", Link: fmt.Sprintf("/admin/project/detail/%d", project.ID)},
+			{Value: "View", Link: fmt.Sprintf("/admin/project/view/%d", project.ID)},
 		}}
 		if userCanEdit {
 			*actionsColumn.Values = append(*actionsColumn.Values, &ListingColumnValue{Value: "Update", Link: fmt.Sprintf("/admin/project/update/%d", project.ID)})

@@ -25,7 +25,7 @@ func (c *Controller) RoleViewController(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 	content := response.NewRoleDetailResponse(currentUser, role)
-	err = c.renderer.Template.RenderTemplate(w, "role-view.html", content)
+	err = c.renderer.Template.RenderTemplate(w, "detail-page.html", content)
 	if err != nil {
 		panic(err)
 	}

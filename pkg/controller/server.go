@@ -25,7 +25,7 @@ func (c *Controller) ServerViewController(w http.ResponseWriter, r *http.Request
 		return
 	}
 	content := response.NewServerDetailResponse(currentUser, server)
-	err = c.renderer.Template.RenderTemplate(w, "server-view.html", content)
+	err = c.renderer.Template.RenderTemplate(w, "detail-page.html", content)
 	if err != nil {
 		panic(err)
 	}

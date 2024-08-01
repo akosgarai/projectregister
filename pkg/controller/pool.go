@@ -25,7 +25,7 @@ func (c *Controller) PoolViewController(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 	content := response.NewPoolDetailResponse(currentUser, pool)
-	err = c.renderer.Template.RenderTemplate(w, "pool-view.html", content)
+	err = c.renderer.Template.RenderTemplate(w, "detail-page.html", content)
 	if err != nil {
 		panic(err)
 	}

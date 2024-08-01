@@ -149,7 +149,7 @@ func NewEnvironmentListResponse(currentUser *model.User, environments *model.Env
 		desctiptionColumn := &ListingColumn{&ListingColumnValues{{Value: environment.Description}}}
 		columns = append(columns, desctiptionColumn)
 		actionsColumn := ListingColumn{&ListingColumnValues{
-			{Value: "View", Link: fmt.Sprintf("/admin/environment/detail/%d", environment.ID)},
+			{Value: "View", Link: fmt.Sprintf("/admin/environment/view/%d", environment.ID)},
 		}}
 		if userCanEdit {
 			*actionsColumn.Values = append(*actionsColumn.Values, &ListingColumnValue{Value: "Update", Link: fmt.Sprintf("/admin/environment/update/%d", environment.ID)})

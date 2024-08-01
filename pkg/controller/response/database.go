@@ -112,7 +112,7 @@ func NewDatabaseListResponse(currentUser *model.User, databases *model.Databases
 		nameColumn := &ListingColumn{&ListingColumnValues{{Value: database.Name}}}
 		columns = append(columns, nameColumn)
 		actionsColumn := ListingColumn{&ListingColumnValues{
-			{Value: "View", Link: fmt.Sprintf("/admin/database/detail/%d", database.ID)},
+			{Value: "View", Link: fmt.Sprintf("/admin/database/view/%d", database.ID)},
 		}}
 		if userCanEdit {
 			*actionsColumn.Values = append(*actionsColumn.Values, &ListingColumnValue{Value: "Update", Link: fmt.Sprintf("/admin/database/update/%d", database.ID)})

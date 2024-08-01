@@ -25,7 +25,7 @@ func (c *Controller) DatabaseViewController(w http.ResponseWriter, r *http.Reque
 		return
 	}
 	content := response.NewDatabaseDetailResponse(currentUser, database)
-	err = c.renderer.Template.RenderTemplate(w, "database-view.html", content)
+	err = c.renderer.Template.RenderTemplate(w, "detail-page.html", content)
 	if err != nil {
 		panic(err)
 	}

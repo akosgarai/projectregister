@@ -112,7 +112,7 @@ func NewPoolListResponse(currentUser *model.User, pools *model.Pools) *PoolListR
 		nameColumn := &ListingColumn{&ListingColumnValues{{Value: pool.Name}}}
 		columns = append(columns, nameColumn)
 		actionsColumn := ListingColumn{&ListingColumnValues{
-			{Value: "View", Link: fmt.Sprintf("/admin/pool/detail/%d", pool.ID)},
+			{Value: "View", Link: fmt.Sprintf("/admin/pool/view/%d", pool.ID)},
 		}}
 		if userCanEdit {
 			*actionsColumn.Values = append(*actionsColumn.Values, &ListingColumnValue{Value: "Update", Link: fmt.Sprintf("/admin/pool/update/%d", pool.ID)})

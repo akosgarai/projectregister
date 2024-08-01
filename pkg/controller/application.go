@@ -26,7 +26,7 @@ func (c *Controller) ApplicationViewController(w http.ResponseWriter, r *http.Re
 		return
 	}
 	content := response.NewApplicationDetailResponse(currentUser, application)
-	err = c.renderer.Template.RenderTemplate(w, "application-view.html", content)
+	err = c.renderer.Template.RenderTemplate(w, "detail-page.html", content)
 	if err != nil {
 		panic(err)
 	}

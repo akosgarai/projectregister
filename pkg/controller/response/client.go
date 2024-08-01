@@ -112,7 +112,7 @@ func NewClientListResponse(currentUser *model.User, clients *model.Clients) *Cli
 		nameColumn := &ListingColumn{&ListingColumnValues{{Value: client.Name}}}
 		columns = append(columns, nameColumn)
 		actionsColumn := ListingColumn{&ListingColumnValues{
-			{Value: "View", Link: fmt.Sprintf("/admin/client/detail/%d", client.ID)},
+			{Value: "View", Link: fmt.Sprintf("/admin/client/view/%d", client.ID)},
 		}}
 		if userCanEdit {
 			*actionsColumn.Values = append(*actionsColumn.Values, &ListingColumnValue{Value: "Update", Link: fmt.Sprintf("/admin/client/update/%d", client.ID)})
