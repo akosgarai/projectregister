@@ -52,47 +52,38 @@ func NewDomainFormResponse(title string, currentUser *model.User, domain *model.
 	}
 }
 
-// DomainListResponse is the struct for the domain list page.
-type DomainListResponse struct {
-	*Response
-	Listing *Listing
-}
-
-// NewDomainListResponse is a constructor for the DomainListResponse struct.
-func NewDomainListResponse(currentUser *model.User, domains *model.Domains) *DomainListResponse {
+// NewDomainListResponse is a constructor for the ListingResponse struct of the domains.
+func NewDomainListResponse(currentUser *model.User, domains *model.Domains) *ListingResponse {
 	headerText := "Domain List"
 	headerContent := components.NewContentHeader(headerText, []*components.Link{})
 	if currentUser.HasPrivilege("domains.create") {
 		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("Create", "/admin/domain/create"))
 	}
-	listingHeader := &ListingHeader{
+	listingHeader := &components.ListingHeader{
 		Headers: []string{"ID", "Name", "Actions"},
 	}
 	// create the rows
-	listingRows := ListingRows{}
+	listingRows := components.ListingRows{}
 	userCanEdit := currentUser.HasPrivilege("domains.update")
 	userCanDelete := currentUser.HasPrivilege("domains.delete")
 	for _, domain := range *domains {
-		columns := ListingColumns{}
-		idColumn := &ListingColumn{&ListingColumnValues{{Value: fmt.Sprintf("%d", domain.ID)}}}
+		columns := components.ListingColumns{}
+		idColumn := &components.ListingColumn{&components.ListingColumnValues{{Value: fmt.Sprintf("%d", domain.ID)}}}
 		columns = append(columns, idColumn)
-		nameColumn := &ListingColumn{&ListingColumnValues{{Value: domain.Name}}}
+		nameColumn := &components.ListingColumn{&components.ListingColumnValues{{Value: domain.Name}}}
 		columns = append(columns, nameColumn)
-		actionsColumn := ListingColumn{&ListingColumnValues{
+		actionsColumn := components.ListingColumn{&components.ListingColumnValues{
 			{Value: "View", Link: fmt.Sprintf("/admin/domain/view/%d", domain.ID)},
 		}}
 		if userCanEdit {
-			*actionsColumn.Values = append(*actionsColumn.Values, &ListingColumnValue{Value: "Update", Link: fmt.Sprintf("/admin/domain/update/%d", domain.ID)})
+			*actionsColumn.Values = append(*actionsColumn.Values, &components.ListingColumnValue{Value: "Update", Link: fmt.Sprintf("/admin/domain/update/%d", domain.ID)})
 		}
 		if userCanDelete {
-			*actionsColumn.Values = append(*actionsColumn.Values, &ListingColumnValue{Value: "Delete", Link: fmt.Sprintf("/admin/domain/delete/%d", domain.ID), Form: true})
+			*actionsColumn.Values = append(*actionsColumn.Values, &components.ListingColumnValue{Value: "Delete", Link: fmt.Sprintf("/admin/domain/delete/%d", domain.ID), Form: true})
 		}
 		columns = append(columns, &actionsColumn)
 
-		listingRows = append(listingRows, &ListingRow{Columns: &columns})
+		listingRows = append(listingRows, &components.ListingRow{Columns: &columns})
 	}
-	return &DomainListResponse{
-		Response: NewResponse(headerText, currentUser, headerContent),
-		Listing:  &Listing{Header: listingHeader, Rows: &listingRows},
-	}
+	return NewListingResponse(headerText, currentUser, headerContent, &components.Listing{Header: listingHeader, Rows: &listingRows})
 }

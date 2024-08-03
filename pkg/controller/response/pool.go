@@ -52,47 +52,38 @@ func NewPoolFormResponse(title string, currentUser *model.User, pool *model.Pool
 	}
 }
 
-// PoolListResponse is the struct for the pool list page.
-type PoolListResponse struct {
-	*Response
-	Listing *Listing
-}
-
-// NewPoolListResponse is a constructor for the PoolListResponse struct.
-func NewPoolListResponse(currentUser *model.User, pools *model.Pools) *PoolListResponse {
+// NewPoolListResponse is a constructor for the ListingResponse struct of the pools.
+func NewPoolListResponse(currentUser *model.User, pools *model.Pools) *ListingResponse {
 	headerText := "Pool List"
 	headerContent := components.NewContentHeader(headerText, []*components.Link{})
 	if currentUser.HasPrivilege("pools.create") {
 		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("Create", "/admin/pool/create"))
 	}
-	listingHeader := &ListingHeader{
+	listingHeader := &components.ListingHeader{
 		Headers: []string{"ID", "Name", "Actions"},
 	}
 	// create the rows
-	listingRows := ListingRows{}
+	listingRows := components.ListingRows{}
 	userCanEdit := currentUser.HasPrivilege("pools.update")
 	userCanDelete := currentUser.HasPrivilege("pools.delete")
 	for _, pool := range *pools {
-		columns := ListingColumns{}
-		idColumn := &ListingColumn{&ListingColumnValues{{Value: fmt.Sprintf("%d", pool.ID)}}}
+		columns := components.ListingColumns{}
+		idColumn := &components.ListingColumn{&components.ListingColumnValues{{Value: fmt.Sprintf("%d", pool.ID)}}}
 		columns = append(columns, idColumn)
-		nameColumn := &ListingColumn{&ListingColumnValues{{Value: pool.Name}}}
+		nameColumn := &components.ListingColumn{&components.ListingColumnValues{{Value: pool.Name}}}
 		columns = append(columns, nameColumn)
-		actionsColumn := ListingColumn{&ListingColumnValues{
+		actionsColumn := components.ListingColumn{&components.ListingColumnValues{
 			{Value: "View", Link: fmt.Sprintf("/admin/pool/view/%d", pool.ID)},
 		}}
 		if userCanEdit {
-			*actionsColumn.Values = append(*actionsColumn.Values, &ListingColumnValue{Value: "Update", Link: fmt.Sprintf("/admin/pool/update/%d", pool.ID)})
+			*actionsColumn.Values = append(*actionsColumn.Values, &components.ListingColumnValue{Value: "Update", Link: fmt.Sprintf("/admin/pool/update/%d", pool.ID)})
 		}
 		if userCanDelete {
-			*actionsColumn.Values = append(*actionsColumn.Values, &ListingColumnValue{Value: "Delete", Link: fmt.Sprintf("/admin/pool/delete/%d", pool.ID), Form: true})
+			*actionsColumn.Values = append(*actionsColumn.Values, &components.ListingColumnValue{Value: "Delete", Link: fmt.Sprintf("/admin/pool/delete/%d", pool.ID), Form: true})
 		}
 		columns = append(columns, &actionsColumn)
 
-		listingRows = append(listingRows, &ListingRow{Columns: &columns})
+		listingRows = append(listingRows, &components.ListingRow{Columns: &columns})
 	}
-	return &PoolListResponse{
-		Response: NewResponse(headerText, currentUser, headerContent),
-		Listing:  &Listing{Header: listingHeader, Rows: &listingRows},
-	}
+	return NewListingResponse(headerText, currentUser, headerContent, &components.Listing{Header: listingHeader, Rows: &listingRows})
 }

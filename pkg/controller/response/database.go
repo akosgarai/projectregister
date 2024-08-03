@@ -52,47 +52,38 @@ func NewDatabaseFormResponse(title string, currentUser *model.User, database *mo
 	}
 }
 
-// DatabaseListResponse is the struct for the database list page.
-type DatabaseListResponse struct {
-	*Response
-	Listing *Listing
-}
-
-// NewDatabaseListResponse is a constructor for the DatabaseListResponse struct.
-func NewDatabaseListResponse(currentUser *model.User, databases *model.Databases) *DatabaseListResponse {
+// NewDatabaseListResponse is a constructor for the ListingResponse struct of the databases.
+func NewDatabaseListResponse(currentUser *model.User, databases *model.Databases) *ListingResponse {
 	headerText := "Database List"
 	headerContent := components.NewContentHeader(headerText, []*components.Link{})
 	if currentUser.HasPrivilege("databases.create") {
 		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("Create", "/admin/database/create"))
 	}
-	listingHeader := &ListingHeader{
+	listingHeader := &components.ListingHeader{
 		Headers: []string{"ID", "Name", "Actions"},
 	}
 	// create the rows
-	listingRows := ListingRows{}
+	listingRows := components.ListingRows{}
 	userCanEdit := currentUser.HasPrivilege("databases.update")
 	userCanDelete := currentUser.HasPrivilege("databases.delete")
 	for _, database := range *databases {
-		columns := ListingColumns{}
-		idColumn := &ListingColumn{&ListingColumnValues{{Value: fmt.Sprintf("%d", database.ID)}}}
+		columns := components.ListingColumns{}
+		idColumn := &components.ListingColumn{&components.ListingColumnValues{{Value: fmt.Sprintf("%d", database.ID)}}}
 		columns = append(columns, idColumn)
-		nameColumn := &ListingColumn{&ListingColumnValues{{Value: database.Name}}}
+		nameColumn := &components.ListingColumn{&components.ListingColumnValues{{Value: database.Name}}}
 		columns = append(columns, nameColumn)
-		actionsColumn := ListingColumn{&ListingColumnValues{
+		actionsColumn := components.ListingColumn{&components.ListingColumnValues{
 			{Value: "View", Link: fmt.Sprintf("/admin/database/view/%d", database.ID)},
 		}}
 		if userCanEdit {
-			*actionsColumn.Values = append(*actionsColumn.Values, &ListingColumnValue{Value: "Update", Link: fmt.Sprintf("/admin/database/update/%d", database.ID)})
+			*actionsColumn.Values = append(*actionsColumn.Values, &components.ListingColumnValue{Value: "Update", Link: fmt.Sprintf("/admin/database/update/%d", database.ID)})
 		}
 		if userCanDelete {
-			*actionsColumn.Values = append(*actionsColumn.Values, &ListingColumnValue{Value: "Delete", Link: fmt.Sprintf("/admin/database/delete/%d", database.ID), Form: true})
+			*actionsColumn.Values = append(*actionsColumn.Values, &components.ListingColumnValue{Value: "Delete", Link: fmt.Sprintf("/admin/database/delete/%d", database.ID), Form: true})
 		}
 		columns = append(columns, &actionsColumn)
 
-		listingRows = append(listingRows, &ListingRow{Columns: &columns})
+		listingRows = append(listingRows, &components.ListingRow{Columns: &columns})
 	}
-	return &DatabaseListResponse{
-		Response: NewResponse(headerText, currentUser, headerContent),
-		Listing:  &Listing{Header: listingHeader, Rows: &listingRows},
-	}
+	return NewListingResponse(headerText, currentUser, headerContent, &components.Listing{Header: listingHeader, Rows: &listingRows})
 }

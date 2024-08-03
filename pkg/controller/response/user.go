@@ -77,66 +77,54 @@ func NewUserFormResponse(title string, currentUser, user *model.User, roles *mod
 	}
 }
 
-// UserListResponse is the struct for the user list page.
-type UserListResponse struct {
-	*Response
-	Listing *Listing
-}
-
-// NewUserListResponse is a constructor for the UserListResponse struct.
-func NewUserListResponse(currentUser *model.User, users []*model.User) *UserListResponse {
+// NewUserListResponse is a constructor for the ListingResponse struct of the users.
+func NewUserListResponse(currentUser *model.User, users []*model.User) *ListingResponse {
 	headerText := "User List"
 	headerContent := components.NewContentHeader(headerText, []*components.Link{})
 	if currentUser.HasPrivilege("users.create") {
 		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("Create", "/admin/user/create"))
 	}
-	listingHeader := &ListingHeader{
+	listingHeader := &components.ListingHeader{
 		Headers: []string{"ID", "Name", "Email", "Role", "Actions"},
 	}
 	// create the rows
-	listingRows := ListingRows{}
+	listingRows := components.ListingRows{}
 	userCanViewRoles := currentUser.HasPrivilege("roles.view")
 	userCanUpdateUsers := currentUser.HasPrivilege("users.update")
 	userCanDeleteUsers := currentUser.HasPrivilege("users.delete")
 	for _, user := range users {
-		columns := ListingColumns{}
+		columns := components.ListingColumns{}
 		// ID
-		idColumn := ListingColumn{&ListingColumnValues{{Value: fmt.Sprintf("%d", user.ID)}}}
+		idColumn := components.ListingColumn{&components.ListingColumnValues{{Value: fmt.Sprintf("%d", user.ID)}}}
 		columns = append(columns, &idColumn)
 		// Name
-		nameColumn := ListingColumn{&ListingColumnValues{{Value: user.Name}}}
+		nameColumn := components.ListingColumn{&components.ListingColumnValues{{Value: user.Name}}}
 		columns = append(columns, &nameColumn)
 		// Email
-		emailColumn := ListingColumn{&ListingColumnValues{{Value: user.Email}}}
+		emailColumn := components.ListingColumn{&components.ListingColumnValues{{Value: user.Email}}}
 		columns = append(columns, &emailColumn)
 		// Role
 		roleLink := ""
 		if userCanViewRoles {
 			roleLink = fmt.Sprintf("/admin/role/view/%d", user.Role.ID)
 		}
-		roleColumn := ListingColumn{&ListingColumnValues{{Value: user.Role.Name, Link: roleLink}}}
+		roleColumn := components.ListingColumn{&components.ListingColumnValues{{Value: user.Role.Name, Link: roleLink}}}
 		// Actions
 		columns = append(columns, &roleColumn)
-		actionsColumn := ListingColumn{&ListingColumnValues{
+		actionsColumn := components.ListingColumn{&components.ListingColumnValues{
 			// view link
 			{Value: "View", Link: fmt.Sprintf("/admin/user/view/%d", user.ID)},
 		}}
 		if userCanUpdateUsers {
-			*actionsColumn.Values = append(*actionsColumn.Values, &ListingColumnValue{Value: "Update", Link: fmt.Sprintf("/admin/user/update/%d", user.ID)})
+			*actionsColumn.Values = append(*actionsColumn.Values, &components.ListingColumnValue{Value: "Update", Link: fmt.Sprintf("/admin/user/update/%d", user.ID)})
 		}
 		if userCanDeleteUsers {
-			*actionsColumn.Values = append(*actionsColumn.Values, &ListingColumnValue{Value: "Delete", Link: fmt.Sprintf("/admin/user/delete/%d", user.ID), Form: true})
+			*actionsColumn.Values = append(*actionsColumn.Values, &components.ListingColumnValue{Value: "Delete", Link: fmt.Sprintf("/admin/user/delete/%d", user.ID), Form: true})
 		}
 		columns = append(columns, &actionsColumn)
 
-		row := ListingRow{Columns: &columns}
+		row := components.ListingRow{Columns: &columns}
 		listingRows = append(listingRows, &row)
 	}
-	return &UserListResponse{
-		Response: NewResponse(headerText, currentUser, headerContent),
-		Listing: &Listing{
-			Header: listingHeader,
-			Rows:   &listingRows,
-		},
-	}
+	return NewListingResponse(headerText, currentUser, headerContent, &components.Listing{Header: listingHeader, Rows: &listingRows})
 }

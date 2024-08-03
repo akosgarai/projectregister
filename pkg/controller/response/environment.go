@@ -87,49 +87,40 @@ func NewEnvironmentFormResponse(title string, currentUser *model.User, environme
 	}
 }
 
-// EnvironmentListResponse is the struct for the environment list page.
-type EnvironmentListResponse struct {
-	*Response
-	Listing *Listing
-}
-
-// NewEnvironmentListResponse is a constructor for the EnvironmentListResponse struct.
-func NewEnvironmentListResponse(currentUser *model.User, environments *model.Environments) *EnvironmentListResponse {
+// NewEnvironmentListResponse is a constructor for the ListingResponse struct of the environments.
+func NewEnvironmentListResponse(currentUser *model.User, environments *model.Environments) *ListingResponse {
 	headerText := "Environment List"
 	headerContent := components.NewContentHeader(headerText, []*components.Link{})
 	if currentUser.HasPrivilege("environments.create") {
 		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("Create", "/admin/environment/create"))
 	}
-	listingHeader := &ListingHeader{
+	listingHeader := &components.ListingHeader{
 		Headers: []string{"ID", "Name", "Description", "Actions"},
 	}
 	// create the rows
-	listingRows := ListingRows{}
+	listingRows := components.ListingRows{}
 	userCanEdit := currentUser.HasPrivilege("environments.update")
 	userCanDelete := currentUser.HasPrivilege("environments.delete")
 	for _, environment := range *environments {
-		columns := ListingColumns{}
-		idColumn := &ListingColumn{&ListingColumnValues{{Value: fmt.Sprintf("%d", environment.ID)}}}
+		columns := components.ListingColumns{}
+		idColumn := &components.ListingColumn{&components.ListingColumnValues{{Value: fmt.Sprintf("%d", environment.ID)}}}
 		columns = append(columns, idColumn)
-		nameColumn := &ListingColumn{&ListingColumnValues{{Value: environment.Name}}}
+		nameColumn := &components.ListingColumn{&components.ListingColumnValues{{Value: environment.Name}}}
 		columns = append(columns, nameColumn)
-		desctiptionColumn := &ListingColumn{&ListingColumnValues{{Value: environment.Description}}}
+		desctiptionColumn := &components.ListingColumn{&components.ListingColumnValues{{Value: environment.Description}}}
 		columns = append(columns, desctiptionColumn)
-		actionsColumn := ListingColumn{&ListingColumnValues{
+		actionsColumn := components.ListingColumn{&components.ListingColumnValues{
 			{Value: "View", Link: fmt.Sprintf("/admin/environment/view/%d", environment.ID)},
 		}}
 		if userCanEdit {
-			*actionsColumn.Values = append(*actionsColumn.Values, &ListingColumnValue{Value: "Update", Link: fmt.Sprintf("/admin/environment/update/%d", environment.ID)})
+			*actionsColumn.Values = append(*actionsColumn.Values, &components.ListingColumnValue{Value: "Update", Link: fmt.Sprintf("/admin/environment/update/%d", environment.ID)})
 		}
 		if userCanDelete {
-			*actionsColumn.Values = append(*actionsColumn.Values, &ListingColumnValue{Value: "Delete", Link: fmt.Sprintf("/admin/environment/delete/%d", environment.ID), Form: true})
+			*actionsColumn.Values = append(*actionsColumn.Values, &components.ListingColumnValue{Value: "Delete", Link: fmt.Sprintf("/admin/environment/delete/%d", environment.ID), Form: true})
 		}
 		columns = append(columns, &actionsColumn)
 
-		listingRows = append(listingRows, &ListingRow{Columns: &columns})
+		listingRows = append(listingRows, &components.ListingRow{Columns: &columns})
 	}
-	return &EnvironmentListResponse{
-		Response: NewResponse(headerText, currentUser, headerContent),
-		Listing:  &Listing{Header: listingHeader, Rows: &listingRows},
-	}
+	return NewListingResponse(headerText, currentUser, headerContent, &components.Listing{Header: listingHeader, Rows: &listingRows})
 }
