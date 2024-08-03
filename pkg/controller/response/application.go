@@ -7,20 +7,8 @@ import (
 	"github.com/akosgarai/projectregister/pkg/model"
 )
 
-// ApplicationResponse is the struct for the application page.
-type ApplicationResponse struct {
-	*Response
-	Application *model.Application
-}
-
-// ApplicationDetailResponse is the struct for the application view response.
-type ApplicationDetailResponse struct {
-	*ApplicationResponse
-	Details *DetailItems
-}
-
-// NewApplicationDetailResponse is a constructor for the ApplicationViewResponse struct.
-func NewApplicationDetailResponse(user *model.User, app *model.Application) *ApplicationDetailResponse {
+// NewApplicationDetailResponse is a constructor for the DetailResponse struct for an application.
+func NewApplicationDetailResponse(user *model.User, app *model.Application) *DetailResponse {
 	headerText := "Application Detail"
 	headerContent := components.NewContentHeader(headerText, []*components.Link{})
 	if user.HasPrivilege("applications.update") {
@@ -32,53 +20,47 @@ func NewApplicationDetailResponse(user *model.User, app *model.Application) *App
 	if user.HasPrivilege("applications.view") {
 		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("List", "/admin/application/list"))
 	}
-	dbValues := &DetailValues{
+	dbValues := &components.DetailValues{
 		{Value: app.Database.Name, Link: fmt.Sprintf("/admin/database/view/%d", app.Database.ID)},
 	}
 	if app.DBName != "" {
-		*dbValues = append(*dbValues, &DetailValue{Value: app.DBUser + " / " + app.DBName})
+		*dbValues = append(*dbValues, &components.DetailValue{Value: app.DBUser + " / " + app.DBName})
 	}
-	codebaseValues := &DetailValues{}
+	codebaseValues := &components.DetailValues{}
 	if app.Repository != "" {
 		value := app.Repository
 		if app.Branch != "" {
 			value = fmt.Sprintf("%s (%s)", app.Repository, app.Branch)
 		}
-		*codebaseValues = append(*codebaseValues, &DetailValue{Value: value, Link: app.Repository})
+		*codebaseValues = append(*codebaseValues, &components.DetailValue{Value: value, Link: app.Repository})
 	}
-	domainValues := &DetailValues{}
+	domainValues := &components.DetailValues{}
 	if app.Domains != nil {
 		for _, domain := range app.Domains {
-			*domainValues = append(*domainValues, &DetailValue{Value: domain.Name, Link: fmt.Sprintf("/admin/domain/view/%d", domain.ID)})
+			*domainValues = append(*domainValues, &components.DetailValue{Value: domain.Name, Link: fmt.Sprintf("/admin/domain/view/%d", domain.ID)})
 		}
 	}
-	details := &DetailItems{
-		{Label: "ID", Value: &DetailValues{{Value: fmt.Sprintf("%d", app.ID)}}},
-		{Label: "Client", Value: &DetailValues{{Value: app.Client.Name, Link: fmt.Sprintf("/admin/client/view/%d", app.Client.ID)}}},
-		{Label: "Project", Value: &DetailValues{{Value: app.Project.Name, Link: fmt.Sprintf("/admin/project/view/%d", app.Project.ID)}}},
-		{Label: "Environment", Value: &DetailValues{{Value: app.Environment.Name, Link: fmt.Sprintf("/admin/environment/view/%d", app.Environment.ID)}}},
+	details := &components.DetailItems{
+		{Label: "ID", Value: &components.DetailValues{{Value: fmt.Sprintf("%d", app.ID)}}},
+		{Label: "Client", Value: &components.DetailValues{{Value: app.Client.Name, Link: fmt.Sprintf("/admin/client/view/%d", app.Client.ID)}}},
+		{Label: "Project", Value: &components.DetailValues{{Value: app.Project.Name, Link: fmt.Sprintf("/admin/project/view/%d", app.Project.ID)}}},
+		{Label: "Environment", Value: &components.DetailValues{{Value: app.Environment.Name, Link: fmt.Sprintf("/admin/environment/view/%d", app.Environment.ID)}}},
 		{Label: "Database", Value: dbValues},
-		{Label: "Runtime", Value: &DetailValues{{Value: app.Runtime.Name, Link: fmt.Sprintf("/admin/runtime/view/%d", app.Runtime.ID)}}},
-		{Label: "Pool", Value: &DetailValues{{Value: app.Pool.Name, Link: fmt.Sprintf("/admin/pool/view/%d", app.Pool.ID)}}},
+		{Label: "Runtime", Value: &components.DetailValues{{Value: app.Runtime.Name, Link: fmt.Sprintf("/admin/runtime/view/%d", app.Runtime.ID)}}},
+		{Label: "Pool", Value: &components.DetailValues{{Value: app.Pool.Name, Link: fmt.Sprintf("/admin/pool/view/%d", app.Pool.ID)}}},
 		{Label: "Codebase", Value: codebaseValues},
-		{Label: "Framework", Value: &DetailValues{{Value: app.Framework}}},
-		{Label: "Document Root", Value: &DetailValues{{Value: app.DocumentRoot}}},
-		{Label: "Created At", Value: &DetailValues{{Value: app.CreatedAt}}},
-		{Label: "Updated At", Value: &DetailValues{{Value: app.UpdatedAt}}},
+		{Label: "Framework", Value: &components.DetailValues{{Value: app.Framework}}},
+		{Label: "Document Root", Value: &components.DetailValues{{Value: app.DocumentRoot}}},
+		{Label: "Created At", Value: &components.DetailValues{{Value: app.CreatedAt}}},
+		{Label: "Updated At", Value: &components.DetailValues{{Value: app.UpdatedAt}}},
 		{Label: "Domains", Value: domainValues},
 	}
-	return &ApplicationDetailResponse{
-		ApplicationResponse: &ApplicationResponse{
-			Response:    NewResponse(headerText, user, headerContent),
-			Application: app,
-		},
-		Details: details,
-	}
+	return NewDetailResponse(headerText, user, headerContent, details)
 }
 
 // ApplicationFormResponse is the struct for the application form responses.
 type ApplicationFormResponse struct {
-	*ApplicationDetailResponse
+	*DetailResponse
 	FormItems []*FormItem
 }
 
@@ -162,8 +144,8 @@ func NewApplicationFormResponse(
 		{Label: "Domains", Type: "checkboxgroup", Name: "domains", Options: domains.ToMap(), SelectedOptions: selectedDomains},
 	}
 	return &ApplicationFormResponse{
-		ApplicationDetailResponse: appDetailResponse,
-		FormItems:                 formItems,
+		DetailResponse: appDetailResponse,
+		FormItems:      formItems,
 	}
 }
 

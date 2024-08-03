@@ -7,20 +7,8 @@ import (
 	"github.com/akosgarai/projectregister/pkg/model"
 )
 
-// EnvironmentResponse is the struct for the environment page.
-type EnvironmentResponse struct {
-	*Response
-	Environment *model.Environment
-}
-
-// EnvironmentDetailResponse is the struct for the environment detail page.
-type EnvironmentDetailResponse struct {
-	*EnvironmentResponse
-	Details *DetailItems
-}
-
-// NewEnvironmentDetailResponse is a constructor for the EnvironmentDetailResponse struct.
-func NewEnvironmentDetailResponse(currentUser *model.User, environment *model.Environment) *EnvironmentDetailResponse {
+// NewEnvironmentDetailResponse is a constructor for the DetailResponse struct for an environment.
+func NewEnvironmentDetailResponse(currentUser *model.User, environment *model.Environment) *DetailResponse {
 	headerText := "Environment Detail"
 	headerContent := components.NewContentHeader(headerText, []*components.Link{})
 	if currentUser.HasPrivilege("environments.update") {
@@ -32,40 +20,34 @@ func NewEnvironmentDetailResponse(currentUser *model.User, environment *model.En
 	if currentUser.HasPrivilege("environments.view") {
 		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("List", "/admin/environment/list"))
 	}
-	serverValues := DetailValues{}
+	serverValues := components.DetailValues{}
 	if environment.Servers != nil {
 		for _, server := range environment.Servers {
-			serverValues = append(serverValues, &DetailValue{Value: server.Name, Link: fmt.Sprintf("/admin/server/view/%d", server.ID)})
+			serverValues = append(serverValues, &components.DetailValue{Value: server.Name, Link: fmt.Sprintf("/admin/server/view/%d", server.ID)})
 		}
 	}
-	dbValues := DetailValues{}
+	dbValues := components.DetailValues{}
 	if environment.Databases != nil {
 		for _, db := range environment.Databases {
-			dbValues = append(dbValues, &DetailValue{Value: db.Name, Link: fmt.Sprintf("/admin/database/view/%d", db.ID)})
+			dbValues = append(dbValues, &components.DetailValue{Value: db.Name, Link: fmt.Sprintf("/admin/database/view/%d", db.ID)})
 		}
 	}
 
-	details := &DetailItems{
-		{Label: "ID", Value: &DetailValues{{Value: fmt.Sprintf("%d", environment.ID)}}},
-		{Label: "Name", Value: &DetailValues{{Value: environment.Name}}},
-		{Label: "Description", Value: &DetailValues{{Value: environment.Description}}},
-		{Label: "Created At", Value: &DetailValues{{Value: environment.CreatedAt}}},
-		{Label: "Updated At", Value: &DetailValues{{Value: environment.UpdatedAt}}},
+	details := &components.DetailItems{
+		{Label: "ID", Value: &components.DetailValues{{Value: fmt.Sprintf("%d", environment.ID)}}},
+		{Label: "Name", Value: &components.DetailValues{{Value: environment.Name}}},
+		{Label: "Description", Value: &components.DetailValues{{Value: environment.Description}}},
+		{Label: "Created At", Value: &components.DetailValues{{Value: environment.CreatedAt}}},
+		{Label: "Updated At", Value: &components.DetailValues{{Value: environment.UpdatedAt}}},
 		{Label: "Servers", Value: &serverValues},
 		{Label: "Databases", Value: &dbValues},
 	}
-	return &EnvironmentDetailResponse{
-		EnvironmentResponse: &EnvironmentResponse{
-			Response:    NewResponse("Environment Detail", currentUser, headerContent),
-			Environment: environment,
-		},
-		Details: details,
-	}
+	return NewDetailResponse(headerText, currentUser, headerContent, details)
 }
 
 // EnvironmentFormResponse is the struct for the environment form responses.
 type EnvironmentFormResponse struct {
-	*EnvironmentDetailResponse
+	*DetailResponse
 	FormItems []*FormItem
 }
 
@@ -100,8 +82,8 @@ func NewEnvironmentFormResponse(title string, currentUser *model.User, environme
 		{Label: "Databases", Type: "checkboxgroup", Name: "databases", Options: databases.ToMap(), SelectedOptions: selectedDatabases},
 	}
 	return &EnvironmentFormResponse{
-		EnvironmentDetailResponse: environmentDetailResponse,
-		FormItems:                 formItems,
+		DetailResponse: environmentDetailResponse,
+		FormItems:      formItems,
 	}
 }
 

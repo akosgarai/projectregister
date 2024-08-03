@@ -7,20 +7,8 @@ import (
 	"github.com/akosgarai/projectregister/pkg/model"
 )
 
-// PoolResponse is the struct for the pool page.
-type PoolResponse struct {
-	*Response
-	Pool *model.Pool
-}
-
-// PoolDetailResponse is the struct for the pool detail page.
-type PoolDetailResponse struct {
-	*PoolResponse
-	Details *DetailItems
-}
-
-// NewPoolDetailResponse is a constructor for the PoolDetailResponse struct.
-func NewPoolDetailResponse(currentUser *model.User, pool *model.Pool) *PoolDetailResponse {
+// NewPoolDetailResponse is a constructor for the DetailResponse struct for a pool.
+func NewPoolDetailResponse(currentUser *model.User, pool *model.Pool) *DetailResponse {
 	headerText := "Pool Detail"
 	headerContent := components.NewContentHeader(headerText, []*components.Link{})
 	if currentUser.HasPrivilege("pools.update") {
@@ -32,24 +20,18 @@ func NewPoolDetailResponse(currentUser *model.User, pool *model.Pool) *PoolDetai
 	if currentUser.HasPrivilege("pools.view") {
 		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("List", "/admin/pool/list"))
 	}
-	details := &DetailItems{
-		{Label: "ID", Value: &DetailValues{{Value: fmt.Sprintf("%d", pool.ID)}}},
-		{Label: "Name", Value: &DetailValues{{Value: pool.Name}}},
-		{Label: "Created At", Value: &DetailValues{{Value: pool.CreatedAt}}},
-		{Label: "Updated At", Value: &DetailValues{{Value: pool.UpdatedAt}}},
+	details := &components.DetailItems{
+		{Label: "ID", Value: &components.DetailValues{{Value: fmt.Sprintf("%d", pool.ID)}}},
+		{Label: "Name", Value: &components.DetailValues{{Value: pool.Name}}},
+		{Label: "Created At", Value: &components.DetailValues{{Value: pool.CreatedAt}}},
+		{Label: "Updated At", Value: &components.DetailValues{{Value: pool.UpdatedAt}}},
 	}
-	return &PoolDetailResponse{
-		PoolResponse: &PoolResponse{
-			Response: NewResponse(headerText, currentUser, headerContent),
-			Pool:     pool,
-		},
-		Details: details,
-	}
+	return NewDetailResponse(headerText, currentUser, headerContent, details)
 }
 
 // PoolFormResponse is the struct for the pool form responses.
 type PoolFormResponse struct {
-	*PoolDetailResponse
+	*DetailResponse
 	FormItems []*FormItem
 }
 
@@ -65,8 +47,8 @@ func NewPoolFormResponse(title string, currentUser *model.User, pool *model.Pool
 		{Label: "Name", Type: "text", Name: "name", Value: pool.Name, Required: true},
 	}
 	return &PoolFormResponse{
-		PoolDetailResponse: poolDetailResponse,
-		FormItems:          formItems,
+		DetailResponse: poolDetailResponse,
+		FormItems:      formItems,
 	}
 }
 

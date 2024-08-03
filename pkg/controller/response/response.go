@@ -36,6 +36,21 @@ func NewResponse(title string, user *model.User, header *components.ContentHeade
 	}
 }
 
+// DetailResponse is the struct for the detail page.
+// It contains the response and the details.
+type DetailResponse struct {
+	*Response
+	Details *components.DetailItems
+}
+
+// NewDetailResponse is a constructor for the DetailResponse struct.
+func NewDetailResponse(title string, currentUser *model.User, header *components.ContentHeader, details *components.DetailItems) *DetailResponse {
+	return &DetailResponse{
+		Response: NewResponse(title, currentUser, header),
+		Details:  details,
+	}
+}
+
 // SelectedOptions is the struct for the selected options.
 type SelectedOptions []int64
 
@@ -61,27 +76,6 @@ type FormItem struct {
 	// selected options. for select / checkbox group.
 	SelectedOptions SelectedOptions
 }
-
-// DetailValue is the struct for the detail values.
-// It holds the value, and if it is a link, the link.
-type DetailValue struct {
-	Value string
-	Link  string
-}
-
-// DetailValues is the struct for the detail values.
-type DetailValues []*DetailValue
-
-// DetailItem is the struct for the detail items.
-// It holds the label and the value.
-// The value is a list of DetailValue
-type DetailItem struct {
-	Label string
-	Value *DetailValues
-}
-
-// DetailItems is the struct for the detail items.
-type DetailItems []*DetailItem
 
 // ListingHeader is the struct for the listing header.
 // It contains the header elements of the listing.

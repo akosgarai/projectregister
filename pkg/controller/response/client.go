@@ -7,20 +7,8 @@ import (
 	"github.com/akosgarai/projectregister/pkg/model"
 )
 
-// ClientResponse is the struct for the client page.
-type ClientResponse struct {
-	*Response
-	Client *model.Client
-}
-
-// ClientDetailResponse is the struct for the client detail page.
-type ClientDetailResponse struct {
-	*ClientResponse
-	Details *DetailItems
-}
-
-// NewClientDetailResponse is a constructor for the ClientDetailResponse struct.
-func NewClientDetailResponse(currentUser *model.User, client *model.Client) *ClientDetailResponse {
+// NewClientDetailResponse is a constructor for the DetailResponse struct for a client.
+func NewClientDetailResponse(currentUser *model.User, client *model.Client) *DetailResponse {
 	headerText := "Client Detail"
 	headerContent := components.NewContentHeader(headerText, []*components.Link{})
 	if currentUser.HasPrivilege("clients.update") {
@@ -32,24 +20,18 @@ func NewClientDetailResponse(currentUser *model.User, client *model.Client) *Cli
 	if currentUser.HasPrivilege("clients.view") {
 		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("List", "/admin/client/list"))
 	}
-	details := &DetailItems{
-		{Label: "ID", Value: &DetailValues{{Value: fmt.Sprintf("%d", client.ID)}}},
-		{Label: "Name", Value: &DetailValues{{Value: client.Name}}},
-		{Label: "Created At", Value: &DetailValues{{Value: client.CreatedAt}}},
-		{Label: "Updated At", Value: &DetailValues{{Value: client.UpdatedAt}}},
+	details := &components.DetailItems{
+		{Label: "ID", Value: &components.DetailValues{{Value: fmt.Sprintf("%d", client.ID)}}},
+		{Label: "Name", Value: &components.DetailValues{{Value: client.Name}}},
+		{Label: "Created At", Value: &components.DetailValues{{Value: client.CreatedAt}}},
+		{Label: "Updated At", Value: &components.DetailValues{{Value: client.UpdatedAt}}},
 	}
-	return &ClientDetailResponse{
-		ClientResponse: &ClientResponse{
-			Response: NewResponse(headerText, currentUser, headerContent),
-			Client:   client,
-		},
-		Details: details,
-	}
+	return NewDetailResponse(headerText, currentUser, headerContent, details)
 }
 
 // ClientFormResponse is the struct for the client form responses.
 type ClientFormResponse struct {
-	*ClientDetailResponse
+	*DetailResponse
 	FormItems []*FormItem
 }
 
@@ -65,8 +47,8 @@ func NewClientFormResponse(title string, currentUser *model.User, client *model.
 		{Label: "Name", Type: "text", Name: "name", Value: client.Name, Required: true},
 	}
 	return &ClientFormResponse{
-		ClientDetailResponse: clientDetailResponse,
-		FormItems:            formItems,
+		DetailResponse: clientDetailResponse,
+		FormItems:      formItems,
 	}
 }
 

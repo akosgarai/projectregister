@@ -7,20 +7,8 @@ import (
 	"github.com/akosgarai/projectregister/pkg/model"
 )
 
-// RuntimeResponse is the struct for the runtime page.
-type RuntimeResponse struct {
-	*Response
-	Runtime *model.Runtime
-}
-
-// RuntimeDetailResponse is the struct for the runtime detail page.
-type RuntimeDetailResponse struct {
-	*RuntimeResponse
-	Details *DetailItems
-}
-
-// NewRuntimeDetailResponse is a constructor for the RuntimeDetailResponse struct.
-func NewRuntimeDetailResponse(currentUser *model.User, runtime *model.Runtime) *RuntimeDetailResponse {
+// NewRuntimeDetailResponse is a constructor for the DetailResponse struct for a runtime.
+func NewRuntimeDetailResponse(currentUser *model.User, runtime *model.Runtime) *DetailResponse {
 	headerText := "Runtime Detail"
 	headerContent := components.NewContentHeader(headerText, []*components.Link{})
 	if currentUser.HasPrivilege("runtimes.update") {
@@ -32,24 +20,18 @@ func NewRuntimeDetailResponse(currentUser *model.User, runtime *model.Runtime) *
 	if currentUser.HasPrivilege("runtimes.view") {
 		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("List", "/admin/runtime/list"))
 	}
-	details := &DetailItems{
-		{Label: "ID", Value: &DetailValues{{Value: fmt.Sprintf("%d", runtime.ID)}}},
-		{Label: "Name", Value: &DetailValues{{Value: runtime.Name}}},
-		{Label: "Created At", Value: &DetailValues{{Value: runtime.CreatedAt}}},
-		{Label: "Updated At", Value: &DetailValues{{Value: runtime.UpdatedAt}}},
+	details := &components.DetailItems{
+		{Label: "ID", Value: &components.DetailValues{{Value: fmt.Sprintf("%d", runtime.ID)}}},
+		{Label: "Name", Value: &components.DetailValues{{Value: runtime.Name}}},
+		{Label: "Created At", Value: &components.DetailValues{{Value: runtime.CreatedAt}}},
+		{Label: "Updated At", Value: &components.DetailValues{{Value: runtime.UpdatedAt}}},
 	}
-	return &RuntimeDetailResponse{
-		RuntimeResponse: &RuntimeResponse{
-			Response: NewResponse(headerText, currentUser, headerContent),
-			Runtime:  runtime,
-		},
-		Details: details,
-	}
+	return NewDetailResponse(headerText, currentUser, headerContent, details)
 }
 
 // RuntimeFormResponse is the struct for the runtime form responses.
 type RuntimeFormResponse struct {
-	*RuntimeDetailResponse
+	*DetailResponse
 	FormItems []*FormItem
 }
 
@@ -65,8 +47,8 @@ func NewRuntimeFormResponse(title string, currentUser *model.User, runtime *mode
 		{Label: "Name", Type: "text", Name: "name", Value: runtime.Name, Required: true},
 	}
 	return &RuntimeFormResponse{
-		RuntimeDetailResponse: runtimeDetailResponse,
-		FormItems:             formItems,
+		DetailResponse: runtimeDetailResponse,
+		FormItems:      formItems,
 	}
 }
 

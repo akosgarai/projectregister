@@ -7,20 +7,8 @@ import (
 	"github.com/akosgarai/projectregister/pkg/model"
 )
 
-// ServerResponse is the struct for the server page.
-type ServerResponse struct {
-	*Response
-	Server *model.Server
-}
-
-// ServerDetailResponse is the struct for the server detail page.
-type ServerDetailResponse struct {
-	*ServerResponse
-	Details *DetailItems
-}
-
-// NewServerDetailResponse is a constructor for the ServerDetailResponse struct.
-func NewServerDetailResponse(currentUser *model.User, server *model.Server) *ServerDetailResponse {
+// NewServerDetailResponse is a constructor for the DetailResponse struct for a server.
+func NewServerDetailResponse(currentUser *model.User, server *model.Server) *DetailResponse {
 	headerText := "Server Detail"
 	headerContent := components.NewContentHeader(headerText, []*components.Link{})
 	if currentUser.HasPrivilege("servers.update") {
@@ -32,40 +20,34 @@ func NewServerDetailResponse(currentUser *model.User, server *model.Server) *Ser
 	if currentUser.HasPrivilege("servers.view") {
 		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("List", "/admin/server/list"))
 	}
-	runtimeValues := DetailValues{}
+	runtimeValues := components.DetailValues{}
 	if len(server.Runtimes) > 0 {
 		for _, runtime := range server.Runtimes {
-			runtimeValues = append(runtimeValues, &DetailValue{Value: runtime.Name, Link: fmt.Sprintf("/admin/runtime/view/%d", runtime.ID)})
+			runtimeValues = append(runtimeValues, &components.DetailValue{Value: runtime.Name, Link: fmt.Sprintf("/admin/runtime/view/%d", runtime.ID)})
 		}
 	}
-	poolValues := DetailValues{}
+	poolValues := components.DetailValues{}
 	if len(server.Pools) > 0 {
 		for _, pool := range server.Pools {
-			poolValues = append(poolValues, &DetailValue{Value: pool.Name, Link: fmt.Sprintf("/admin/pool/view/%d", pool.ID)})
+			poolValues = append(poolValues, &components.DetailValue{Value: pool.Name, Link: fmt.Sprintf("/admin/pool/view/%d", pool.ID)})
 		}
 	}
-	details := &DetailItems{
-		{Label: "ID", Value: &DetailValues{{Value: fmt.Sprintf("%d", server.ID)}}},
-		{Label: "Name", Value: &DetailValues{{Value: server.Name}}},
-		{Label: "Remote Address", Value: &DetailValues{{Value: server.RemoteAddr}}},
-		{Label: "Description", Value: &DetailValues{{Value: server.Description}}},
-		{Label: "Created At", Value: &DetailValues{{Value: server.CreatedAt}}},
-		{Label: "Updated At", Value: &DetailValues{{Value: server.UpdatedAt}}},
+	details := &components.DetailItems{
+		{Label: "ID", Value: &components.DetailValues{{Value: fmt.Sprintf("%d", server.ID)}}},
+		{Label: "Name", Value: &components.DetailValues{{Value: server.Name}}},
+		{Label: "Remote Address", Value: &components.DetailValues{{Value: server.RemoteAddr}}},
+		{Label: "Description", Value: &components.DetailValues{{Value: server.Description}}},
+		{Label: "Created At", Value: &components.DetailValues{{Value: server.CreatedAt}}},
+		{Label: "Updated At", Value: &components.DetailValues{{Value: server.UpdatedAt}}},
 		{Label: "Runtimes", Value: &runtimeValues},
 		{Label: "Pools", Value: &poolValues},
 	}
-	return &ServerDetailResponse{
-		ServerResponse: &ServerResponse{
-			Response: NewResponse(headerText, currentUser, headerContent),
-			Server:   server,
-		},
-		Details: details,
-	}
+	return NewDetailResponse(headerText, currentUser, headerContent, details)
 }
 
 // ServerFormResponse is the struct for the server form responses.
 type ServerFormResponse struct {
-	*ServerDetailResponse
+	*DetailResponse
 	FormItems []*FormItem
 }
 
@@ -101,8 +83,8 @@ func NewServerFormResponse(title string, currentUser *model.User, server *model.
 		{Label: "Runtime", Type: "checkboxgroup", Name: "runtimes", Options: runtimes.ToMap(), SelectedOptions: selectedRuntimes},
 	}
 	return &ServerFormResponse{
-		ServerDetailResponse: serverDetailResponse,
-		FormItems:            formItems,
+		DetailResponse: serverDetailResponse,
+		FormItems:      formItems,
 	}
 }
 

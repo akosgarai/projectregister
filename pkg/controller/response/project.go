@@ -7,20 +7,8 @@ import (
 	"github.com/akosgarai/projectregister/pkg/model"
 )
 
-// ProjectResponse is the struct for the project page.
-type ProjectResponse struct {
-	*Response
-	Project *model.Project
-}
-
-// ProjectDetailResponse is the struct for the project detail page.
-type ProjectDetailResponse struct {
-	*ProjectResponse
-	Details *DetailItems
-}
-
 // NewProjectDetailResponse is a constructor for the ProjectDetailResponse struct.
-func NewProjectDetailResponse(currentUser *model.User, project *model.Project) *ProjectDetailResponse {
+func NewProjectDetailResponse(currentUser *model.User, project *model.Project) *DetailResponse {
 	headerText := "Project Detail"
 	headerContent := components.NewContentHeader(headerText, []*components.Link{})
 	if currentUser.HasPrivilege("projects.update") {
@@ -32,24 +20,18 @@ func NewProjectDetailResponse(currentUser *model.User, project *model.Project) *
 	if currentUser.HasPrivilege("projects.view") {
 		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("List", "/admin/project/list"))
 	}
-	details := &DetailItems{
-		{Label: "ID", Value: &DetailValues{{Value: fmt.Sprintf("%d", project.ID)}}},
-		{Label: "Name", Value: &DetailValues{{Value: project.Name}}},
-		{Label: "Created At", Value: &DetailValues{{Value: project.CreatedAt}}},
-		{Label: "Updated At", Value: &DetailValues{{Value: project.UpdatedAt}}},
+	details := &components.DetailItems{
+		{Label: "ID", Value: &components.DetailValues{{Value: fmt.Sprintf("%d", project.ID)}}},
+		{Label: "Name", Value: &components.DetailValues{{Value: project.Name}}},
+		{Label: "Created At", Value: &components.DetailValues{{Value: project.CreatedAt}}},
+		{Label: "Updated At", Value: &components.DetailValues{{Value: project.UpdatedAt}}},
 	}
-	return &ProjectDetailResponse{
-		ProjectResponse: &ProjectResponse{
-			Response: NewResponse(headerText, currentUser, headerContent),
-			Project:  project,
-		},
-		Details: details,
-	}
+	return NewDetailResponse(headerText, currentUser, headerContent, details)
 }
 
 // ProjectFormResponse is the struct for the project form responses.
 type ProjectFormResponse struct {
-	*ProjectDetailResponse
+	*DetailResponse
 	FormItems []*FormItem
 }
 
@@ -65,8 +47,8 @@ func NewProjectFormResponse(title string, currentUser *model.User, project *mode
 		{Label: "Name", Type: "text", Name: "name", Value: project.Name, Required: true},
 	}
 	return &ProjectFormResponse{
-		ProjectDetailResponse: projectDetailResponse,
-		FormItems:             formItems,
+		DetailResponse: projectDetailResponse,
+		FormItems:      formItems,
 	}
 }
 

@@ -7,20 +7,8 @@ import (
 	"github.com/akosgarai/projectregister/pkg/model"
 )
 
-// UserResponse is the struct for the user page.
-type UserResponse struct {
-	*Response
-	User *model.User
-}
-
-// UserDetailResponse is the struct for the user detail page.
-type UserDetailResponse struct {
-	*UserResponse
-	Details *DetailItems
-}
-
-// NewUserDetailResponse is a constructor for the UserDetailResponse struct.
-func NewUserDetailResponse(currentUser, user *model.User) *UserDetailResponse {
+// NewUserDetailResponse is a constructor for the DetailResponse struct for a user.
+func NewUserDetailResponse(currentUser, user *model.User) *DetailResponse {
 	headerText := "User Detail"
 	headerContent := components.NewContentHeader(headerText, []*components.Link{})
 	if currentUser.HasPrivilege("users.update") {
@@ -36,25 +24,19 @@ func NewUserDetailResponse(currentUser, user *model.User) *UserDetailResponse {
 	if currentUser.HasPrivilege("roles.view") {
 		roleLink = fmt.Sprintf("/admin/role/view/%d", user.Role.ID)
 	}
-	roleValue := DetailValues{{Value: user.Role.Name, Link: roleLink}}
-	details := &DetailItems{
-		{Label: "ID", Value: &DetailValues{{Value: fmt.Sprintf("%d", user.ID)}}},
-		{Label: "Name", Value: &DetailValues{{Value: user.Name}}},
-		{Label: "Email", Value: &DetailValues{{Value: user.Email}}},
+	roleValue := components.DetailValues{{Value: user.Role.Name, Link: roleLink}}
+	details := &components.DetailItems{
+		{Label: "ID", Value: &components.DetailValues{{Value: fmt.Sprintf("%d", user.ID)}}},
+		{Label: "Name", Value: &components.DetailValues{{Value: user.Name}}},
+		{Label: "Email", Value: &components.DetailValues{{Value: user.Email}}},
 		{Label: "Role", Value: &roleValue},
 	}
-	return &UserDetailResponse{
-		UserResponse: &UserResponse{
-			Response: NewResponse(headerText, currentUser, headerContent),
-			User:     user,
-		},
-		Details: details,
-	}
+	return NewDetailResponse(headerText, currentUser, headerContent, details)
 }
 
 // UserFormResponse is the struct for the user form responses.
 type UserFormResponse struct {
-	*UserDetailResponse
+	*DetailResponse
 	FormItems []*FormItem
 }
 
@@ -90,8 +72,8 @@ func NewUserFormResponse(title string, currentUser, user *model.User, roles *mod
 		},
 	}
 	return &UserFormResponse{
-		UserDetailResponse: userDetailResponse,
-		FormItems:          formItems,
+		DetailResponse: userDetailResponse,
+		FormItems:      formItems,
 	}
 }
 

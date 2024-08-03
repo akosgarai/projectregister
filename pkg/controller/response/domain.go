@@ -7,20 +7,8 @@ import (
 	"github.com/akosgarai/projectregister/pkg/model"
 )
 
-// DomainResponse is the struct for the domain page.
-type DomainResponse struct {
-	*Response
-	Domain *model.Domain
-}
-
-// DomainDetailResponse is the struct for the domain detail page.
-type DomainDetailResponse struct {
-	*DomainResponse
-	Details *DetailItems
-}
-
-// NewDomainDetailResponse is a constructor for the DomainDetailResponse struct.
-func NewDomainDetailResponse(currentUser *model.User, domain *model.Domain) *DomainDetailResponse {
+// NewDomainDetailResponse is a constructor for the DetailResponse struct for a domain.
+func NewDomainDetailResponse(currentUser *model.User, domain *model.Domain) *DetailResponse {
 	headerText := "Domain Detail"
 	headerContent := components.NewContentHeader(headerText, []*components.Link{})
 	if currentUser.HasPrivilege("domains.update") {
@@ -32,24 +20,18 @@ func NewDomainDetailResponse(currentUser *model.User, domain *model.Domain) *Dom
 	if currentUser.HasPrivilege("domains.view") {
 		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("List", "/admin/domain/list"))
 	}
-	details := &DetailItems{
-		{Label: "ID", Value: &DetailValues{{Value: fmt.Sprintf("%d", domain.ID)}}},
-		{Label: "Name", Value: &DetailValues{{Value: domain.Name, Link: domain.Name}}},
-		{Label: "Created At", Value: &DetailValues{{Value: domain.CreatedAt}}},
-		{Label: "Updated At", Value: &DetailValues{{Value: domain.UpdatedAt}}},
+	details := &components.DetailItems{
+		{Label: "ID", Value: &components.DetailValues{{Value: fmt.Sprintf("%d", domain.ID)}}},
+		{Label: "Name", Value: &components.DetailValues{{Value: domain.Name, Link: domain.Name}}},
+		{Label: "Created At", Value: &components.DetailValues{{Value: domain.CreatedAt}}},
+		{Label: "Updated At", Value: &components.DetailValues{{Value: domain.UpdatedAt}}},
 	}
-	return &DomainDetailResponse{
-		DomainResponse: &DomainResponse{
-			Response: NewResponse(headerText, currentUser, headerContent),
-			Domain:   domain,
-		},
-		Details: details,
-	}
+	return NewDetailResponse(headerText, currentUser, headerContent, details)
 }
 
 // DomainFormResponse is the struct for the domain form responses.
 type DomainFormResponse struct {
-	*DomainDetailResponse
+	*DetailResponse
 	FormItems []*FormItem
 }
 
@@ -65,8 +47,8 @@ func NewDomainFormResponse(title string, currentUser *model.User, domain *model.
 		{Label: "Name", Type: "text", Name: "name", Value: domain.Name, Required: true},
 	}
 	return &DomainFormResponse{
-		DomainDetailResponse: domainDetailResponse,
-		FormItems:            formItems,
+		DetailResponse: domainDetailResponse,
+		FormItems:      formItems,
 	}
 }
 

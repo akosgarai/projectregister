@@ -7,20 +7,8 @@ import (
 	"github.com/akosgarai/projectregister/pkg/model"
 )
 
-// DatabaseResponse is the struct for the database page.
-type DatabaseResponse struct {
-	*Response
-	Database *model.Database
-}
-
-// DatabaseDetailResponse is the struct for the database detail page.
-type DatabaseDetailResponse struct {
-	*DatabaseResponse
-	Details *DetailItems
-}
-
-// NewDatabaseDetailResponse is a constructor for the DatabaseDetailResponse struct.
-func NewDatabaseDetailResponse(currentUser *model.User, database *model.Database) *DatabaseDetailResponse {
+// NewDatabaseDetailResponse is a constructor for the DetailResponse struct for a database.
+func NewDatabaseDetailResponse(currentUser *model.User, database *model.Database) *DetailResponse {
 	headerText := "Database Detail"
 	headerContent := components.NewContentHeader(headerText, []*components.Link{})
 	if currentUser.HasPrivilege("databases.update") {
@@ -32,24 +20,18 @@ func NewDatabaseDetailResponse(currentUser *model.User, database *model.Database
 	if currentUser.HasPrivilege("databases.view") {
 		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("List", "/admin/database/list"))
 	}
-	details := &DetailItems{
-		{Label: "ID", Value: &DetailValues{{Value: fmt.Sprintf("%d", database.ID)}}},
-		{Label: "Name", Value: &DetailValues{{Value: database.Name}}},
-		{Label: "Created At", Value: &DetailValues{{Value: database.CreatedAt}}},
-		{Label: "Updated At", Value: &DetailValues{{Value: database.UpdatedAt}}},
+	details := &components.DetailItems{
+		{Label: "ID", Value: &components.DetailValues{{Value: fmt.Sprintf("%d", database.ID)}}},
+		{Label: "Name", Value: &components.DetailValues{{Value: database.Name}}},
+		{Label: "Created At", Value: &components.DetailValues{{Value: database.CreatedAt}}},
+		{Label: "Updated At", Value: &components.DetailValues{{Value: database.UpdatedAt}}},
 	}
-	return &DatabaseDetailResponse{
-		DatabaseResponse: &DatabaseResponse{
-			Response: NewResponse("Database Detail", currentUser, headerContent),
-			Database: database,
-		},
-		Details: details,
-	}
+	return NewDetailResponse(headerText, currentUser, headerContent, details)
 }
 
 // DatabaseFormResponse is the struct for the database form responses.
 type DatabaseFormResponse struct {
-	*DatabaseDetailResponse
+	*DetailResponse
 	FormItems []*FormItem
 }
 
@@ -65,8 +47,8 @@ func NewDatabaseFormResponse(title string, currentUser *model.User, database *mo
 		{Label: "Name", Type: "text", Name: "name", Value: database.Name, Required: true},
 	}
 	return &DatabaseFormResponse{
-		DatabaseDetailResponse: databaseDetailResponse,
-		FormItems:              formItems,
+		DetailResponse: databaseDetailResponse,
+		FormItems:      formItems,
 	}
 }
 

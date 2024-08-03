@@ -7,20 +7,8 @@ import (
 	"github.com/akosgarai/projectregister/pkg/model"
 )
 
-// RoleResponse is the base struct for the role responses.
-type RoleResponse struct {
-	*Response
-	Role *model.Role
-}
-
-// RoleDetailResponse is the struct for the role detail page.
-type RoleDetailResponse struct {
-	*RoleResponse
-	Details *DetailItems
-}
-
-// NewRoleDetailResponse is a constructor for the RoleDetailResponse struct.
-func NewRoleDetailResponse(currentUser *model.User, role *model.Role) *RoleDetailResponse {
+// NewRoleDetailResponse is a constructor for the DetailResponse struct for a pool.
+func NewRoleDetailResponse(currentUser *model.User, role *model.Role) *DetailResponse {
 	headerText := "Role Detail"
 	headerContent := components.NewContentHeader(headerText, []*components.Link{})
 	if currentUser.HasPrivilege("roles.update") {
@@ -32,31 +20,25 @@ func NewRoleDetailResponse(currentUser *model.User, role *model.Role) *RoleDetai
 	if currentUser.HasPrivilege("roles.view") {
 		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("List", "/admin/role/list"))
 	}
-	resourceValues := DetailValues{}
+	resourceValues := components.DetailValues{}
 	if len(role.Resources) > 0 {
 		for _, resource := range role.Resources {
-			resourceValues = append(resourceValues, &DetailValue{Value: resource.Name})
+			resourceValues = append(resourceValues, &components.DetailValue{Value: resource.Name})
 		}
 	}
-	details := &DetailItems{
-		{Label: "ID", Value: &DetailValues{{Value: fmt.Sprintf("%d", role.ID)}}},
-		{Label: "Name", Value: &DetailValues{{Value: role.Name}}},
-		{Label: "Created At", Value: &DetailValues{{Value: role.CreatedAt}}},
-		{Label: "Updated At", Value: &DetailValues{{Value: role.UpdatedAt}}},
+	details := &components.DetailItems{
+		{Label: "ID", Value: &components.DetailValues{{Value: fmt.Sprintf("%d", role.ID)}}},
+		{Label: "Name", Value: &components.DetailValues{{Value: role.Name}}},
+		{Label: "Created At", Value: &components.DetailValues{{Value: role.CreatedAt}}},
+		{Label: "Updated At", Value: &components.DetailValues{{Value: role.UpdatedAt}}},
 		{Label: "Resources", Value: &resourceValues},
 	}
-	return &RoleDetailResponse{
-		RoleResponse: &RoleResponse{
-			Response: NewResponse(headerText, currentUser, headerContent),
-			Role:     role,
-		},
-		Details: details,
-	}
+	return NewDetailResponse(headerText, currentUser, headerContent, details)
 }
 
 // RoleFormResponse is the struct for the role form responses.
 type RoleFormResponse struct {
-	*RoleDetailResponse
+	*DetailResponse
 	FormItems []*FormItem
 }
 
@@ -80,8 +62,8 @@ func NewRoleFormResponse(title string, currentUser *model.User, role *model.Role
 		{Label: "Resources", Type: "checkboxgroup", Name: "resources", Value: "", Required: true, Options: resources.ToMap(), SelectedOptions: selectedOptions},
 	}
 	return &RoleFormResponse{
-		RoleDetailResponse: roleDetailResponse,
-		FormItems:          formItems,
+		DetailResponse: roleDetailResponse,
+		FormItems:      formItems,
 	}
 }
 
