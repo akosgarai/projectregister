@@ -3,6 +3,7 @@ package response
 import (
 	"fmt"
 
+	"github.com/akosgarai/projectregister/pkg/controller/response/components"
 	"github.com/akosgarai/projectregister/pkg/model"
 )
 
@@ -20,26 +21,16 @@ type DatabaseDetailResponse struct {
 
 // NewDatabaseDetailResponse is a constructor for the DatabaseDetailResponse struct.
 func NewDatabaseDetailResponse(currentUser *model.User, database *model.Database) *DatabaseDetailResponse {
-	header := &HeaderBlock{
-		Title:       "Database Detail",
-		CurrentUser: currentUser,
-		Buttons: []*ActionButton{
-			{
-				Label:     "Edit",
-				Link:      fmt.Sprintf("/admin/database/update/%d", database.ID),
-				Privilege: "databases.update",
-			},
-			{
-				Label:     "Delete",
-				Link:      fmt.Sprintf("/admin/database/delete/%d", database.ID),
-				Privilege: "databases.delete",
-			},
-			{
-				Label:     "List",
-				Link:      "/admin/database/list",
-				Privilege: "databases.view",
-			},
-		},
+	headerText := "Database Detail"
+	headerContent := components.NewContentHeader(headerText, []*components.Link{})
+	if currentUser.HasPrivilege("databases.update") {
+		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("Edit", fmt.Sprintf("/admin/database/update/%d", database.ID)))
+	}
+	if currentUser.HasPrivilege("databases.delete") {
+		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("Delete", fmt.Sprintf("/admin/database/delete/%d", database.ID)))
+	}
+	if currentUser.HasPrivilege("databases.view") {
+		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("List", "/admin/database/list"))
 	}
 	details := &DetailItems{
 		{Label: "ID", Value: &DetailValues{{Value: fmt.Sprintf("%d", database.ID)}}},
@@ -49,7 +40,7 @@ func NewDatabaseDetailResponse(currentUser *model.User, database *model.Database
 	}
 	return &DatabaseDetailResponse{
 		DatabaseResponse: &DatabaseResponse{
-			Response: NewResponse("Database Detail", currentUser, header),
+			Response: NewResponse("Database Detail", currentUser, headerContent),
 			Database: database,
 		},
 		Details: details,
@@ -68,7 +59,7 @@ func NewDatabaseFormResponse(title string, currentUser *model.User, database *mo
 	databaseDetailResponse.Header.Title = title
 	databaseDetailResponse.Title = title
 	// The buttons are unnecessary on the form page.
-	databaseDetailResponse.Header.Buttons = []*ActionButton{{Label: "List", Link: fmt.Sprintf("/admin/database/list"), Privilege: "databases.view"}}
+	databaseDetailResponse.Header.Buttons = []*components.Link{components.NewLink("List", "/admin/database/list")}
 	formItems := []*FormItem{
 		// Name.
 		{Label: "Name", Type: "text", Name: "name", Value: database.Name, Required: true},
@@ -87,16 +78,10 @@ type DatabaseListResponse struct {
 
 // NewDatabaseListResponse is a constructor for the DatabaseListResponse struct.
 func NewDatabaseListResponse(currentUser *model.User, databases *model.Databases) *DatabaseListResponse {
-	header := &HeaderBlock{
-		Title:       "Database List",
-		CurrentUser: currentUser,
-		Buttons: []*ActionButton{
-			{
-				Label:     "Create",
-				Link:      "/admin/database/create",
-				Privilege: "databases.create",
-			},
-		},
+	headerText := "Database List"
+	headerContent := components.NewContentHeader(headerText, []*components.Link{})
+	if currentUser.HasPrivilege("databases.create") {
+		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("Create", "/admin/database/create"))
 	}
 	listingHeader := &ListingHeader{
 		Headers: []string{"ID", "Name", "Actions"},
@@ -125,7 +110,7 @@ func NewDatabaseListResponse(currentUser *model.User, databases *model.Databases
 		listingRows = append(listingRows, &ListingRow{Columns: &columns})
 	}
 	return &DatabaseListResponse{
-		Response: NewResponse("Database List", currentUser, header),
+		Response: NewResponse(headerText, currentUser, headerContent),
 		Listing:  &Listing{Header: listingHeader, Rows: &listingRows},
 	}
 }

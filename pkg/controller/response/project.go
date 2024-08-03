@@ -3,6 +3,7 @@ package response
 import (
 	"fmt"
 
+	"github.com/akosgarai/projectregister/pkg/controller/response/components"
 	"github.com/akosgarai/projectregister/pkg/model"
 )
 
@@ -20,26 +21,16 @@ type ProjectDetailResponse struct {
 
 // NewProjectDetailResponse is a constructor for the ProjectDetailResponse struct.
 func NewProjectDetailResponse(currentUser *model.User, project *model.Project) *ProjectDetailResponse {
-	header := &HeaderBlock{
-		Title:       "Project Detail",
-		CurrentUser: currentUser,
-		Buttons: []*ActionButton{
-			{
-				Label:     "Edit",
-				Link:      fmt.Sprintf("/admin/project/update/%d", project.ID),
-				Privilege: "projects.update",
-			},
-			{
-				Label:     "Delete",
-				Link:      fmt.Sprintf("/admin/project/delete/%d", project.ID),
-				Privilege: "projects.delete",
-			},
-			{
-				Label:     "List",
-				Link:      "/admin/project/list",
-				Privilege: "projects.view",
-			},
-		},
+	headerText := "Project Detail"
+	headerContent := components.NewContentHeader(headerText, []*components.Link{})
+	if currentUser.HasPrivilege("projects.update") {
+		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("Edit", fmt.Sprintf("/admin/project/update/%d", project.ID)))
+	}
+	if currentUser.HasPrivilege("projects.delete") {
+		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("Delete", fmt.Sprintf("/admin/project/delete/%d", project.ID)))
+	}
+	if currentUser.HasPrivilege("projects.view") {
+		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("List", "/admin/project/list"))
 	}
 	details := &DetailItems{
 		{Label: "ID", Value: &DetailValues{{Value: fmt.Sprintf("%d", project.ID)}}},
@@ -49,7 +40,7 @@ func NewProjectDetailResponse(currentUser *model.User, project *model.Project) *
 	}
 	return &ProjectDetailResponse{
 		ProjectResponse: &ProjectResponse{
-			Response: NewResponse("Project Detail", currentUser, header),
+			Response: NewResponse(headerText, currentUser, headerContent),
 			Project:  project,
 		},
 		Details: details,
@@ -68,7 +59,7 @@ func NewProjectFormResponse(title string, currentUser *model.User, project *mode
 	projectDetailResponse.Header.Title = title
 	projectDetailResponse.Title = title
 	// The buttons are unnecessary on the form page.
-	projectDetailResponse.Header.Buttons = []*ActionButton{{Label: "List", Link: fmt.Sprintf("/admin/project/list"), Privilege: "projects.view"}}
+	projectDetailResponse.Header.Buttons = []*components.Link{components.NewLink("List", "/admin/project/list")}
 	formItems := []*FormItem{
 		// Name.
 		{Label: "Name", Type: "text", Name: "name", Value: project.Name, Required: true},
@@ -87,16 +78,10 @@ type ProjectListResponse struct {
 
 // NewProjectListResponse is a constructor for the ProjectListResponse struct.
 func NewProjectListResponse(currentUser *model.User, projects *model.Projects) *ProjectListResponse {
-	header := &HeaderBlock{
-		Title:       "Project List",
-		CurrentUser: currentUser,
-		Buttons: []*ActionButton{
-			{
-				Label:     "Create",
-				Link:      "/admin/project/create",
-				Privilege: "projects.create",
-			},
-		},
+	headerText := "Project List"
+	headerContent := components.NewContentHeader(headerText, []*components.Link{})
+	if currentUser.HasPrivilege("projects.create") {
+		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("Create", "/admin/project/create"))
 	}
 	listingHeader := &ListingHeader{
 		Headers: []string{"ID", "Name", "Actions"},
@@ -125,7 +110,7 @@ func NewProjectListResponse(currentUser *model.User, projects *model.Projects) *
 		listingRows = append(listingRows, &ListingRow{Columns: &columns})
 	}
 	return &ProjectListResponse{
-		Response: NewResponse("Project List", currentUser, header),
+		Response: NewResponse(headerText, currentUser, headerContent),
 		Listing:  &Listing{Header: listingHeader, Rows: &listingRows},
 	}
 }

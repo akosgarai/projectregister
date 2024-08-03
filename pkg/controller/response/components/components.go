@@ -16,3 +16,20 @@ func NewLink(text, href string) *Link {
 		Href: href,
 	}
 }
+
+// ContentHeader is the struct for the content header.
+// It contains
+// - the title of the page
+// - the action buttons (links)
+type ContentHeader struct {
+	Title   string
+	Buttons []*Link
+}
+
+// NewContentHeader is a constructor for the ContentHeader struct.
+func NewContentHeader(title string, buttons []*Link) *ContentHeader {
+	return &ContentHeader{
+		Title:   title,
+		Buttons: buttons,
+	}
+}

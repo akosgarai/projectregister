@@ -3,6 +3,7 @@ package response
 import (
 	"fmt"
 
+	"github.com/akosgarai/projectregister/pkg/controller/response/components"
 	"github.com/akosgarai/projectregister/pkg/model"
 )
 
@@ -20,26 +21,16 @@ type ApplicationDetailResponse struct {
 
 // NewApplicationDetailResponse is a constructor for the ApplicationViewResponse struct.
 func NewApplicationDetailResponse(user *model.User, app *model.Application) *ApplicationDetailResponse {
-	header := &HeaderBlock{
-		Title:       "Application View",
-		CurrentUser: user,
-		Buttons: []*ActionButton{
-			{
-				Label:     "Edit",
-				Link:      fmt.Sprintf("/admin/application/update/%d", app.ID),
-				Privilege: "applications.update",
-			},
-			{
-				Label:     "Delete",
-				Link:      fmt.Sprintf("/admin/application/delete/%d", app.ID),
-				Privilege: "application.delete",
-			},
-			{
-				Label:     "List",
-				Link:      "/admin/application/list",
-				Privilege: "applications.view",
-			},
-		},
+	headerText := "Application Detail"
+	headerContent := components.NewContentHeader(headerText, []*components.Link{})
+	if user.HasPrivilege("applications.update") {
+		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("Edit", fmt.Sprintf("/admin/application/update/%d", app.ID)))
+	}
+	if user.HasPrivilege("applications.delete") {
+		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("Delete", fmt.Sprintf("/admin/application/delete/%d", app.ID)))
+	}
+	if user.HasPrivilege("applications.view") {
+		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("List", "/admin/application/list"))
 	}
 	dbValues := &DetailValues{
 		{Value: app.Database.Name, Link: fmt.Sprintf("/admin/database/view/%d", app.Database.ID)},
@@ -78,7 +69,7 @@ func NewApplicationDetailResponse(user *model.User, app *model.Application) *App
 	}
 	return &ApplicationDetailResponse{
 		ApplicationResponse: &ApplicationResponse{
-			Response:    NewResponse("Application View", user, header),
+			Response:    NewResponse(headerText, user, headerContent),
 			Application: app,
 		},
 		Details: details,
@@ -107,7 +98,7 @@ func NewApplicationFormResponse(
 	appDetailResponse := NewApplicationDetailResponse(user, app)
 	appDetailResponse.Title = title
 	appDetailResponse.Header.Title = title
-	appDetailResponse.Header.Buttons = []*ActionButton{{Label: "Back", Link: "/admin/application/list", Privilege: "applications.view"}}
+	appDetailResponse.Header.Buttons = []*components.Link{components.NewLink("List", "/admin/application/list")}
 	selectedClients := SelectedOptions{}
 	selectedProjects := SelectedOptions{}
 	selectedEnvironments := SelectedOptions{}
@@ -184,16 +175,10 @@ type ApplicationListResponse struct {
 
 // NewApplicationListResponse is a constructor for the ApplicationListResponse struct.
 func NewApplicationListResponse(user *model.User, apps *model.Applications) *ApplicationListResponse {
-	header := &HeaderBlock{
-		Title:       "Application List",
-		CurrentUser: user,
-		Buttons: []*ActionButton{
-			{
-				Label:     "New",
-				Link:      "/admin/application/create",
-				Privilege: "applications.create",
-			},
-		},
+	headerText := "Application List"
+	headerContent := components.NewContentHeader(headerText, []*components.Link{})
+	if user.HasPrivilege("applications.create") {
+		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("Create", "/admin/application/create"))
 	}
 	listingHeader := &ListingHeader{
 		Headers: []string{"ID", "Client", "Project", "Environment", "Database", "Runtime", "Pool", "Codebase", "Framework", "Document Root", "Domains", "Created At", "Updated At", "Actions"},
@@ -280,7 +265,7 @@ func NewApplicationListResponse(user *model.User, apps *model.Applications) *App
 		listingRows = append(listingRows, &ListingRow{Columns: &columns})
 	}
 	return &ApplicationListResponse{
-		Response: NewResponse("Application List", user, header),
+		Response: NewResponse(headerText, user, headerContent),
 		Listing:  &Listing{Header: listingHeader, Rows: &listingRows},
 	}
 }
@@ -293,13 +278,10 @@ type ApplicationImportToEnvironmentFormResponse struct {
 
 // NewApplicationImportToEnvironmentFormResponse is a constructor for the ApplicationImportToEnvironmentFormResponse struct.
 func NewApplicationImportToEnvironmentFormResponse(user *model.User, env *model.Environment) *ApplicationImportToEnvironmentFormResponse {
-	header := &HeaderBlock{
-		Title:       "Import Application to Environment",
-		CurrentUser: user,
-		Buttons:     []*ActionButton{},
-	}
+	headerText := "Import Application to Environment"
+	header := components.NewContentHeader(headerText, []*components.Link{})
 	return &ApplicationImportToEnvironmentFormResponse{
-		Response:    NewResponse("Import Application to Environment", user, header),
+		Response:    NewResponse(headerText, user, header),
 		Environment: env,
 	}
 }
@@ -313,13 +295,10 @@ type ApplicationMappingToEnvironmentFormResponse struct {
 
 // NewApplicationMappingToEnvironmentFormResponse is a constructor for the ApplicationMappingToEnvironmentFormResponse struct.
 func NewApplicationMappingToEnvironmentFormResponse(user *model.User, env *model.Environment, fileID string) *ApplicationMappingToEnvironmentFormResponse {
-	header := &HeaderBlock{
-		Title:       "Import Mapping to Environment",
-		CurrentUser: user,
-		Buttons:     []*ActionButton{},
-	}
+	headerText := "Import Mapping to Environment"
+	header := components.NewContentHeader(headerText, []*components.Link{})
 	return &ApplicationMappingToEnvironmentFormResponse{
-		Response:    NewResponse("Import Mapping to Environment", user, header),
+		Response:    NewResponse(headerText, user, header),
 		Environment: env,
 		FileID:      fileID,
 	}
@@ -342,13 +321,10 @@ type ApplicationImportToEnvironmentListResponse struct {
 
 // NewApplicationImportToEnvironmentListResponse is a constructor for the ApplicationImportToEnvironmentListResponse struct.
 func NewApplicationImportToEnvironmentListResponse(user *model.User, env *model.Environment, fileID string, result map[int]*ApplicationImportRowResult) *ApplicationImportToEnvironmentListResponse {
-	header := &HeaderBlock{
-		Title:       "Import Application to Environment",
-		CurrentUser: user,
-		Buttons:     []*ActionButton{},
-	}
+	headerText := "Import Application to Environment"
+	header := components.NewContentHeader(headerText, []*components.Link{})
 	return &ApplicationImportToEnvironmentListResponse{
-		Response:    NewResponse("Import Application to Environment", user, header),
+		Response:    NewResponse(headerText, user, header),
 		Environment: env,
 		FileID:      fileID,
 		Result:      result,

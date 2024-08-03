@@ -6,24 +6,6 @@ import (
 	"github.com/akosgarai/projectregister/pkg/resources"
 )
 
-// ActionButton is the struct for the action buttons.
-// It contains the label of the button and the link.
-// Also contains the necessary privileges to see the button.
-type ActionButton struct {
-	Label     string
-	Link      string
-	Privilege string
-}
-
-// HeaderBlock is the struct for the header block.
-// It contains the title of the page.
-// Also contains the action buttons.
-type HeaderBlock struct {
-	Title       string
-	CurrentUser *model.User
-	Buttons     []*ActionButton
-}
-
 // Response is the struct for the response.
 // It contains
 // - the title of the page
@@ -34,11 +16,11 @@ type Response struct {
 	Title       string
 	CurrentUser *model.User
 	SideMenu    []*components.Link
-	Header      *HeaderBlock
+	Header      *components.ContentHeader
 }
 
 // NewResponse is a constructor for the Response struct.
-func NewResponse(title string, user *model.User, header *HeaderBlock) *Response {
+func NewResponse(title string, user *model.User, header *components.ContentHeader) *Response {
 	sideMenu := []*components.Link{}
 	for _, resource := range resources.Resources {
 		if user.HasPrivilege(resources.ResourcePrivileges[resource] + ".view") {

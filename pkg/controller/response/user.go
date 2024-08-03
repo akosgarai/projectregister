@@ -3,6 +3,7 @@ package response
 import (
 	"fmt"
 
+	"github.com/akosgarai/projectregister/pkg/controller/response/components"
 	"github.com/akosgarai/projectregister/pkg/model"
 )
 
@@ -20,26 +21,16 @@ type UserDetailResponse struct {
 
 // NewUserDetailResponse is a constructor for the UserDetailResponse struct.
 func NewUserDetailResponse(currentUser, user *model.User) *UserDetailResponse {
-	header := &HeaderBlock{
-		Title:       "User Detail",
-		CurrentUser: currentUser,
-		Buttons: []*ActionButton{
-			{
-				Label:     "Edit",
-				Link:      fmt.Sprintf("/admin/user/update/%d", user.ID),
-				Privilege: "users.update",
-			},
-			{
-				Label:     "Delete",
-				Link:      fmt.Sprintf("/admin/user/delete/%d", user.ID),
-				Privilege: "users.delete",
-			},
-			{
-				Label:     "List",
-				Link:      "/admin/user/list",
-				Privilege: "users.view",
-			},
-		},
+	headerText := "User Detail"
+	headerContent := components.NewContentHeader(headerText, []*components.Link{})
+	if currentUser.HasPrivilege("users.update") {
+		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("Edit", fmt.Sprintf("/admin/user/update/%d", user.ID)))
+	}
+	if currentUser.HasPrivilege("users.delete") {
+		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("Delete", fmt.Sprintf("/admin/user/delete/%d", user.ID)))
+	}
+	if currentUser.HasPrivilege("users.view") {
+		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("List", "/admin/user/list"))
 	}
 	roleLink := ""
 	if currentUser.HasPrivilege("roles.view") {
@@ -54,7 +45,7 @@ func NewUserDetailResponse(currentUser, user *model.User) *UserDetailResponse {
 	}
 	return &UserDetailResponse{
 		UserResponse: &UserResponse{
-			Response: NewResponse("User Detail", currentUser, header),
+			Response: NewResponse(headerText, currentUser, headerContent),
 			User:     user,
 		},
 		Details: details,
@@ -73,7 +64,7 @@ func NewUserFormResponse(title string, currentUser, user *model.User, roles *mod
 	userDetailResponse.Header.Title = title
 	userDetailResponse.Title = title
 	// The buttons are unnecessary on the form page.
-	userDetailResponse.Header.Buttons = []*ActionButton{{Label: "Back", Link: "/admin/user/list", Privilege: "users.view"}}
+	userDetailResponse.Header.Buttons = []*components.Link{components.NewLink("List", "/admin/user/list")}
 	roleID := ""
 	selectedOptions := SelectedOptions{0}
 	if user.Role != nil && user.Role.ID > 0 {
@@ -112,16 +103,10 @@ type UserListResponse struct {
 
 // NewUserListResponse is a constructor for the UserListResponse struct.
 func NewUserListResponse(currentUser *model.User, users []*model.User) *UserListResponse {
-	header := &HeaderBlock{
-		Title:       "User List",
-		CurrentUser: currentUser,
-		Buttons: []*ActionButton{
-			{
-				Label:     "New",
-				Link:      "/admin/user/create",
-				Privilege: "users.create",
-			},
-		},
+	headerText := "User List"
+	headerContent := components.NewContentHeader(headerText, []*components.Link{})
+	if currentUser.HasPrivilege("users.create") {
+		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("Create", "/admin/user/create"))
 	}
 	listingHeader := &ListingHeader{
 		Headers: []string{"ID", "Name", "Email", "Role", "Actions"},
@@ -166,7 +151,7 @@ func NewUserListResponse(currentUser *model.User, users []*model.User) *UserList
 		listingRows = append(listingRows, &row)
 	}
 	return &UserListResponse{
-		Response: NewResponse("User List", currentUser, header),
+		Response: NewResponse(headerText, currentUser, headerContent),
 		Listing: &Listing{
 			Header: listingHeader,
 			Rows:   &listingRows,

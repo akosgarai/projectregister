@@ -3,6 +3,7 @@ package response
 import (
 	"fmt"
 
+	"github.com/akosgarai/projectregister/pkg/controller/response/components"
 	"github.com/akosgarai/projectregister/pkg/model"
 )
 
@@ -20,26 +21,16 @@ type PoolDetailResponse struct {
 
 // NewPoolDetailResponse is a constructor for the PoolDetailResponse struct.
 func NewPoolDetailResponse(currentUser *model.User, pool *model.Pool) *PoolDetailResponse {
-	header := &HeaderBlock{
-		Title:       "Pool Detail",
-		CurrentUser: currentUser,
-		Buttons: []*ActionButton{
-			{
-				Label:     "Edit",
-				Link:      fmt.Sprintf("/admin/pool/update/%d", pool.ID),
-				Privilege: "pools.update",
-			},
-			{
-				Label:     "Delete",
-				Link:      fmt.Sprintf("/admin/pool/delete/%d", pool.ID),
-				Privilege: "pools.delete",
-			},
-			{
-				Label:     "List",
-				Link:      "/admin/pool/list",
-				Privilege: "pools.view",
-			},
-		},
+	headerText := "Pool Detail"
+	headerContent := components.NewContentHeader(headerText, []*components.Link{})
+	if currentUser.HasPrivilege("pools.update") {
+		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("Edit", fmt.Sprintf("/admin/pool/update/%d", pool.ID)))
+	}
+	if currentUser.HasPrivilege("pools.delete") {
+		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("Delete", fmt.Sprintf("/admin/pool/delete/%d", pool.ID)))
+	}
+	if currentUser.HasPrivilege("pools.view") {
+		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("List", "/admin/pool/list"))
 	}
 	details := &DetailItems{
 		{Label: "ID", Value: &DetailValues{{Value: fmt.Sprintf("%d", pool.ID)}}},
@@ -49,7 +40,7 @@ func NewPoolDetailResponse(currentUser *model.User, pool *model.Pool) *PoolDetai
 	}
 	return &PoolDetailResponse{
 		PoolResponse: &PoolResponse{
-			Response: NewResponse("Pool Detail", currentUser, header),
+			Response: NewResponse(headerText, currentUser, headerContent),
 			Pool:     pool,
 		},
 		Details: details,
@@ -68,7 +59,7 @@ func NewPoolFormResponse(title string, currentUser *model.User, pool *model.Pool
 	poolDetailResponse.Header.Title = title
 	poolDetailResponse.Title = title
 	// The buttons are unnecessary on the form page.
-	poolDetailResponse.Header.Buttons = []*ActionButton{{Label: "List", Link: fmt.Sprintf("/admin/pool/list"), Privilege: "pools.view"}}
+	poolDetailResponse.Header.Buttons = []*components.Link{components.NewLink("List", "/admin/pool/list")}
 	formItems := []*FormItem{
 		// Name.
 		{Label: "Name", Type: "text", Name: "name", Value: pool.Name, Required: true},
@@ -87,16 +78,10 @@ type PoolListResponse struct {
 
 // NewPoolListResponse is a constructor for the PoolListResponse struct.
 func NewPoolListResponse(currentUser *model.User, pools *model.Pools) *PoolListResponse {
-	header := &HeaderBlock{
-		Title:       "Pool List",
-		CurrentUser: currentUser,
-		Buttons: []*ActionButton{
-			{
-				Label:     "Create",
-				Link:      "/admin/pool/create",
-				Privilege: "pools.create",
-			},
-		},
+	headerText := "Pool List"
+	headerContent := components.NewContentHeader(headerText, []*components.Link{})
+	if currentUser.HasPrivilege("pools.create") {
+		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("Create", "/admin/pool/create"))
 	}
 	listingHeader := &ListingHeader{
 		Headers: []string{"ID", "Name", "Actions"},
@@ -125,7 +110,7 @@ func NewPoolListResponse(currentUser *model.User, pools *model.Pools) *PoolListR
 		listingRows = append(listingRows, &ListingRow{Columns: &columns})
 	}
 	return &PoolListResponse{
-		Response: NewResponse("Pool List", currentUser, header),
+		Response: NewResponse(headerText, currentUser, headerContent),
 		Listing:  &Listing{Header: listingHeader, Rows: &listingRows},
 	}
 }

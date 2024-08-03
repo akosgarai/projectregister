@@ -3,6 +3,7 @@ package response
 import (
 	"fmt"
 
+	"github.com/akosgarai/projectregister/pkg/controller/response/components"
 	"github.com/akosgarai/projectregister/pkg/model"
 )
 
@@ -20,26 +21,16 @@ type ServerDetailResponse struct {
 
 // NewServerDetailResponse is a constructor for the ServerDetailResponse struct.
 func NewServerDetailResponse(currentUser *model.User, server *model.Server) *ServerDetailResponse {
-	header := &HeaderBlock{
-		Title:       "Server Detail",
-		CurrentUser: currentUser,
-		Buttons: []*ActionButton{
-			{
-				Label:     "Edit",
-				Link:      fmt.Sprintf("/admin/server/update/%d", server.ID),
-				Privilege: "servers.update",
-			},
-			{
-				Label:     "Delete",
-				Link:      fmt.Sprintf("/admin/server/delete/%d", server.ID),
-				Privilege: "servers.delete",
-			},
-			{
-				Label:     "List",
-				Link:      "/admin/server/list",
-				Privilege: "servers.view",
-			},
-		},
+	headerText := "Server Detail"
+	headerContent := components.NewContentHeader(headerText, []*components.Link{})
+	if currentUser.HasPrivilege("servers.update") {
+		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("Edit", fmt.Sprintf("/admin/server/update/%d", server.ID)))
+	}
+	if currentUser.HasPrivilege("servers.delete") {
+		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("Delete", fmt.Sprintf("/admin/server/delete/%d", server.ID)))
+	}
+	if currentUser.HasPrivilege("servers.view") {
+		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("List", "/admin/server/list"))
 	}
 	runtimeValues := DetailValues{}
 	if len(server.Runtimes) > 0 {
@@ -65,7 +56,7 @@ func NewServerDetailResponse(currentUser *model.User, server *model.Server) *Ser
 	}
 	return &ServerDetailResponse{
 		ServerResponse: &ServerResponse{
-			Response: NewResponse("Server Detail", currentUser, header),
+			Response: NewResponse(headerText, currentUser, headerContent),
 			Server:   server,
 		},
 		Details: details,
@@ -84,7 +75,7 @@ func NewServerFormResponse(title string, currentUser *model.User, server *model.
 	serverDetailResponse.Header.Title = title
 	serverDetailResponse.Title = title
 	// The buttons are unnecessary on the form page.
-	serverDetailResponse.Header.Buttons = []*ActionButton{{Label: "List", Link: fmt.Sprintf("/admin/server/list"), Privilege: "servers.view"}}
+	serverDetailResponse.Header.Buttons = []*components.Link{components.NewLink("List", "/admin/server/list")}
 	selectedPools := SelectedOptions{}
 	selectedRuntimes := SelectedOptions{}
 	if server.Pools != nil {
@@ -123,16 +114,10 @@ type ServerListResponse struct {
 
 // NewServerListResponse is a constructor for the ServerListResponse struct.
 func NewServerListResponse(currentUser *model.User, servers *model.Servers) *ServerListResponse {
-	header := &HeaderBlock{
-		Title:       "Server List",
-		CurrentUser: currentUser,
-		Buttons: []*ActionButton{
-			{
-				Label:     "Create",
-				Link:      "/admin/server/create",
-				Privilege: "servers.create",
-			},
-		},
+	headerText := "Server List"
+	headerContent := components.NewContentHeader(headerText, []*components.Link{})
+	if currentUser.HasPrivilege("servers.create") {
+		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("Create", "/admin/server/create"))
 	}
 	listingHeader := &ListingHeader{
 		Headers: []string{"ID", "Name", "Remote Address", "Description", "Actions"},
@@ -165,7 +150,7 @@ func NewServerListResponse(currentUser *model.User, servers *model.Servers) *Ser
 		listingRows = append(listingRows, &ListingRow{Columns: &columns})
 	}
 	return &ServerListResponse{
-		Response: NewResponse("Server List", currentUser, header),
+		Response: NewResponse(headerText, currentUser, headerContent),
 		Listing:  &Listing{Header: listingHeader, Rows: &listingRows},
 	}
 }

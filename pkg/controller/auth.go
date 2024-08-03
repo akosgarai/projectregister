@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/akosgarai/projectregister/pkg/controller/response"
+	"github.com/akosgarai/projectregister/pkg/controller/response/components"
 	"github.com/akosgarai/projectregister/pkg/model"
 	"github.com/akosgarai/projectregister/pkg/passwd"
 	"github.com/akosgarai/projectregister/pkg/session"
@@ -23,13 +24,9 @@ func (c *Controller) LoginPageController(w http.ResponseWriter, r *http.Request)
 			return
 		}
 	}
-	user := &model.User{Role: &model.Role{}}
-	header := &response.HeaderBlock{
-		Title:       "Login",
-		CurrentUser: user,
-		Buttons:     []*response.ActionButton{},
-	}
-	content := response.NewResponse("Login", &model.User{Role: &model.Role{}}, header)
+	headerText := "Login"
+	headerContent := components.NewContentHeader(headerText, []*components.Link{})
+	content := response.NewResponse(headerText, &model.User{Role: &model.Role{}}, headerContent)
 	err = c.renderer.Template.RenderTemplate(w, "login.html", content)
 	if err != nil {
 		panic(err)

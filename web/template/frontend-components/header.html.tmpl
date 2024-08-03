@@ -6,9 +6,7 @@
 </div>
 <div>
 {{ range .Buttons }}
-		{{if $.CurrentUser.HasPrivilege .Privilege}}
-			<a class="button-link" href="{{.Link}}">{{.Label}}</a>
-		{{end}}
+		<a class="button-link" href="{{.Href}}">{{.Text}}</a>
 	{{end}}
 </div>
 {{end}}

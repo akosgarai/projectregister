@@ -3,6 +3,7 @@ package response
 import (
 	"fmt"
 
+	"github.com/akosgarai/projectregister/pkg/controller/response/components"
 	"github.com/akosgarai/projectregister/pkg/model"
 )
 
@@ -20,26 +21,16 @@ type DomainDetailResponse struct {
 
 // NewDomainDetailResponse is a constructor for the DomainDetailResponse struct.
 func NewDomainDetailResponse(currentUser *model.User, domain *model.Domain) *DomainDetailResponse {
-	header := &HeaderBlock{
-		Title:       "Domain Detail",
-		CurrentUser: currentUser,
-		Buttons: []*ActionButton{
-			{
-				Label:     "Edit",
-				Link:      fmt.Sprintf("/admin/domain/update/%d", domain.ID),
-				Privilege: "domains.update",
-			},
-			{
-				Label:     "Delete",
-				Link:      fmt.Sprintf("/admin/domain/delete/%d", domain.ID),
-				Privilege: "domains.delete",
-			},
-			{
-				Label:     "List",
-				Link:      "/admin/domain/list",
-				Privilege: "domains.view",
-			},
-		},
+	headerText := "Domain Detail"
+	headerContent := components.NewContentHeader(headerText, []*components.Link{})
+	if currentUser.HasPrivilege("domains.update") {
+		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("Edit", fmt.Sprintf("/admin/domain/update/%d", domain.ID)))
+	}
+	if currentUser.HasPrivilege("domains.delete") {
+		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("Delete", fmt.Sprintf("/admin/domain/delete/%d", domain.ID)))
+	}
+	if currentUser.HasPrivilege("domains.view") {
+		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("List", "/admin/domain/list"))
 	}
 	details := &DetailItems{
 		{Label: "ID", Value: &DetailValues{{Value: fmt.Sprintf("%d", domain.ID)}}},
@@ -49,7 +40,7 @@ func NewDomainDetailResponse(currentUser *model.User, domain *model.Domain) *Dom
 	}
 	return &DomainDetailResponse{
 		DomainResponse: &DomainResponse{
-			Response: NewResponse("Domain Detail", currentUser, header),
+			Response: NewResponse(headerText, currentUser, headerContent),
 			Domain:   domain,
 		},
 		Details: details,
@@ -68,7 +59,7 @@ func NewDomainFormResponse(title string, currentUser *model.User, domain *model.
 	domainDetailResponse.Header.Title = title
 	domainDetailResponse.Title = title
 	// The buttons are unnecessary on the form page.
-	domainDetailResponse.Header.Buttons = []*ActionButton{{Label: "Back", Link: "/admin/domain/list", Privilege: "domains.view"}}
+	domainDetailResponse.Header.Buttons = []*components.Link{components.NewLink("List", "/admin/domain/list")}
 	formItems := []*FormItem{
 		// Name.
 		{Label: "Name", Type: "text", Name: "name", Value: domain.Name, Required: true},
@@ -87,16 +78,10 @@ type DomainListResponse struct {
 
 // NewDomainListResponse is a constructor for the DomainListResponse struct.
 func NewDomainListResponse(currentUser *model.User, domains *model.Domains) *DomainListResponse {
-	header := &HeaderBlock{
-		Title:       "Domain List",
-		CurrentUser: currentUser,
-		Buttons: []*ActionButton{
-			{
-				Label:     "Create",
-				Link:      "/admin/domain/create",
-				Privilege: "domains.create",
-			},
-		},
+	headerText := "Domain List"
+	headerContent := components.NewContentHeader(headerText, []*components.Link{})
+	if currentUser.HasPrivilege("domains.create") {
+		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("Create", "/admin/domain/create"))
 	}
 	listingHeader := &ListingHeader{
 		Headers: []string{"ID", "Name", "Actions"},
@@ -125,7 +110,7 @@ func NewDomainListResponse(currentUser *model.User, domains *model.Domains) *Dom
 		listingRows = append(listingRows, &ListingRow{Columns: &columns})
 	}
 	return &DomainListResponse{
-		Response: NewResponse("Domain List", currentUser, header),
+		Response: NewResponse(headerText, currentUser, headerContent),
 		Listing:  &Listing{Header: listingHeader, Rows: &listingRows},
 	}
 }

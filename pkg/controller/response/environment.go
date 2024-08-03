@@ -3,6 +3,7 @@ package response
 import (
 	"fmt"
 
+	"github.com/akosgarai/projectregister/pkg/controller/response/components"
 	"github.com/akosgarai/projectregister/pkg/model"
 )
 
@@ -20,26 +21,16 @@ type EnvironmentDetailResponse struct {
 
 // NewEnvironmentDetailResponse is a constructor for the EnvironmentDetailResponse struct.
 func NewEnvironmentDetailResponse(currentUser *model.User, environment *model.Environment) *EnvironmentDetailResponse {
-	header := &HeaderBlock{
-		Title:       "Environment Detail",
-		CurrentUser: currentUser,
-		Buttons: []*ActionButton{
-			{
-				Label:     "Edit",
-				Link:      fmt.Sprintf("/admin/environment/update/%d", environment.ID),
-				Privilege: "environments.update",
-			},
-			{
-				Label:     "Delete",
-				Link:      fmt.Sprintf("/admin/environment/delete/%d", environment.ID),
-				Privilege: "environments.delete",
-			},
-			{
-				Label:     "List",
-				Link:      "/admin/environment/list",
-				Privilege: "environments.view",
-			},
-		},
+	headerText := "Environment Detail"
+	headerContent := components.NewContentHeader(headerText, []*components.Link{})
+	if currentUser.HasPrivilege("environments.update") {
+		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("Edit", fmt.Sprintf("/admin/environment/update/%d", environment.ID)))
+	}
+	if currentUser.HasPrivilege("environments.delete") {
+		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("Delete", fmt.Sprintf("/admin/environment/delete/%d", environment.ID)))
+	}
+	if currentUser.HasPrivilege("environments.view") {
+		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("List", "/admin/environment/list"))
 	}
 	serverValues := DetailValues{}
 	if environment.Servers != nil {
@@ -65,7 +56,7 @@ func NewEnvironmentDetailResponse(currentUser *model.User, environment *model.En
 	}
 	return &EnvironmentDetailResponse{
 		EnvironmentResponse: &EnvironmentResponse{
-			Response:    NewResponse("Environment Detail", currentUser, header),
+			Response:    NewResponse("Environment Detail", currentUser, headerContent),
 			Environment: environment,
 		},
 		Details: details,
@@ -84,7 +75,7 @@ func NewEnvironmentFormResponse(title string, currentUser *model.User, environme
 	environmentDetailResponse.Header.Title = title
 	environmentDetailResponse.Title = title
 	// The buttons are unnecessary on the form page.
-	environmentDetailResponse.Header.Buttons = []*ActionButton{{Label: "List", Link: fmt.Sprintf("/admin/environment/list"), Privilege: "environments.view"}}
+	environmentDetailResponse.Header.Buttons = []*components.Link{components.NewLink("List", "/admin/environment/list")}
 	selectedServers := SelectedOptions{}
 	selectedDatabases := SelectedOptions{}
 	if environment.Servers != nil {
@@ -122,16 +113,10 @@ type EnvironmentListResponse struct {
 
 // NewEnvironmentListResponse is a constructor for the EnvironmentListResponse struct.
 func NewEnvironmentListResponse(currentUser *model.User, environments *model.Environments) *EnvironmentListResponse {
-	header := &HeaderBlock{
-		Title:       "Environment List",
-		CurrentUser: currentUser,
-		Buttons: []*ActionButton{
-			{
-				Label:     "Create",
-				Link:      "/admin/environment/create",
-				Privilege: "environments.create",
-			},
-		},
+	headerText := "Environment List"
+	headerContent := components.NewContentHeader(headerText, []*components.Link{})
+	if currentUser.HasPrivilege("environments.create") {
+		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("Create", "/admin/environment/create"))
 	}
 	listingHeader := &ListingHeader{
 		Headers: []string{"ID", "Name", "Description", "Actions"},
@@ -162,7 +147,7 @@ func NewEnvironmentListResponse(currentUser *model.User, environments *model.Env
 		listingRows = append(listingRows, &ListingRow{Columns: &columns})
 	}
 	return &EnvironmentListResponse{
-		Response: NewResponse("Environment List", currentUser, header),
+		Response: NewResponse(headerText, currentUser, headerContent),
 		Listing:  &Listing{Header: listingHeader, Rows: &listingRows},
 	}
 }

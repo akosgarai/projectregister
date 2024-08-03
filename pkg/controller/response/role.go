@@ -3,6 +3,7 @@ package response
 import (
 	"fmt"
 
+	"github.com/akosgarai/projectregister/pkg/controller/response/components"
 	"github.com/akosgarai/projectregister/pkg/model"
 )
 
@@ -20,26 +21,16 @@ type RoleDetailResponse struct {
 
 // NewRoleDetailResponse is a constructor for the RoleDetailResponse struct.
 func NewRoleDetailResponse(currentUser *model.User, role *model.Role) *RoleDetailResponse {
-	header := &HeaderBlock{
-		Title:       "Role Detail",
-		CurrentUser: currentUser,
-		Buttons: []*ActionButton{
-			{
-				Label:     "Edit",
-				Link:      fmt.Sprintf("/admin/role/update/%d", role.ID),
-				Privilege: "roles.update",
-			},
-			{
-				Label:     "Delete",
-				Link:      fmt.Sprintf("/admin/role/delete/%d", role.ID),
-				Privilege: "roles.delete",
-			},
-			{
-				Label:     "List",
-				Link:      fmt.Sprintf("/admin/role/list"),
-				Privilege: "roles.view",
-			},
-		},
+	headerText := "Role Detail"
+	headerContent := components.NewContentHeader(headerText, []*components.Link{})
+	if currentUser.HasPrivilege("roles.update") {
+		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("Edit", fmt.Sprintf("/admin/role/update/%d", role.ID)))
+	}
+	if currentUser.HasPrivilege("roles.delete") {
+		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("Delete", fmt.Sprintf("/admin/role/delete/%d", role.ID)))
+	}
+	if currentUser.HasPrivilege("roles.view") {
+		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("List", "/admin/role/list"))
 	}
 	resourceValues := DetailValues{}
 	if len(role.Resources) > 0 {
@@ -56,7 +47,7 @@ func NewRoleDetailResponse(currentUser *model.User, role *model.Role) *RoleDetai
 	}
 	return &RoleDetailResponse{
 		RoleResponse: &RoleResponse{
-			Response: NewResponse("Role Detail", currentUser, header),
+			Response: NewResponse(headerText, currentUser, headerContent),
 			Role:     role,
 		},
 		Details: details,
@@ -75,7 +66,7 @@ func NewRoleFormResponse(title string, currentUser *model.User, role *model.Role
 	roleDetailResponse.Header.Title = title
 	roleDetailResponse.Title = title
 	// The buttons are unnecessary on the form page.
-	roleDetailResponse.Header.Buttons = []*ActionButton{{Label: "List", Link: fmt.Sprintf("/admin/role/list"), Privilege: "roles.view"}}
+	roleDetailResponse.Header.Buttons = []*components.Link{components.NewLink("List", "/admin/role/list")}
 	selectedOptions := SelectedOptions{}
 	for _, resource := range role.Resources {
 		if role.HasResource(resource.Name) {
@@ -102,16 +93,10 @@ type RoleListResponse struct {
 
 // NewRoleListResponse is a constructor for the RoleListResponse struct.
 func NewRoleListResponse(currentUser *model.User, roles *model.Roles) *RoleListResponse {
-	header := &HeaderBlock{
-		Title:       "Role List",
-		CurrentUser: currentUser,
-		Buttons: []*ActionButton{
-			{
-				Label:     "Create",
-				Link:      "/admin/role/create",
-				Privilege: "roles.create",
-			},
-		},
+	headerText := "Role List"
+	headerContent := components.NewContentHeader(headerText, []*components.Link{})
+	if currentUser.HasPrivilege("roles.create") {
+		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("Create", "/admin/role/create"))
 	}
 	listingHeader := &ListingHeader{
 		Headers: []string{"ID", "Name", "Actions"},
@@ -141,7 +126,7 @@ func NewRoleListResponse(currentUser *model.User, roles *model.Roles) *RoleListR
 	}
 
 	return &RoleListResponse{
-		Response: NewResponse("Role List", currentUser, header),
+		Response: NewResponse(headerText, currentUser, headerContent),
 		Listing:  &Listing{Header: listingHeader, Rows: &listingRows},
 	}
 }

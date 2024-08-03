@@ -3,6 +3,7 @@ package response
 import (
 	"fmt"
 
+	"github.com/akosgarai/projectregister/pkg/controller/response/components"
 	"github.com/akosgarai/projectregister/pkg/model"
 )
 
@@ -20,26 +21,16 @@ type RuntimeDetailResponse struct {
 
 // NewRuntimeDetailResponse is a constructor for the RuntimeDetailResponse struct.
 func NewRuntimeDetailResponse(currentUser *model.User, runtime *model.Runtime) *RuntimeDetailResponse {
-	header := &HeaderBlock{
-		Title:       "Runtime Detail",
-		CurrentUser: currentUser,
-		Buttons: []*ActionButton{
-			{
-				Label:     "Edit",
-				Link:      fmt.Sprintf("/admin/runtime/update/%d", runtime.ID),
-				Privilege: "runtimes.update",
-			},
-			{
-				Label:     "Delete",
-				Link:      fmt.Sprintf("/admin/runtime/delete/%d", runtime.ID),
-				Privilege: "runtimes.delete",
-			},
-			{
-				Label:     "List",
-				Link:      "/admin/runtime/list",
-				Privilege: "runtimes.view",
-			},
-		},
+	headerText := "Runtime Detail"
+	headerContent := components.NewContentHeader(headerText, []*components.Link{})
+	if currentUser.HasPrivilege("runtimes.update") {
+		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("Edit", fmt.Sprintf("/admin/runtime/update/%d", runtime.ID)))
+	}
+	if currentUser.HasPrivilege("runtimes.delete") {
+		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("Delete", fmt.Sprintf("/admin/runtime/delete/%d", runtime.ID)))
+	}
+	if currentUser.HasPrivilege("runtimes.view") {
+		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("List", "/admin/runtime/list"))
 	}
 	details := &DetailItems{
 		{Label: "ID", Value: &DetailValues{{Value: fmt.Sprintf("%d", runtime.ID)}}},
@@ -49,7 +40,7 @@ func NewRuntimeDetailResponse(currentUser *model.User, runtime *model.Runtime) *
 	}
 	return &RuntimeDetailResponse{
 		RuntimeResponse: &RuntimeResponse{
-			Response: NewResponse("Runtime Detail", currentUser, header),
+			Response: NewResponse(headerText, currentUser, headerContent),
 			Runtime:  runtime,
 		},
 		Details: details,
@@ -68,7 +59,7 @@ func NewRuntimeFormResponse(title string, currentUser *model.User, runtime *mode
 	runtimeDetailResponse.Header.Title = title
 	runtimeDetailResponse.Title = title
 	// The buttons are unnecessary on the form page.
-	runtimeDetailResponse.Header.Buttons = []*ActionButton{{Label: "List", Link: fmt.Sprintf("/admin/runtime/list"), Privilege: "runtimes.view"}}
+	runtimeDetailResponse.Header.Buttons = []*components.Link{components.NewLink("List", "/admin/runtime/list")}
 	formItems := []*FormItem{
 		// Name.
 		{Label: "Name", Type: "text", Name: "name", Value: runtime.Name, Required: true},
@@ -87,16 +78,10 @@ type RuntimeListResponse struct {
 
 // NewRuntimeListResponse is a constructor for the RuntimeListResponse struct.
 func NewRuntimeListResponse(currentUser *model.User, runtimes *model.Runtimes) *RuntimeListResponse {
-	header := &HeaderBlock{
-		Title:       "Runtime List",
-		CurrentUser: currentUser,
-		Buttons: []*ActionButton{
-			{
-				Label:     "Create",
-				Link:      "/admin/runtime/create",
-				Privilege: "runtimes.create",
-			},
-		},
+	headerText := "Runtime List"
+	headerContent := components.NewContentHeader(headerText, []*components.Link{})
+	if currentUser.HasPrivilege("runtimes.create") {
+		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("Create", "/admin/runtime/create"))
 	}
 	listingHeader := &ListingHeader{
 		Headers: []string{"ID", "Name", "Actions"},
@@ -125,7 +110,7 @@ func NewRuntimeListResponse(currentUser *model.User, runtimes *model.Runtimes) *
 		listingRows = append(listingRows, &ListingRow{Columns: &columns})
 	}
 	return &RuntimeListResponse{
-		Response: NewResponse("Runtime List", currentUser, header),
+		Response: NewResponse(headerText, currentUser, headerContent),
 		Listing:  &Listing{Header: listingHeader, Rows: &listingRows},
 	}
 }
