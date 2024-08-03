@@ -1,18 +1,10 @@
 package response
 
 import (
+	"github.com/akosgarai/projectregister/pkg/controller/response/components"
 	"github.com/akosgarai/projectregister/pkg/model"
 	"github.com/akosgarai/projectregister/pkg/resources"
 )
-
-// SideMenuItem is the struct for the side menu items.
-// It contains
-// - the label of the item
-// - the link.
-type SideMenuItem struct {
-	Label string
-	Link  string
-}
 
 // ActionButton is the struct for the action buttons.
 // It contains the label of the button and the link.
@@ -41,19 +33,16 @@ type HeaderBlock struct {
 type Response struct {
 	Title       string
 	CurrentUser *model.User
-	SideMenu    []*SideMenuItem
+	SideMenu    []*components.Link
 	Header      *HeaderBlock
 }
 
 // NewResponse is a constructor for the Response struct.
 func NewResponse(title string, user *model.User, header *HeaderBlock) *Response {
-	sideMenu := []*SideMenuItem{}
+	sideMenu := []*components.Link{}
 	for _, resource := range resources.Resources {
 		if user.HasPrivilege(resources.ResourcePrivileges[resource] + ".view") {
-			sideMenu = append(sideMenu, &SideMenuItem{
-				Label: resource,
-				Link:  "/admin/" + resource + "/list",
-			})
+			sideMenu = append(sideMenu, components.NewLink(resource, "/admin/"+resource+"/list"))
 		}
 	}
 
