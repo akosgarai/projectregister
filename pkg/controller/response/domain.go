@@ -29,27 +29,30 @@ func NewDomainDetailResponse(currentUser *model.User, domain *model.Domain) *Det
 	return NewDetailResponse(headerText, currentUser, headerContent, details)
 }
 
-// DomainFormResponse is the struct for the domain form responses.
-type DomainFormResponse struct {
-	*DetailResponse
-	FormItems []*FormItem
+// NewCreateDomainResponse is a constructor for the FormResponse struct for a domain.
+func NewCreateDomainResponse(currentUser *model.User) *FormResponse {
+	return newDomainFormResponse("Create Domain", currentUser, &model.Domain{}, "/admin/domain/create", "POST", "Create")
 }
 
-// NewDomainFormResponse is a constructor for the DomainFormResponse struct.
-func NewDomainFormResponse(title string, currentUser *model.User, domain *model.Domain) *DomainFormResponse {
-	domainDetailResponse := NewDomainDetailResponse(currentUser, domain)
-	domainDetailResponse.Header.Title = title
-	domainDetailResponse.Title = title
-	// The buttons are unnecessary on the form page.
-	domainDetailResponse.Header.Buttons = []*components.Link{components.NewLink("List", "/admin/domain/list")}
-	formItems := []*FormItem{
+// NewUpdateDomainResponse is a constructor for the FormResponse struct for a domain.
+func NewUpdateDomainResponse(currentUser *model.User, domain *model.Domain) *FormResponse {
+	return newDomainFormResponse("Update Domain", currentUser, domain, fmt.Sprintf("/admin/domain/update/%d", domain.ID), "POST", "Update")
+}
+
+// newDomainFormResponse is a constructor for the FormResponse struct for a domain.
+func newDomainFormResponse(title string, currentUser *model.User, domain *model.Domain, action, method, submitLabel string) *FormResponse {
+	headerContent := components.NewContentHeader(title, []*components.Link{components.NewLink("List", "/admin/domain/list")})
+	formItems := []*components.FormItem{
 		// Name.
-		{Label: "Name", Type: "text", Name: "name", Value: domain.Name, Required: true},
+		components.NewFormItem("Name", "name", "text", domain.Name, true, nil, nil),
 	}
-	return &DomainFormResponse{
-		DetailResponse: domainDetailResponse,
-		FormItems:      formItems,
+	form := &components.Form{
+		Items:  formItems,
+		Action: action,
+		Method: method,
+		Submit: submitLabel,
 	}
+	return NewFormResponse(title, currentUser, headerContent, form)
 }
 
 // NewDomainListResponse is a constructor for the ListingResponse struct of the domains.

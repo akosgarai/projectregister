@@ -58,12 +58,12 @@ func (c *Controller) ApplicationCreateViewController(w http.ResponseWriter, r *h
 		return
 	}
 	if r.Method == http.MethodGet {
-		content, errorMessage, err := c.createApplicationFormResponse("Application Create", currentUser, &model.Application{})
+		content, errorMessage, err := c.createApplicationFormResponse(currentUser, nil)
 		if errorMessage != "" {
 			c.renderer.Error(w, http.StatusInternalServerError, errorMessage, err)
 			return
 		}
-		err = c.renderer.Template.RenderTemplate(w, "application-create.html", content)
+		err = c.renderer.Template.RenderTemplate(w, "form-page.html", content)
 		if err != nil {
 			panic(err)
 		}
@@ -111,12 +111,12 @@ func (c *Controller) ApplicationUpdateViewController(w http.ResponseWriter, r *h
 	}
 
 	if r.Method == http.MethodGet {
-		content, errorMessage, err := c.createApplicationFormResponse("Application Update", currentUser, application)
+		content, errorMessage, err := c.createApplicationFormResponse(currentUser, application)
 		if errorMessage != "" {
 			c.renderer.Error(w, http.StatusInternalServerError, errorMessage, err)
 			return
 		}
-		err = c.renderer.Template.RenderTemplate(w, "application-update.html", content)
+		err = c.renderer.Template.RenderTemplate(w, "form-page.html", content)
 		if err != nil {
 			panic(err)
 		}
@@ -287,37 +287,41 @@ func (c *Controller) ApplicationMappingToEnvironmentFormController(w http.Respon
 }
 
 // It creates the content for the application forms.
-func (c *Controller) createApplicationFormResponse(title string, currentUser *model.User, application *model.Application) (*response.ApplicationFormResponse, string, error) {
+func (c *Controller) createApplicationFormResponse(currentUser *model.User, application *model.Application) (*response.FormResponse, string, error) {
 	runtimes, err := c.runtimeRepository.GetRuntimes()
 	if err != nil {
-		return &response.ApplicationFormResponse{}, ApplicationCreateFailedToGetRuntimesErrorMessage, err
+		return &response.FormResponse{}, ApplicationCreateFailedToGetRuntimesErrorMessage, err
 	}
 	pools, err := c.poolRepository.GetPools()
 	if err != nil {
-		return &response.ApplicationFormResponse{}, ApplicationCreateFailedToGetPoolsErrorMessage, err
+		return &response.FormResponse{}, ApplicationCreateFailedToGetPoolsErrorMessage, err
 	}
 	clients, err := c.clientRepository.GetClients()
 	if err != nil {
-		return &response.ApplicationFormResponse{}, ApplicationCreateFailedToGetClientsErrorMessage, err
+		return &response.FormResponse{}, ApplicationCreateFailedToGetClientsErrorMessage, err
 	}
 	projects, err := c.projectRepository.GetProjects()
 	if err != nil {
-		return &response.ApplicationFormResponse{}, ApplicationCreateFailedToGetProjectsErrorMessage, err
+		return &response.FormResponse{}, ApplicationCreateFailedToGetProjectsErrorMessage, err
 	}
 	environments, err := c.environmentRepository.GetEnvironments()
 	if err != nil {
-		return &response.ApplicationFormResponse{}, ApplicationCreateFailedToGetEnvironmentsErrorMessage, err
+		return &response.FormResponse{}, ApplicationCreateFailedToGetEnvironmentsErrorMessage, err
 	}
 	databases, err := c.databaseRepository.GetDatabases()
 	if err != nil {
-		return &response.ApplicationFormResponse{}, ApplicationCreateFailedToGetDatabasesErrorMessage, err
+		return &response.FormResponse{}, ApplicationCreateFailedToGetDatabasesErrorMessage, err
 	}
 	domains, err := c.domainRepository.GetFreeDomains()
 	if err != nil {
-		return &response.ApplicationFormResponse{}, ApplicationCreateFailedToGetDomainsErrorMessage, err
+		return &response.FormResponse{}, ApplicationCreateFailedToGetDomainsErrorMessage, err
 	}
 
-	return response.NewApplicationFormResponse(title, currentUser, application, clients, projects, environments, databases, runtimes, pools, domains), "", nil
+	if application == nil {
+		return response.NewCreateApplicationResponse(currentUser, clients, projects, environments, databases, runtimes, pools, domains), "", nil
+	}
+
+	return response.NewUpdateApplicationResponse(currentUser, application, clients, projects, environments, databases, runtimes, pools, domains), "", nil
 }
 
 // It validates the application form data. Returns the Application with the validated data, the domain ids, and an error message and error.

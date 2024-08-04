@@ -29,27 +29,30 @@ func NewProjectDetailResponse(currentUser *model.User, project *model.Project) *
 	return NewDetailResponse(headerText, currentUser, headerContent, details)
 }
 
-// ProjectFormResponse is the struct for the project form responses.
-type ProjectFormResponse struct {
-	*DetailResponse
-	FormItems []*FormItem
+// NewCreateProjectResponse is a constructor for the FormResponse struct for the project create page.
+func NewCreateProjectResponse(currentUser *model.User) *FormResponse {
+	return newProjectFormResponse("Create Project", currentUser, &model.Project{}, "/admin/project/create", "POST", "Create")
 }
 
-// NewProjectFormResponse is a constructor for the ProjectFormResponse struct.
-func NewProjectFormResponse(title string, currentUser *model.User, project *model.Project) *ProjectFormResponse {
-	projectDetailResponse := NewProjectDetailResponse(currentUser, project)
-	projectDetailResponse.Header.Title = title
-	projectDetailResponse.Title = title
-	// The buttons are unnecessary on the form page.
-	projectDetailResponse.Header.Buttons = []*components.Link{components.NewLink("List", "/admin/project/list")}
-	formItems := []*FormItem{
+// NewUpdateProjectResponse is a constructor for the FormResponse struct for the project update page.
+func NewUpdateProjectResponse(currentUser *model.User, project *model.Project) *FormResponse {
+	return newProjectFormResponse("Update Project", currentUser, project, fmt.Sprintf("/admin/project/update/%d", project.ID), "POST", "Update")
+}
+
+// NewProjectFormResponse is a constructor for the FormResponse struct for a project.
+func newProjectFormResponse(title string, currentUser *model.User, project *model.Project, action, method, submitLabel string) *FormResponse {
+	headerContent := components.NewContentHeader(title, []*components.Link{components.NewLink("List", "/admin/project/list")})
+	formItems := []*components.FormItem{
 		// Name.
-		{Label: "Name", Type: "text", Name: "name", Value: project.Name, Required: true},
+		components.NewFormItem("Name", "name", "text", project.Name, true, nil, nil),
 	}
-	return &ProjectFormResponse{
-		DetailResponse: projectDetailResponse,
-		FormItems:      formItems,
+	form := &components.Form{
+		Items:  formItems,
+		Action: action,
+		Method: method,
+		Submit: submitLabel,
 	}
+	return NewFormResponse(title, currentUser, headerContent, form)
 }
 
 // NewProjectListResponse is a constructor for the ListingResponse struct of the projects.

@@ -29,27 +29,30 @@ func NewDatabaseDetailResponse(currentUser *model.User, database *model.Database
 	return NewDetailResponse(headerText, currentUser, headerContent, details)
 }
 
-// DatabaseFormResponse is the struct for the database form responses.
-type DatabaseFormResponse struct {
-	*DetailResponse
-	FormItems []*FormItem
+// NewCreateDatabaseResponse is a constructor for the FormResponse struct for creating a database.
+func NewCreateDatabaseResponse(currentUser *model.User) *FormResponse {
+	return newDatabaseFormResponse("Create Database", currentUser, &model.Database{}, "/admin/database/create", "POST", "Create")
 }
 
-// NewDatabaseFormResponse is a constructor for the DatabaseFormResponse struct.
-func NewDatabaseFormResponse(title string, currentUser *model.User, database *model.Database) *DatabaseFormResponse {
-	databaseDetailResponse := NewDatabaseDetailResponse(currentUser, database)
-	databaseDetailResponse.Header.Title = title
-	databaseDetailResponse.Title = title
-	// The buttons are unnecessary on the form page.
-	databaseDetailResponse.Header.Buttons = []*components.Link{components.NewLink("List", "/admin/database/list")}
-	formItems := []*FormItem{
+// NewUpdateDatabaseResponse is a constructor for the FormResponse struct for updating a database.
+func NewUpdateDatabaseResponse(currentUser *model.User, database *model.Database) *FormResponse {
+	return newDatabaseFormResponse("Update Database", currentUser, database, fmt.Sprintf("/admin/database/update/%d", database.ID), "POST", "Update")
+}
+
+// newDatabaseFormResponse is a constructor for the FormResponse struct for a database.
+func newDatabaseFormResponse(title string, currentUser *model.User, database *model.Database, action, method, submitLabel string) *FormResponse {
+	headerContent := components.NewContentHeader(title, []*components.Link{components.NewLink("List", "/admin/database/list")})
+	formItems := []*components.FormItem{
 		// Name.
-		{Label: "Name", Type: "text", Name: "name", Value: database.Name, Required: true},
+		components.NewFormItem("Name", "name", "text", database.Name, true, nil, nil),
 	}
-	return &DatabaseFormResponse{
-		DetailResponse: databaseDetailResponse,
-		FormItems:      formItems,
+	form := &components.Form{
+		Items:  formItems,
+		Action: action,
+		Method: method,
+		Submit: submitLabel,
 	}
+	return NewFormResponse(title, currentUser, headerContent, form)
 }
 
 // NewDatabaseListResponse is a constructor for the ListingResponse struct of the databases.

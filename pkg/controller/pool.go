@@ -57,8 +57,8 @@ func (c *Controller) PoolCreateViewController(w http.ResponseWriter, r *http.Req
 		return
 	}
 	if r.Method == http.MethodGet {
-		content := response.NewPoolFormResponse("Pool Create", currentUser, &model.Pool{})
-		err := c.renderer.Template.RenderTemplate(w, "pool-create.html", content)
+		content := response.NewCreatePoolResponse(currentUser)
+		err := c.renderer.Template.RenderTemplate(w, "form-page.html", content)
 		if err != nil {
 			panic(err)
 		}
@@ -110,8 +110,8 @@ func (c *Controller) PoolUpdateViewController(w http.ResponseWriter, r *http.Req
 	}
 
 	if r.Method == http.MethodGet {
-		content := response.NewPoolFormResponse("Pool Update", currentUser, pool)
-		err = c.renderer.Template.RenderTemplate(w, "pool-update.html", content)
+		content := response.NewUpdatePoolResponse(currentUser, pool)
+		err = c.renderer.Template.RenderTemplate(w, "form-page.html", content)
 		if err != nil {
 			panic(err)
 		}

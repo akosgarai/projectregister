@@ -36,35 +36,38 @@ func NewRoleDetailResponse(currentUser *model.User, role *model.Role) *DetailRes
 	return NewDetailResponse(headerText, currentUser, headerContent, details)
 }
 
-// RoleFormResponse is the struct for the role form responses.
-type RoleFormResponse struct {
-	*DetailResponse
-	FormItems []*FormItem
+// NewCreateRoleResponse is a constructor for the FormResponse struct for creating a new role.
+func NewCreateRoleResponse(currentUser *model.User, resources *model.Resources) *FormResponse {
+	return newRoleFormResponse("Create Role", currentUser, &model.Role{}, resources, "/admin/role/create", "POST", "Create")
 }
 
-// NewRoleFormResponse is a constructor for the RoleFormResponse struct.
-func NewRoleFormResponse(title string, currentUser *model.User, role *model.Role, resources *model.Resources) *RoleFormResponse {
-	roleDetailResponse := NewRoleDetailResponse(currentUser, role)
-	roleDetailResponse.Header.Title = title
-	roleDetailResponse.Title = title
-	// The buttons are unnecessary on the form page.
-	roleDetailResponse.Header.Buttons = []*components.Link{components.NewLink("List", "/admin/role/list")}
-	selectedOptions := SelectedOptions{}
+// NewUpdateRoleResponse is a constructor for the FormResponse struct for updating a role.
+func NewUpdateRoleResponse(currentUser *model.User, role *model.Role, resources *model.Resources) *FormResponse {
+	return newRoleFormResponse("Update Role", currentUser, role, resources, fmt.Sprintf("/admin/role/update/%d", role.ID), "POST", "Update")
+}
+
+// newRoleFormResponse is a constructor for the FormResponse struct for a role.
+func newRoleFormResponse(title string, currentUser *model.User, role *model.Role, resources *model.Resources, action, method, submitLabel string) *FormResponse {
+	headerContent := components.NewContentHeader(title, []*components.Link{components.NewLink("List", "/admin/role/list")})
+	selectedOptions := []int64{}
 	for _, resource := range role.Resources {
 		if role.HasResource(resource.Name) {
 			selectedOptions = append(selectedOptions, resource.ID)
 		}
 	}
-	formItems := []*FormItem{
+	formItems := []*components.FormItem{
 		// Name.
-		{Label: "Name", Type: "text", Name: "name", Value: role.Name, Required: true},
+		components.NewFormItem("Name", "name", "text", role.Name, true, nil, nil),
 		// Resources.
-		{Label: "Resources", Type: "checkboxgroup", Name: "resources", Value: "", Required: true, Options: resources.ToMap(), SelectedOptions: selectedOptions},
+		components.NewFormItem("Resources", "resources", "checkboxgroup", "", true, resources.ToMap(), selectedOptions),
 	}
-	return &RoleFormResponse{
-		DetailResponse: roleDetailResponse,
-		FormItems:      formItems,
+	form := &components.Form{
+		Items:  formItems,
+		Action: action,
+		Method: method,
+		Submit: submitLabel,
 	}
+	return NewFormResponse(title, currentUser, headerContent, form)
 }
 
 // NewRoleListResponse is a constructor for the ListingResponse struct of the roles.

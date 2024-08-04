@@ -67,8 +67,8 @@ func (c *Controller) ServerCreateViewController(w http.ResponseWriter, r *http.R
 			c.renderer.Error(w, http.StatusInternalServerError, ServerCreateFailedToGetPoolsErrorMessage, err)
 			return
 		}
-		content := response.NewServerFormResponse("Server Create", currentUser, &model.Server{}, pools, runtimes)
-		err = c.renderer.Template.RenderTemplate(w, "server-create.html", content)
+		content := response.NewCreateServerResponse(currentUser, pools, runtimes)
+		err = c.renderer.Template.RenderTemplate(w, "form-page.html", content)
 		if err != nil {
 			panic(err)
 		}
@@ -151,8 +151,8 @@ func (c *Controller) ServerUpdateViewController(w http.ResponseWriter, r *http.R
 			c.renderer.Error(w, http.StatusInternalServerError, ServerCreateFailedToGetPoolsErrorMessage, err)
 			return
 		}
-		content := response.NewServerFormResponse("Server Update", currentUser, server, pools, runtimes)
-		err = c.renderer.Template.RenderTemplate(w, "server-update.html", content)
+		content := response.NewUpdateServerResponse(currentUser, server, pools, runtimes)
+		err = c.renderer.Template.RenderTemplate(w, "form-page.html", content)
 		if err != nil {
 			panic(err)
 		}

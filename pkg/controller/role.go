@@ -62,8 +62,8 @@ func (c *Controller) RoleCreateViewController(w http.ResponseWriter, r *http.Req
 			c.renderer.Error(w, http.StatusInternalServerError, RoleFailedToGetResourcesErrorMessage, err)
 			return
 		}
-		content := response.NewRoleFormResponse("Role Create", currentUser, &model.Role{}, resources)
-		err = c.renderer.Template.RenderTemplate(w, "role-create.html", content)
+		content := response.NewCreateRoleResponse(currentUser, resources)
+		err = c.renderer.Template.RenderTemplate(w, "form-page.html", content)
 		if err != nil {
 			panic(err)
 		}
@@ -131,8 +131,8 @@ func (c *Controller) RoleUpdateViewController(w http.ResponseWriter, r *http.Req
 			c.renderer.Error(w, http.StatusInternalServerError, RoleFailedToGetResourcesErrorMessage, err)
 			return
 		}
-		content := response.NewRoleFormResponse("Role Update", currentUser, role, resources)
-		err = c.renderer.Template.RenderTemplate(w, "role-update.html", content)
+		content := response.NewUpdateRoleResponse(currentUser, role, resources)
+		err = c.renderer.Template.RenderTemplate(w, "form-page.html", content)
 		if err != nil {
 			panic(err)
 		}

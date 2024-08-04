@@ -66,28 +66,17 @@ func NewListingResponse(title string, currentUser *model.User, header *component
 	}
 }
 
-// SelectedOptions is the struct for the selected options.
-type SelectedOptions []int64
-
-// IsSelected is a helper function to check if the option is selected.
-func (so SelectedOptions) IsSelected(option int64) bool {
-	for _, selected := range so {
-		if selected == option {
-			return true
-		}
-	}
-	return false
+// FormResponse is the struct for the form page.
+// It contains the response and the form items.
+type FormResponse struct {
+	*Response
+	Form *components.Form
 }
 
-// FormItem is the struct for the form items.
-type FormItem struct {
-	Label    string
-	Name     string
-	Type     string
-	Value    string
-	Required bool
-	// On case of select / checkbox group type we need the options.
-	Options map[int64]string
-	// selected options. for select / checkbox group.
-	SelectedOptions SelectedOptions
+// NewFormResponse is a constructor for the FormResponse struct.
+func NewFormResponse(title string, currentUser *model.User, header *components.ContentHeader, form *components.Form) *FormResponse {
+	return &FormResponse{
+		Response: NewResponse(title, currentUser, header),
+		Form:     form,
+	}
 }

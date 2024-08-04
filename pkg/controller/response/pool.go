@@ -29,27 +29,30 @@ func NewPoolDetailResponse(currentUser *model.User, pool *model.Pool) *DetailRes
 	return NewDetailResponse(headerText, currentUser, headerContent, details)
 }
 
-// PoolFormResponse is the struct for the pool form responses.
-type PoolFormResponse struct {
-	*DetailResponse
-	FormItems []*FormItem
+// NewCreatePoolResponse is a constructor for the FormResponse struct for creating a new pool.
+func NewCreatePoolResponse(currentUser *model.User) *FormResponse {
+	return newPoolFormResponse("Create Pool", currentUser, &model.Pool{}, "/admin/pool/create", "POST", "Create")
 }
 
-// NewPoolFormResponse is a constructor for the PoolFormResponse struct.
-func NewPoolFormResponse(title string, currentUser *model.User, pool *model.Pool) *PoolFormResponse {
-	poolDetailResponse := NewPoolDetailResponse(currentUser, pool)
-	poolDetailResponse.Header.Title = title
-	poolDetailResponse.Title = title
-	// The buttons are unnecessary on the form page.
-	poolDetailResponse.Header.Buttons = []*components.Link{components.NewLink("List", "/admin/pool/list")}
-	formItems := []*FormItem{
+// NewUpdatePoolResponse is a constructor for the FormResponse struct for updating a pool.
+func NewUpdatePoolResponse(currentUser *model.User, pool *model.Pool) *FormResponse {
+	return newPoolFormResponse("Update Pool", currentUser, pool, fmt.Sprintf("/admin/pool/update/%d", pool.ID), "POST", "Update")
+}
+
+// newPoolFormResponse is a constructor for the FormResponse struct for a pool.
+func newPoolFormResponse(title string, currentUser *model.User, pool *model.Pool, action, method, submitLabel string) *FormResponse {
+	headerContent := components.NewContentHeader(title, []*components.Link{components.NewLink("List", "/admin/pool/list")})
+	formItems := []*components.FormItem{
 		// Name.
-		{Label: "Name", Type: "text", Name: "name", Value: pool.Name, Required: true},
+		components.NewFormItem("Name", "name", "text", pool.Name, true, nil, nil),
 	}
-	return &PoolFormResponse{
-		DetailResponse: poolDetailResponse,
-		FormItems:      formItems,
+	form := &components.Form{
+		Items:  formItems,
+		Action: action,
+		Method: method,
+		Submit: submitLabel,
 	}
+	return NewFormResponse(title, currentUser, headerContent, form)
 }
 
 // NewPoolListResponse is a constructor for the ListingResponse struct of the pools.

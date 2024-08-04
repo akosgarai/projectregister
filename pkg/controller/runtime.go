@@ -57,8 +57,8 @@ func (c *Controller) RuntimeCreateViewController(w http.ResponseWriter, r *http.
 		return
 	}
 	if r.Method == http.MethodGet {
-		content := response.NewRuntimeFormResponse("Runtime Create", currentUser, &model.Runtime{})
-		err := c.renderer.Template.RenderTemplate(w, "runtime-create.html", content)
+		content := response.NewCreateRuntimeResponse(currentUser)
+		err := c.renderer.Template.RenderTemplate(w, "form-page.html", content)
 		if err != nil {
 			panic(err)
 		}
@@ -110,8 +110,8 @@ func (c *Controller) RuntimeUpdateViewController(w http.ResponseWriter, r *http.
 	}
 
 	if r.Method == http.MethodGet {
-		content := response.NewRuntimeFormResponse("Runtime Update", currentUser, runtime)
-		err = c.renderer.Template.RenderTemplate(w, "runtime-update.html", content)
+		content := response.NewUpdateRuntimeResponse(currentUser, runtime)
+		err = c.renderer.Template.RenderTemplate(w, "form-page.html", content)
 		if err != nil {
 			panic(err)
 		}

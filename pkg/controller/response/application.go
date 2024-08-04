@@ -58,16 +58,23 @@ func NewApplicationDetailResponse(user *model.User, app *model.Application) *Det
 	return NewDetailResponse(headerText, user, headerContent, details)
 }
 
-// ApplicationFormResponse is the struct for the application form responses.
-type ApplicationFormResponse struct {
-	*DetailResponse
-	FormItems []*FormItem
+// NewCreateApplicationResponse is a constructor for the FormResponse struct for the application create page.
+func NewCreateApplicationResponse(
+	currentUser *model.User,
+	clients *model.Clients,
+	projects *model.Projects,
+	envs *model.Environments,
+	dbs *model.Databases,
+	runtimes *model.Runtimes,
+	pools *model.Pools,
+	domains *model.Domains,
+) *FormResponse {
+	return newApplicationFormResponse("Create Application", currentUser, &model.Application{}, clients, projects, envs, dbs, runtimes, pools, domains, "/admin/application/create", "POST", "Create")
 }
 
-// NewApplicationFormResponse is a constructor for the ApplicationFormResponse struct.
-func NewApplicationFormResponse(
-	title string,
-	user *model.User,
+// NewUpdateApplicationResponse is a constructor for the FormResponse struct for the application update page.
+func NewUpdateApplicationResponse(
+	currentUser *model.User,
 	app *model.Application,
 	clients *model.Clients,
 	projects *model.Projects,
@@ -76,35 +83,45 @@ func NewApplicationFormResponse(
 	runtimes *model.Runtimes,
 	pools *model.Pools,
 	domains *model.Domains,
-) *ApplicationFormResponse {
-	appDetailResponse := NewApplicationDetailResponse(user, app)
-	appDetailResponse.Title = title
-	appDetailResponse.Header.Title = title
-	appDetailResponse.Header.Buttons = []*components.Link{components.NewLink("List", "/admin/application/list")}
-	selectedClients := SelectedOptions{}
-	selectedProjects := SelectedOptions{}
-	selectedEnvironments := SelectedOptions{}
-	selectedDatabases := SelectedOptions{}
-	selectedRuntimes := SelectedOptions{}
-	selectedPools := SelectedOptions{}
-	selectedDomains := SelectedOptions{}
+) *FormResponse {
+	return newApplicationFormResponse("Update Application", currentUser, app, clients, projects, envs, dbs, runtimes, pools, domains, fmt.Sprintf("/admin/application/update/%d", app.ID), "POST", "Update")
+}
+
+// NewApplicationFormResponse is a constructor for the ApplicationFormResponse struct.
+func newApplicationFormResponse(
+	title string,
+	currentUser *model.User,
+	app *model.Application,
+	clients *model.Clients,
+	projects *model.Projects,
+	envs *model.Environments,
+	dbs *model.Databases,
+	runtimes *model.Runtimes,
+	pools *model.Pools,
+	domains *model.Domains,
+	action, method, submitLabel string,
+) *FormResponse {
+	headerContent := components.NewContentHeader(title, []*components.Link{components.NewLink("List", "/admin/application/list")})
+
+	var selectedClients, selectedProjects, selectedEnvironments, selectedDatabases, selectedRuntimes, selectedPools, selectedDomains []int64
+
 	if app.Client != nil {
-		selectedClients = SelectedOptions{app.Client.ID}
+		selectedClients = []int64{app.Client.ID}
 	}
 	if app.Project != nil {
-		selectedProjects = SelectedOptions{app.Project.ID}
+		selectedProjects = []int64{app.Project.ID}
 	}
 	if app.Environment != nil {
-		selectedEnvironments = SelectedOptions{app.Environment.ID}
+		selectedEnvironments = []int64{app.Environment.ID}
 	}
 	if app.Database != nil {
-		selectedDatabases = SelectedOptions{app.Database.ID}
+		selectedDatabases = []int64{app.Database.ID}
 	}
 	if app.Runtime != nil {
-		selectedRuntimes = SelectedOptions{app.Runtime.ID}
+		selectedRuntimes = []int64{app.Runtime.ID}
 	}
 	if app.Pool != nil {
-		selectedPools = SelectedOptions{app.Pool.ID}
+		selectedPools = []int64{app.Pool.ID}
 	}
 	if app.Domains != nil {
 		for _, domain := range app.Domains {
@@ -115,38 +132,41 @@ func NewApplicationFormResponse(
 	for _, domain := range app.Domains {
 		*domains = append(*domains, domain)
 	}
-	formItems := []*FormItem{
+	formItems := []*components.FormItem{
 		// Client.
-		{Label: "Client", Type: "select", Name: "client", Options: clients.ToMap(), SelectedOptions: selectedClients, Required: true},
+		components.NewFormItem("Client", "client", "select", "", true, clients.ToMap(), selectedClients),
 		// Project.
-		{Label: "Project", Type: "select", Name: "project", Options: projects.ToMap(), SelectedOptions: selectedProjects, Required: true},
+		components.NewFormItem("Project", "project", "select", "", true, projects.ToMap(), selectedProjects),
 		// Environment.
-		{Label: "Environment", Type: "select", Name: "environment", Options: envs.ToMap(), SelectedOptions: selectedEnvironments, Required: true},
+		components.NewFormItem("Environment", "environment", "select", "", true, envs.ToMap(), selectedEnvironments),
 		// Database.
-		{Label: "Database", Type: "select", Name: "database", Options: dbs.ToMap(), SelectedOptions: selectedDatabases, Required: true},
+		components.NewFormItem("Database", "database", "select", "", true, dbs.ToMap(), selectedDatabases),
 		// DB Name.
-		{Label: "DB Name", Type: "text", Name: "db_name", Value: app.DBName, Required: true},
+		components.NewFormItem("DB Name", "db_name", "text", app.DBName, true, nil, nil),
 		// DB User.
-		{Label: "DB User", Type: "text", Name: "db_user", Value: app.DBUser, Required: true},
+		components.NewFormItem("DB User", "db_user", "text", app.DBUser, true, nil, nil),
 		// Runtime.
-		{Label: "Runtime", Type: "select", Name: "runtime", Options: runtimes.ToMap(), SelectedOptions: selectedRuntimes, Required: true},
+		components.NewFormItem("Runtime", "runtime", "select", "", true, runtimes.ToMap(), selectedRuntimes),
 		// Pool.
-		{Label: "Pool", Type: "select", Name: "pool", Options: pools.ToMap(), SelectedOptions: selectedPools, Required: true},
+		components.NewFormItem("Pool", "pool", "select", "", true, pools.ToMap(), selectedPools),
 		// Repo URL.
-		{Label: "Repository", Type: "text", Name: "repository", Value: app.Repository},
+		components.NewFormItem("Repository", "repository", "text", app.Repository, false, nil, nil),
 		// Branch.
-		{Label: "Branch", Type: "text", Name: "branch", Value: app.Branch},
+		components.NewFormItem("Branch", "branch", "text", app.Branch, false, nil, nil),
 		// Framework
-		{Label: "Framework", Type: "text", Name: "framework", Value: app.Framework},
+		components.NewFormItem("Framework", "framework", "text", app.Framework, false, nil, nil),
 		// Document root.
-		{Label: "Document Root", Type: "text", Name: "document_root", Value: app.DocumentRoot},
+		components.NewFormItem("Document Root", "document_root", "text", app.DocumentRoot, false, nil, nil),
 		// Domains.
-		{Label: "Domains", Type: "checkboxgroup", Name: "domains", Options: domains.ToMap(), SelectedOptions: selectedDomains},
+		components.NewFormItem("Domains", "domains", "checkboxgroup", "", false, domains.ToMap(), selectedDomains),
 	}
-	return &ApplicationFormResponse{
-		DetailResponse: appDetailResponse,
-		FormItems:      formItems,
+	form := &components.Form{
+		Method: method,
+		Action: action,
+		Items:  formItems,
+		Submit: submitLabel,
 	}
+	return NewFormResponse(title, currentUser, headerContent, form)
 }
 
 // NewApplicationListResponse is a constructor for the ListingResponse struct of the applications.

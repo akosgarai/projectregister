@@ -1,9 +1,5 @@
 package controller
 
-import (
-	"github.com/akosgarai/projectregister/pkg/resources"
-)
-
 // CacheTemplates builds the templates and stores them in templates.
 func (c *Controller) CacheTemplates() {
 
@@ -25,14 +21,10 @@ func (c *Controller) CacheTemplates() {
 	// Template for application import results
 	c.renderer.Template.AddTemplate("application-import-results.html", []string{headerTemplate, c.renderer.GetTemplateDirectoryPath() + "/application/import-results.html.tmpl"})
 
-	for _, resource := range resources.Resources {
-		// Template for the create.
-		c.renderer.Template.AddTemplate(resource+"-create.html", []string{headerTemplate, formItemsTemplate, c.renderer.GetTemplateDirectoryPath() + "/" + resource + "/create.html.tmpl"})
-		// Template for the update.
-		c.renderer.Template.AddTemplate(resource+"-update.html", []string{headerTemplate, formItemsTemplate, c.renderer.GetTemplateDirectoryPath() + "/" + resource + "/update.html.tmpl"})
-	}
 	// Template for the view.
 	c.renderer.Template.AddTemplate("detail-page.html", []string{headerTemplate, detailItemsTemplate})
 	// Template for the list.
 	c.renderer.Template.AddTemplate("listing-page.html", []string{headerTemplate, listingItemsTemplate})
+	// Template for the update.
+	c.renderer.Template.AddTemplate("form-page.html", []string{headerTemplate, formItemsTemplate})
 }

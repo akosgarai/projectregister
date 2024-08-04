@@ -57,8 +57,8 @@ func (c *Controller) ClientCreateViewController(w http.ResponseWriter, r *http.R
 		return
 	}
 	if r.Method == http.MethodGet {
-		content := response.NewClientFormResponse("Client Create", currentUser, &model.Client{})
-		err := c.renderer.Template.RenderTemplate(w, "client-create.html", content)
+		content := response.NewClientCreateResponse(currentUser)
+		err := c.renderer.Template.RenderTemplate(w, "form-page.html", content)
 		if err != nil {
 			panic(err)
 		}
@@ -110,8 +110,8 @@ func (c *Controller) ClientUpdateViewController(w http.ResponseWriter, r *http.R
 	}
 
 	if r.Method == http.MethodGet {
-		content := response.NewClientFormResponse("Client Update", currentUser, client)
-		err = c.renderer.Template.RenderTemplate(w, "client-update.html", content)
+		content := response.NewClientUpdateResponse(currentUser, client)
+		err = c.renderer.Template.RenderTemplate(w, "form-page.html", content)
 		if err != nil {
 			panic(err)
 		}

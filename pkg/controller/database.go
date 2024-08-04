@@ -57,8 +57,8 @@ func (c *Controller) DatabaseCreateViewController(w http.ResponseWriter, r *http
 		return
 	}
 	if r.Method == http.MethodGet {
-		content := response.NewDatabaseFormResponse("Database Create", currentUser, &model.Database{})
-		err := c.renderer.Template.RenderTemplate(w, "database-create.html", content)
+		content := response.NewCreateDatabaseResponse(currentUser)
+		err := c.renderer.Template.RenderTemplate(w, "form-page.html", content)
 		if err != nil {
 			panic(err)
 		}
@@ -110,8 +110,8 @@ func (c *Controller) DatabaseUpdateViewController(w http.ResponseWriter, r *http
 	}
 
 	if r.Method == http.MethodGet {
-		content := response.NewDatabaseFormResponse("Database Update", currentUser, database)
-		err = c.renderer.Template.RenderTemplate(w, "database-update.html", content)
+		content := response.NewUpdateDatabaseResponse(currentUser, database)
+		err = c.renderer.Template.RenderTemplate(w, "form-page.html", content)
 		if err != nil {
 			panic(err)
 		}

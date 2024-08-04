@@ -29,27 +29,32 @@ func NewClientDetailResponse(currentUser *model.User, client *model.Client) *Det
 	return NewDetailResponse(headerText, currentUser, headerContent, details)
 }
 
-// ClientFormResponse is the struct for the client form responses.
-type ClientFormResponse struct {
-	*DetailResponse
-	FormItems []*FormItem
+// newClientFormResponse is a constructor for the ClientFormResponse struct.
+func newClientFormResponse(title string, currentUser *model.User, client *model.Client, action, method, submitLabel string) *FormResponse {
+	headerContent := components.NewContentHeader(title, []*components.Link{components.NewLink("List", "/admin/client/list")})
+
+	formItems := []*components.FormItem{
+		// Name.
+		components.NewFormItem("Name", "name", "text", client.Name, true, nil, nil),
+	}
+	form := &components.Form{
+		Items:  formItems,
+		Action: action,
+		Method: method,
+		Submit: submitLabel,
+	}
+
+	return NewFormResponse(title, currentUser, headerContent, form)
 }
 
-// NewClientFormResponse is a constructor for the ClientFormResponse struct.
-func NewClientFormResponse(title string, currentUser *model.User, client *model.Client) *ClientFormResponse {
-	clientDetailResponse := NewClientDetailResponse(currentUser, client)
-	clientDetailResponse.Header.Title = title
-	clientDetailResponse.Title = title
-	// The buttons are unnecessary on the form page.
-	clientDetailResponse.Header.Buttons = []*components.Link{components.NewLink("List", "/admin/client/list")}
-	formItems := []*FormItem{
-		// Name.
-		{Label: "Name", Type: "text", Name: "name", Value: client.Name, Required: true},
-	}
-	return &ClientFormResponse{
-		DetailResponse: clientDetailResponse,
-		FormItems:      formItems,
-	}
+// NewClientCreateResponse is a constructor for the FormResponse struct for the client create page.
+func NewClientCreateResponse(currentUser *model.User) *FormResponse {
+	return newClientFormResponse("Create Client", currentUser, &model.Client{}, "/admin/client/create", "POST", "Create")
+}
+
+// NewClientUpdateResponse is a constructor for the FormResponse struct for the client update page.
+func NewClientUpdateResponse(currentUser *model.User, client *model.Client) *FormResponse {
+	return newClientFormResponse("Update Client", currentUser, client, fmt.Sprintf("/admin/client/update/%d", client.ID), "POST", "Update")
 }
 
 // NewClientListResponse is a constructor for the ListingResponse struct of the clients.

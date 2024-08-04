@@ -67,8 +67,8 @@ func (c *Controller) EnvironmentCreateViewController(w http.ResponseWriter, r *h
 			c.renderer.Error(w, http.StatusInternalServerError, EnvironmentCreateFailedToGetDatabasesErrorMessage, err)
 			return
 		}
-		content := response.NewEnvironmentFormResponse("Environment Create", currentUser, &model.Environment{}, servers, databases)
-		err = c.renderer.Template.RenderTemplate(w, "environment-create.html", content)
+		content := response.NewCreateEnvironmentResponse(currentUser, servers, databases)
+		err = c.renderer.Template.RenderTemplate(w, "form-page.html", content)
 		if err != nil {
 			panic(err)
 		}
@@ -152,8 +152,8 @@ func (c *Controller) EnvironmentUpdateViewController(w http.ResponseWriter, r *h
 			c.renderer.Error(w, http.StatusInternalServerError, EnvironmentUpdateFailedToGetDatabasesErrorMessage, err)
 			return
 		}
-		content := response.NewEnvironmentFormResponse("Environment Update", currentUser, environment, servers, databases)
-		err = c.renderer.Template.RenderTemplate(w, "environment-update.html", content)
+		content := response.NewUpdateEnvironmentResponse(currentUser, environment, servers, databases)
+		err = c.renderer.Template.RenderTemplate(w, "form-page.html", content)
 		if err != nil {
 			panic(err)
 		}

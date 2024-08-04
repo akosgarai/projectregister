@@ -29,27 +29,30 @@ func NewRuntimeDetailResponse(currentUser *model.User, runtime *model.Runtime) *
 	return NewDetailResponse(headerText, currentUser, headerContent, details)
 }
 
-// RuntimeFormResponse is the struct for the runtime form responses.
-type RuntimeFormResponse struct {
-	*DetailResponse
-	FormItems []*FormItem
+// NewCreateRuntimeResponse is a constructor for the FormResponse struct for creating a runtime.
+func NewCreateRuntimeResponse(currentUser *model.User) *FormResponse {
+	return newRuntimeFormResponse("Create Runtime", currentUser, &model.Runtime{}, "/admin/runtime/create", "POST", "Create")
 }
 
-// NewRuntimeFormResponse is a constructor for the RuntimeFormResponse struct.
-func NewRuntimeFormResponse(title string, currentUser *model.User, runtime *model.Runtime) *RuntimeFormResponse {
-	runtimeDetailResponse := NewRuntimeDetailResponse(currentUser, runtime)
-	runtimeDetailResponse.Header.Title = title
-	runtimeDetailResponse.Title = title
-	// The buttons are unnecessary on the form page.
-	runtimeDetailResponse.Header.Buttons = []*components.Link{components.NewLink("List", "/admin/runtime/list")}
-	formItems := []*FormItem{
+// NewUpdateRuntimeResponse is a constructor for the FormResponse struct for updating a runtime.
+func NewUpdateRuntimeResponse(currentUser *model.User, runtime *model.Runtime) *FormResponse {
+	return newRuntimeFormResponse("Update Runtime", currentUser, runtime, fmt.Sprintf("/admin/runtime/update/%d", runtime.ID), "POST", "Update")
+}
+
+// newRuntimeFormResponse is a constructor for the FormResponse struct for a runtime.
+func newRuntimeFormResponse(title string, currentUser *model.User, runtime *model.Runtime, action, method, submitLabel string) *FormResponse {
+	headerContent := components.NewContentHeader(title, []*components.Link{components.NewLink("List", "/admin/runtime/list")})
+	formItems := []*components.FormItem{
 		// Name.
-		{Label: "Name", Type: "text", Name: "name", Value: runtime.Name, Required: true},
+		components.NewFormItem("Name", "name", "text", runtime.Name, true, nil, nil),
 	}
-	return &RuntimeFormResponse{
-		DetailResponse: runtimeDetailResponse,
-		FormItems:      formItems,
+	form := &components.Form{
+		Items:  formItems,
+		Action: action,
+		Method: method,
+		Submit: submitLabel,
 	}
+	return NewFormResponse(title, currentUser, headerContent, form)
 }
 
 // NewRuntimeListResponse is a constructor for the ListingResponse struct of the runtimes.

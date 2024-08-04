@@ -57,8 +57,8 @@ func (c *Controller) DomainCreateViewController(w http.ResponseWriter, r *http.R
 		return
 	}
 	if r.Method == http.MethodGet {
-		content := response.NewDomainFormResponse("Domain Create", currentUser, &model.Domain{})
-		err := c.renderer.Template.RenderTemplate(w, "domain-create.html", content)
+		content := response.NewCreateDomainResponse(currentUser)
+		err := c.renderer.Template.RenderTemplate(w, "form-page.html", content)
 		if err != nil {
 			panic(err)
 		}
@@ -110,8 +110,8 @@ func (c *Controller) DomainUpdateViewController(w http.ResponseWriter, r *http.R
 	}
 
 	if r.Method == http.MethodGet {
-		content := response.NewDomainFormResponse("Domain Update", currentUser, domain)
-		err = c.renderer.Template.RenderTemplate(w, "domain-update.html", content)
+		content := response.NewUpdateDomainResponse(currentUser, domain)
+		err = c.renderer.Template.RenderTemplate(w, "form-page.html", content)
 		if err != nil {
 			panic(err)
 		}

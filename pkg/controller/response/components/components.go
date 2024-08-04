@@ -97,3 +97,61 @@ type Listing struct {
 	Header *ListingHeader
 	Rows   *ListingRows
 }
+
+// FormItemOption is the struct for the form item options.
+// It contains the value of the option.
+type FormItemOption struct {
+	Value    string
+	Selected bool
+}
+
+// FormItem is the struct for the form items.
+type FormItem struct {
+	Label    string
+	Name     string
+	Type     string
+	Value    string
+	Required bool
+	// On case of select / checkbox group type we need the options.
+	Options map[int64]*FormItemOption
+}
+
+// NewFormItem is a constructor for the FormItem struct.
+func NewFormItem(label, name, itemType, value string, required bool, options map[int64]string, selectedOptions []int64) *FormItem {
+	// convert the options to the FormItemOption
+	// and set the selected options.
+	formItemOptions := map[int64]*FormItemOption{}
+	if options != nil {
+		for key, value := range options {
+			isSelected := false
+			for _, selectedOption := range selectedOptions {
+				if selectedOption == key {
+					isSelected = true
+					break
+				}
+			}
+			formItemOptions[key] = &FormItemOption{
+				Value:    value,
+				Selected: isSelected,
+			}
+		}
+	}
+	return &FormItem{
+		Label:    label,
+		Name:     name,
+		Type:     itemType,
+		Value:    value,
+		Required: required,
+		Options:  formItemOptions,
+	}
+}
+
+// Form is the struct for a form.
+// It contains the form items.
+// Also contains the action, method, and the submit button text.
+type Form struct {
+	Items  []*FormItem
+	Action string
+	Method string
+	Submit string
+}

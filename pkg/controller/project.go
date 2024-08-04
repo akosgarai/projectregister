@@ -57,8 +57,8 @@ func (c *Controller) ProjectCreateViewController(w http.ResponseWriter, r *http.
 		return
 	}
 	if r.Method == http.MethodGet {
-		content := response.NewProjectFormResponse("Project Create", currentUser, &model.Project{})
-		err := c.renderer.Template.RenderTemplate(w, "project-create.html", content)
+		content := response.NewCreateProjectResponse(currentUser)
+		err := c.renderer.Template.RenderTemplate(w, "form-page.html", content)
 		if err != nil {
 			panic(err)
 		}
@@ -110,8 +110,8 @@ func (c *Controller) ProjectUpdateViewController(w http.ResponseWriter, r *http.
 	}
 
 	if r.Method == http.MethodGet {
-		content := response.NewProjectFormResponse("Project Update", currentUser, project)
-		err = c.renderer.Template.RenderTemplate(w, "project-update.html", content)
+		content := response.NewUpdateProjectResponse(currentUser, project)
+		err = c.renderer.Template.RenderTemplate(w, "form-page.html", content)
 		if err != nil {
 			panic(err)
 		}

@@ -45,21 +45,20 @@ func NewServerDetailResponse(currentUser *model.User, server *model.Server) *Det
 	return NewDetailResponse(headerText, currentUser, headerContent, details)
 }
 
-// ServerFormResponse is the struct for the server form responses.
-type ServerFormResponse struct {
-	*DetailResponse
-	FormItems []*FormItem
+// NewCreateServerResponse is a constructor for the FormResponse struct for creating a new server.
+func NewCreateServerResponse(currentUser *model.User, pools *model.Pools, runtimes *model.Runtimes) *FormResponse {
+	return newServerFormResponse("Create Server", currentUser, &model.Server{}, pools, runtimes, "/admin/server/create", "POST", "Create")
 }
 
-// NewServerFormResponse is a constructor for the ServerFormResponse struct.
-func NewServerFormResponse(title string, currentUser *model.User, server *model.Server, pools *model.Pools, runtimes *model.Runtimes) *ServerFormResponse {
-	serverDetailResponse := NewServerDetailResponse(currentUser, server)
-	serverDetailResponse.Header.Title = title
-	serverDetailResponse.Title = title
-	// The buttons are unnecessary on the form page.
-	serverDetailResponse.Header.Buttons = []*components.Link{components.NewLink("List", "/admin/server/list")}
-	selectedPools := SelectedOptions{}
-	selectedRuntimes := SelectedOptions{}
+// NewUpdateServerResponse is a constructor for the FormResponse struct for updating a server.
+func NewUpdateServerResponse(currentUser *model.User, server *model.Server, pools *model.Pools, runtimes *model.Runtimes) *FormResponse {
+	return newServerFormResponse("Update Server", currentUser, server, pools, runtimes, fmt.Sprintf("/admin/server/update/%d", server.ID), "POST", "Update")
+}
+
+// newServerFormResponse is a constructor for the FormResponse struct for a server.
+func newServerFormResponse(title string, currentUser *model.User, server *model.Server, pools *model.Pools, runtimes *model.Runtimes, action, method, submitLabel string) *FormResponse {
+	headerContent := components.NewContentHeader(title, []*components.Link{components.NewLink("List", "/admin/server/list")})
+	var selectedPools, selectedRuntimes []int64
 	if server.Pools != nil {
 		for _, pool := range server.Pools {
 			selectedPools = append(selectedPools, pool.ID)
@@ -70,22 +69,25 @@ func NewServerFormResponse(title string, currentUser *model.User, server *model.
 			selectedRuntimes = append(selectedRuntimes, runtime.ID)
 		}
 	}
-	formItems := []*FormItem{
+	formItems := []*components.FormItem{
 		// Name.
-		{Label: "Name", Type: "text", Name: "name", Value: server.Name, Required: true},
+		components.NewFormItem("Name", "name", "text", server.Name, true, nil, nil),
 		// Remote address.
-		{Label: "Remote Address", Type: "text", Name: "remote_address", Value: server.RemoteAddr, Required: true},
+		components.NewFormItem("Remote Address", "remote_address", "text", server.RemoteAddr, true, nil, nil),
 		// Description.
-		{Label: "Description", Type: "textarea", Name: "description", Value: server.Description, Required: false},
+		components.NewFormItem("Description", "description", "textarea", server.Description, false, nil, nil),
 		// Pool.
-		{Label: "Pool", Type: "checkboxgroup", Name: "pools", Options: pools.ToMap(), SelectedOptions: selectedPools},
+		components.NewFormItem("Pool", "pools", "checkboxgroup", "", true, pools.ToMap(), selectedPools),
 		// Runtime.
-		{Label: "Runtime", Type: "checkboxgroup", Name: "runtimes", Options: runtimes.ToMap(), SelectedOptions: selectedRuntimes},
+		components.NewFormItem("Runtime", "runtimes", "checkboxgroup", "", true, runtimes.ToMap(), selectedRuntimes),
 	}
-	return &ServerFormResponse{
-		DetailResponse: serverDetailResponse,
-		FormItems:      formItems,
+	form := &components.Form{
+		Items:  formItems,
+		Action: action,
+		Method: method,
+		Submit: submitLabel,
 	}
+	return NewFormResponse(title, currentUser, headerContent, form)
 }
 
 // NewServerListResponse is a constructor for the ListingResponse struct of the servers.

@@ -45,21 +45,20 @@ func NewEnvironmentDetailResponse(currentUser *model.User, environment *model.En
 	return NewDetailResponse(headerText, currentUser, headerContent, details)
 }
 
-// EnvironmentFormResponse is the struct for the environment form responses.
-type EnvironmentFormResponse struct {
-	*DetailResponse
-	FormItems []*FormItem
+// NewCreateEnvironmentResponse is a constructor for the FormResponse struct for creating a new environment.
+func NewCreateEnvironmentResponse(currentUser *model.User, servers *model.Servers, databases *model.Databases) *FormResponse {
+	return newEnvironmentFormResponse("Create Environment", currentUser, &model.Environment{}, servers, databases, "/admin/environment/create", "POST", "Create")
 }
 
-// NewEnvironmentFormResponse is a constructor for the EnvironmentFormResponse struct.
-func NewEnvironmentFormResponse(title string, currentUser *model.User, environment *model.Environment, servers *model.Servers, databases *model.Databases) *EnvironmentFormResponse {
-	environmentDetailResponse := NewEnvironmentDetailResponse(currentUser, environment)
-	environmentDetailResponse.Header.Title = title
-	environmentDetailResponse.Title = title
-	// The buttons are unnecessary on the form page.
-	environmentDetailResponse.Header.Buttons = []*components.Link{components.NewLink("List", "/admin/environment/list")}
-	selectedServers := SelectedOptions{}
-	selectedDatabases := SelectedOptions{}
+// NewUpdateEnvironmentResponse is a constructor for the FormResponse struct for updating an environment.
+func NewUpdateEnvironmentResponse(currentUser *model.User, environment *model.Environment, servers *model.Servers, databases *model.Databases) *FormResponse {
+	return newEnvironmentFormResponse("Update Environment", currentUser, environment, servers, databases, fmt.Sprintf("/admin/environment/update/%d", environment.ID), "POST", "Update")
+}
+
+// newEnvironmentFormResponse is a constructor for the FormResponse struct for an environment.
+func newEnvironmentFormResponse(title string, currentUser *model.User, environment *model.Environment, servers *model.Servers, databases *model.Databases, action, method, submitLabel string) *FormResponse {
+	headerContent := components.NewContentHeader(title, []*components.Link{components.NewLink("List", "/admin/environment/list")})
+	var selectedServers, selectedDatabases []int64
 	if environment.Servers != nil {
 		for _, server := range environment.Servers {
 			selectedServers = append(selectedServers, server.ID)
@@ -71,20 +70,23 @@ func NewEnvironmentFormResponse(title string, currentUser *model.User, environme
 		}
 	}
 
-	formItems := []*FormItem{
+	formItems := []*components.FormItem{
 		// Name.
-		{Label: "Name", Type: "text", Name: "name", Value: environment.Name, Required: true},
+		components.NewFormItem("Name", "name", "text", environment.Name, true, nil, nil),
 		// Description.
-		{Label: "Description", Type: "textarea", Name: "description", Value: environment.Description},
+		components.NewFormItem("Description", "description", "textarea", environment.Description, false, nil, nil),
 		// Servers.
-		{Label: "Servers", Type: "checkboxgroup", Name: "servers", Options: servers.ToMap(), SelectedOptions: selectedServers},
+		components.NewFormItem("Servers", "servers", "checkboxgroup", "", false, servers.ToMap(), selectedServers),
 		// Databases.
-		{Label: "Databases", Type: "checkboxgroup", Name: "databases", Options: databases.ToMap(), SelectedOptions: selectedDatabases},
+		components.NewFormItem("Databases", "databases", "checkboxgroup", "", false, databases.ToMap(), selectedDatabases),
 	}
-	return &EnvironmentFormResponse{
-		DetailResponse: environmentDetailResponse,
-		FormItems:      formItems,
+	form := &components.Form{
+		Items:  formItems,
+		Action: action,
+		Method: method,
+		Submit: submitLabel,
 	}
+	return NewFormResponse(title, currentUser, headerContent, form)
 }
 
 // NewEnvironmentListResponse is a constructor for the ListingResponse struct of the environments.

@@ -75,8 +75,8 @@ func (c *Controller) UserCreateViewController(w http.ResponseWriter, r *http.Req
 			c.renderer.Error(w, http.StatusInternalServerError, UserFailedToGetRolesErrorMessage, err)
 			return
 		}
-		content := response.NewUserFormResponse("User Create", currentUser, &model.User{}, roles)
-		err = c.renderer.Template.RenderTemplate(w, "user-create.html", content)
+		content := response.NewCreateUserResponse(currentUser, roles)
+		err = c.renderer.Template.RenderTemplate(w, "form-page.html", content)
 		if err != nil {
 			panic(err)
 		}
@@ -181,8 +181,8 @@ func (c *Controller) UserUpdateViewController(w http.ResponseWriter, r *http.Req
 			c.renderer.Error(w, http.StatusInternalServerError, UserFailedToGetRolesErrorMessage, err)
 			return
 		}
-		content := response.NewUserFormResponse("User Update", currentUser, user, roles)
-		err = c.renderer.Template.RenderTemplate(w, "user-update.html", content)
+		content := response.NewUpdateUserResponse(currentUser, user, roles)
+		err = c.renderer.Template.RenderTemplate(w, "form-page.html", content)
 		if err != nil {
 			panic(err)
 		}

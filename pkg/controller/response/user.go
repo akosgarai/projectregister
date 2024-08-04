@@ -34,47 +34,42 @@ func NewUserDetailResponse(currentUser, user *model.User) *DetailResponse {
 	return NewDetailResponse(headerText, currentUser, headerContent, details)
 }
 
-// UserFormResponse is the struct for the user form responses.
-type UserFormResponse struct {
-	*DetailResponse
-	FormItems []*FormItem
+// NewCreateUserResponse is a constructor for the FormResponse struct for the user create page.
+func NewCreateUserResponse(currentUser *model.User, roles *model.Roles) *FormResponse {
+	return newUserFormResponse("Create User", currentUser, &model.User{}, roles, "/admin/user/create", "POST", "Create")
 }
 
-// NewUserFormResponse is a constructor for the UserFormResponse struct.
-func NewUserFormResponse(title string, currentUser, user *model.User, roles *model.Roles) *UserFormResponse {
-	userDetailResponse := NewUserDetailResponse(currentUser, user)
-	userDetailResponse.Header.Title = title
-	userDetailResponse.Title = title
-	// The buttons are unnecessary on the form page.
-	userDetailResponse.Header.Buttons = []*components.Link{components.NewLink("List", "/admin/user/list")}
+// NewUpdateUserResponse is a constructor for the FormResponse struct for the user update page.
+func NewUpdateUserResponse(currentUser, user *model.User, roles *model.Roles) *FormResponse {
+	return newUserFormResponse("Update User", currentUser, user, roles, fmt.Sprintf("/admin/user/update/%d", user.ID), "POST", "Update")
+}
+
+// newUserFormResponse is a constructor for the FormResponse struct for a user.
+func newUserFormResponse(title string, currentUser, user *model.User, roles *model.Roles, action, method, submitLabel string) *FormResponse {
+	headerContent := components.NewContentHeader(title, []*components.Link{components.NewLink("List", "/admin/user/list")})
 	roleID := ""
-	selectedOptions := SelectedOptions{0}
+	selectedOptions := []int64{0}
 	if user.Role != nil && user.Role.ID > 0 {
 		roleID = fmt.Sprintf("%d", user.Role.ID)
 		selectedOptions[0] = user.Role.ID
 	}
-	formItems := []*FormItem{
+	formItems := []*components.FormItem{
 		// Name.
-		{Label: "Name", Type: "text", Name: "name", Value: user.Name, Required: true},
+		components.NewFormItem("Name", "name", "text", user.Name, true, nil, nil),
 		// Email.
-		{Label: "Email", Type: "email", Name: "email", Value: user.Email, Required: true},
+		components.NewFormItem("Email", "email", "email", user.Email, true, nil, nil),
 		// Password.
-		{Label: "Password", Type: "password", Name: "password", Value: "", Required: false},
+		components.NewFormItem("Password", "password", "password", "", false, nil, nil),
 		// Roles.
-		{
-			Label:           "Role",
-			Name:            "role",
-			Type:            "select",
-			Value:           roleID,
-			Required:        true,
-			Options:         roles.ToMap(),
-			SelectedOptions: selectedOptions,
-		},
+		components.NewFormItem("Role", "role", "select", roleID, true, roles.ToMap(), selectedOptions),
 	}
-	return &UserFormResponse{
-		DetailResponse: userDetailResponse,
-		FormItems:      formItems,
+	form := &components.Form{
+		Items:  formItems,
+		Action: action,
+		Method: method,
+		Submit: submitLabel,
 	}
+	return NewFormResponse(title, currentUser, headerContent, form)
 }
 
 // NewUserListResponse is a constructor for the ListingResponse struct of the users.
