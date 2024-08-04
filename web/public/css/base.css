@@ -264,3 +264,34 @@ thead tr {
 	line-height: 28px;
 	box-sizing: border-box;
 }
+
+/* Detail Page */
+.details {
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+}
+.detail {
+	width: 100%;
+	display: flex;
+	flex-direction: row;
+	gap: 30px;
+}
+.detail > div {
+	padding: 10px;
+}
+
+.detail .label {
+	font-weight: bold;
+	width: 20%;
+}
+
+.detail .value {
+	width: 100%;
+}
+
+.detail .list {
+	max-height: 300px;
+	overflow-y: auto;
+	width: 100%;
+}

@@ -1,9 +1,10 @@
 {{define "content"}}
-<div>
+<div class="details">
 	{{range .Details}}
-		<div>
-			<label>{{.Label}}</label>
+		<div class="detail">
+			<div class="label">{{.Label}}</div>
 			{{if gt (len .Value) 1}}
+			<div class="list">
 				<ul>
 					{{range .Value}}
 						<li>
@@ -15,7 +16,9 @@
 						</li>
 					{{end}}
 				</ul>
+			</div>
 			{{else}}
+			<div class="value">
 				{{range .Value}}
 					<p>
 						{{if .Link}}
@@ -25,6 +28,7 @@
 						{{end}}
 					</p>
 				{{end}}
+			</div>
 			{{end}}
 		</div>
 	{{end}}
