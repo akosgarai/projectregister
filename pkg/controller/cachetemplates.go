@@ -14,11 +14,6 @@ func (c *Controller) CacheTemplates() {
 	// Template for the dashboard.
 	c.renderer.Template.AddTemplate("dashboard.html", []string{headerTemplate, c.renderer.GetTemplateDirectoryPath() + "/dashboard/index.html.tmpl"})
 
-	// Template for application mapping
-	c.renderer.Template.AddTemplate("application-mapping.html", []string{headerTemplate, c.renderer.GetTemplateDirectoryPath() + "/application/mapping.html.tmpl"})
-	// Template for application import results
-	c.renderer.Template.AddTemplate("application-import-results.html", []string{headerTemplate, c.renderer.GetTemplateDirectoryPath() + "/application/import-results.html.tmpl"})
-
 	// Template for the view.
 	c.renderer.Template.AddTemplate("detail-page.html", []string{headerTemplate, detailItemsTemplate})
 	// Template for the list.

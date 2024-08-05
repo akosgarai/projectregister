@@ -108,11 +108,11 @@ func NewEnvironmentListResponse(currentUser *model.User, environments *model.Env
 	userCanDelete := currentUser.HasPrivilege("environments.delete")
 	for _, environment := range *environments {
 		columns := components.ListingColumns{}
-		idColumn := &components.ListingColumn{&components.ListingColumnValues{{Value: fmt.Sprintf("%d", environment.ID)}}}
+		idColumn := &components.ListingColumn{Values: &components.ListingColumnValues{{Value: fmt.Sprintf("%d", environment.ID)}}}
 		columns = append(columns, idColumn)
-		nameColumn := &components.ListingColumn{&components.ListingColumnValues{{Value: environment.Name}}}
+		nameColumn := &components.ListingColumn{Values: &components.ListingColumnValues{{Value: environment.Name}}}
 		columns = append(columns, nameColumn)
-		desctiptionColumn := &components.ListingColumn{&components.ListingColumnValues{{Value: environment.Description}}}
+		desctiptionColumn := &components.ListingColumn{Values: &components.ListingColumnValues{{Value: environment.Description}}}
 		columns = append(columns, desctiptionColumn)
 		actionsColumn := components.ListingColumn{&components.ListingColumnValues{
 			{Value: "View", Link: fmt.Sprintf("/admin/environment/view/%d", environment.ID)},

@@ -9,6 +9,7 @@ import (
 
 	"github.com/akosgarai/projectregister/pkg/controller/response"
 	"github.com/akosgarai/projectregister/pkg/model"
+	"github.com/akosgarai/projectregister/pkg/parser"
 )
 
 // ApplicationViewController is the controller for the application view page.
@@ -279,7 +280,7 @@ func (c *Controller) ApplicationMappingToEnvironmentFormController(w http.Respon
 			return
 		}
 		content := response.NewApplicationImportToEnvironmentListResponse(currentUser, environment, fileName, results)
-		err = c.renderer.Template.RenderTemplate(w, "application-import-results.html", content)
+		err = c.renderer.Template.RenderTemplate(w, "listing-page.html", content)
 		if err != nil {
 			panic(err)
 		}
@@ -412,36 +413,51 @@ func (c *Controller) storeImportCSVFile(r *http.Request) (string, error) {
 
 // importApplicationToEnvironment imports the applications to the environment.
 // It returns the results and an error.
-func (c *Controller) importApplicationToEnvironment(environmentID int64, fileName string) (map[int]*response.ApplicationImportRowResult, error) {
+func (c *Controller) importApplicationToEnvironment(environmentID int64, fileName string) (*parser.ApplicationImportResult, error) {
+	results := parser.NewApplicationImportResult()
 	// get the file content
-	results := map[int]*response.ApplicationImportRowResult{}
 	csvData, err := c.csvStorage.Read(fileName + ".csv")
 	if err != nil {
-		return results, err
+		return &results, err
 	}
+	mappingRules := parser.NewApplicationImportMapping()
+	mappingRules["client"].ColumnIndex = 0
+	mappingRules["project"].ColumnIndex = 1
+	mappingRules["domains"].ColumnIndex = 3
+	mappingRules["runtime"].ColumnIndex = 5
+	mappingRules["pool"].ColumnIndex = 6
+	mappingRules["framework"].ColumnIndex = 4
+	mappingRules["database"].ColumnIndex = 7
+	mappingRules["database_name"].ColumnIndex = 8
+	mappingRules["database_user"].ColumnIndex = 9
+	mappingRules["doc_root"].ColumnIndex = 10
+	mappingRules["repository"].ColumnIndex = 11
+	mappingRules["branch"].ColumnIndex = 12
+
 	// parse the file content every line represents an application
 	for rowIndex, line := range csvData {
+		importRow := mappingRules.MapRow(line)
 		// set the response to empty string. it means process went well
-		results[rowIndex] = &response.ApplicationImportRowResult{ErrorMessage: "", RowData: line, Application: nil}
-		clientName := line[0]
-		projectName := line[1]
-		runtimeName := line[5]
-		poolName := line[6]
-		databaseTypeName := line[7]
+		results[rowIndex] = importRow
+		clientName := importRow.RowData["client"]
+		projectName := importRow.RowData["project"]
+		runtimeName := importRow.RowData["runtime"]
+		poolName := importRow.RowData["pool"]
+		databaseTypeName := importRow.RowData["database"]
 
-		domainsRaw := line[3]
-		framework := line[4]
-		databaseName := line[8]
+		domainsRaw := importRow.RowData["domains"]
+		framework := importRow.RowData["framework"]
+		databaseName := importRow.RowData["database_name"]
 		if databaseName == "-" {
 			databaseName = ""
 		}
-		databaseUser := line[9]
+		databaseUser := importRow.RowData["database_user"]
 		if databaseUser == "-" {
 			databaseUser = ""
 		}
-		docRoot := line[10]
-		repository := line[11]
-		branch := line[12]
+		docRoot := importRow.RowData["doc_root"]
+		repository := importRow.RowData["repository"]
+		branch := importRow.RowData["branch"]
 
 		// if the client name does not exist, create it
 		client, err := c.clientRepository.GetClientByName(clientName)
@@ -529,5 +545,5 @@ func (c *Controller) importApplicationToEnvironment(environmentID int64, fileNam
 		currentData.Application = app
 		results[rowIndex] = currentData
 	}
-	return results, nil
+	return &results, nil
 }

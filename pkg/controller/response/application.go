@@ -5,6 +5,7 @@ import (
 
 	"github.com/akosgarai/projectregister/pkg/controller/response/components"
 	"github.com/akosgarai/projectregister/pkg/model"
+	"github.com/akosgarai/projectregister/pkg/parser"
 )
 
 // NewApplicationDetailResponse is a constructor for the DetailResponse struct for an application.
@@ -294,7 +295,7 @@ func NewApplicationMappingToEnvironmentFormResponse(currentUser *model.User, env
 	}
 	form := &components.Form{
 		Items:     formItems,
-		Action:    fmt.Sprintf("/admin/application/import-to-environment/%d", env.ID),
+		Action:    fmt.Sprintf("/admin/application/mapping-to-environment/%d/%s", env.ID, fileID),
 		Method:    "POST",
 		Submit:    "Upload",
 		Multipart: true,
@@ -302,29 +303,43 @@ func NewApplicationMappingToEnvironmentFormResponse(currentUser *model.User, env
 	return NewFormResponse(headerText, currentUser, headerContent, form)
 }
 
-// ApplicationImportRowResult is the struct for the application import row results.
-type ApplicationImportRowResult struct {
-	ErrorMessage string
-	RowData      []string
-	Application  *model.Application
-}
-
-// ApplicationImportToEnvironmentListResponse is the struct for the import application to environment list page.
-type ApplicationImportToEnvironmentListResponse struct {
-	*Response
-	Environment *model.Environment
-	FileID      string
-	Result      map[int]*ApplicationImportRowResult
-}
-
 // NewApplicationImportToEnvironmentListResponse is a constructor for the ApplicationImportToEnvironmentListResponse struct.
-func NewApplicationImportToEnvironmentListResponse(user *model.User, env *model.Environment, fileID string, result map[int]*ApplicationImportRowResult) *ApplicationImportToEnvironmentListResponse {
+func NewApplicationImportToEnvironmentListResponse(currentUser *model.User, env *model.Environment, fileID string, result *parser.ApplicationImportResult) *ListingResponse {
 	headerText := "Import Application to Environment"
-	header := components.NewContentHeader(headerText, []*components.Link{})
-	return &ApplicationImportToEnvironmentListResponse{
-		Response:    NewResponse(headerText, user, header),
-		Environment: env,
-		FileID:      fileID,
-		Result:      result,
+	headerContent := components.NewContentHeader(headerText, []*components.Link{})
+	listingHeader := &components.ListingHeader{
+		Headers: []string{"Client", "Project", "Database", "Runtime", "Pool", "Codebase", "Framework", "Document Root", "Domains", "Status"},
 	}
+	// create the rows
+	listingRows := components.ListingRows{}
+	for _, row := range *result {
+		columns := components.ListingColumns{}
+		columns = append(columns, &components.ListingColumn{Values: &components.ListingColumnValues{{Value: row.RowData["client"]}}})
+		columns = append(columns, &components.ListingColumn{Values: &components.ListingColumnValues{{Value: row.RowData["project"]}}})
+		databaseText := row.RowData["database"]
+		if row.RowData["db_name"] != "" {
+			databaseText = fmt.Sprintf("%s %s / %s", row.RowData["database"], row.RowData["db_user"], row.RowData["db_name"])
+		}
+		columns = append(columns, &components.ListingColumn{Values: &components.ListingColumnValues{{Value: databaseText}}})
+		columns = append(columns, &components.ListingColumn{Values: &components.ListingColumnValues{{Value: row.RowData["runtime"]}}})
+		columns = append(columns, &components.ListingColumn{Values: &components.ListingColumnValues{{Value: row.RowData["pool"]}}})
+		codebaseText := row.RowData["repository"]
+		if row.RowData["branch"] != "" {
+			codebaseText = fmt.Sprintf("%s (%s)", row.RowData["repository"], row.RowData["branch"])
+		}
+		columns = append(columns, &components.ListingColumn{Values: &components.ListingColumnValues{{Value: codebaseText}}})
+		columns = append(columns, &components.ListingColumn{Values: &components.ListingColumnValues{{Value: row.RowData["framework"]}}})
+		columns = append(columns, &components.ListingColumn{Values: &components.ListingColumnValues{{Value: row.RowData["doc_root"]}}})
+		columns = append(columns, &components.ListingColumn{Values: &components.ListingColumnValues{{Value: row.RowData["domains"]}}})
+		statusText := ""
+		if row.Application != nil {
+			statusText = "OK"
+		} else {
+			statusText = row.ErrorMessage
+		}
+		columns = append(columns, &components.ListingColumn{Values: &components.ListingColumnValues{{Value: statusText}}})
+
+		listingRows = append(listingRows, &components.ListingRow{Columns: &columns})
+	}
+	return NewListingResponse(headerText, currentUser, headerContent, &components.Listing{Header: listingHeader, Rows: &listingRows})
 }
