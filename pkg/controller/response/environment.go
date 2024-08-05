@@ -20,6 +20,9 @@ func NewEnvironmentDetailResponse(currentUser *model.User, environment *model.En
 	if currentUser.HasPrivilege("environments.view") {
 		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("List", "/admin/environment/list"))
 	}
+	if currentUser.HasPrivilege("applications.create") {
+		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("Import Applications", fmt.Sprintf("/admin/application/import-to-environment/%d", environment.ID)))
+	}
 	serverValues := components.DetailValues{}
 	if environment.Servers != nil {
 		for _, server := range environment.Servers {

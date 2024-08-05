@@ -14,8 +14,6 @@ func (c *Controller) CacheTemplates() {
 	// Template for the dashboard.
 	c.renderer.Template.AddTemplate("dashboard.html", []string{headerTemplate, c.renderer.GetTemplateDirectoryPath() + "/dashboard/index.html.tmpl"})
 
-	// Template for application import
-	c.renderer.Template.AddTemplate("application-import.html", []string{headerTemplate, c.renderer.GetTemplateDirectoryPath() + "/application/import.html.tmpl"})
 	// Template for application mapping
 	c.renderer.Template.AddTemplate("application-mapping.html", []string{headerTemplate, c.renderer.GetTemplateDirectoryPath() + "/application/mapping.html.tmpl"})
 	// Template for application import results

@@ -263,20 +263,25 @@ func NewApplicationListResponse(user *model.User, apps *model.Applications) *Lis
 	return NewListingResponse(headerText, user, headerContent, &components.Listing{Header: listingHeader, Rows: &listingRows})
 }
 
-// ApplicationImportToEnvironmentFormResponse is the struct for the import application to environment form responses.
-type ApplicationImportToEnvironmentFormResponse struct {
-	*Response
-	Environment *model.Environment
-}
-
 // NewApplicationImportToEnvironmentFormResponse is a constructor for the ApplicationImportToEnvironmentFormResponse struct.
-func NewApplicationImportToEnvironmentFormResponse(user *model.User, env *model.Environment) *ApplicationImportToEnvironmentFormResponse {
+func NewApplicationImportToEnvironmentFormResponse(currentUser *model.User, env *model.Environment) *FormResponse {
 	headerText := "Import Application to Environment"
-	header := components.NewContentHeader(headerText, []*components.Link{})
-	return &ApplicationImportToEnvironmentFormResponse{
-		Response:    NewResponse(headerText, user, header),
-		Environment: env,
+	headerContent := components.NewContentHeader(headerText, []*components.Link{})
+	checkboxOptions := map[int64]string{
+		1: "Yes",
 	}
+	formItems := []*components.FormItem{
+		components.NewFormItem("File", "file", "file", "", true, nil, nil),
+		components.NewFormItem("Has Header", "has_header", "checkboxgroup", "true", false, checkboxOptions, nil),
+	}
+	form := &components.Form{
+		Items:     formItems,
+		Action:    fmt.Sprintf("/admin/application/import-to-environment/%d", env.ID),
+		Method:    "POST",
+		Submit:    "Upload",
+		Multipart: true,
+	}
+	return NewFormResponse(headerText, currentUser, headerContent, form)
 }
 
 // ApplicationMappingToEnvironmentFormResponse is the struct for the mapping application to environment form responses.

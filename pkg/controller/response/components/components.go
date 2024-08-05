@@ -154,4 +154,6 @@ type Form struct {
 	Action string
 	Method string
 	Submit string
+
+	Multipart bool
 }
