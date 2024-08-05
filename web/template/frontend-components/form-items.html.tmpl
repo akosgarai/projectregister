@@ -2,7 +2,9 @@
 <form action="{{.Form.Action}}" method="{{.Form.Method}}" {{if .Form.Multipart }}enctype="multipart/form-data"{{end}}>
 	{{ range .Form.Items }}
 		<div class="form-group">
+		{{if ne .Label ""}}
 			<label for="{{.Name}}">{{.Label}}</label>
+		{{end}}
 			{{if eq .Type "text"}}
 				<input type="{{.Type}}" class="form-control" id="{{.Name}}" name="{{.Name}}" placeholder="{{.Label}}" value="{{.Value}}" {{if eq .Required true}}required{{end}} >
 			{{else if eq .Type "email"}}
@@ -11,6 +13,8 @@
 				<input type="{{.Type}}" class="form-control" id="{{.Name}}" name="{{.Name}}" {{if eq .Required true}}required{{end}} >
 			{{else if eq .Type "file"}}
 				<input type="{{.Type}}" class="form-control" id="{{.Name}}" name="{{.Name}}" {{if eq .Required true}}required{{end}} >
+			{{else if eq .Type "hidden"}}
+				<input type="{{.Type}}" class="form-control" name="{{.Name}}" value="{{.Value}}" >
 			{{else if eq .Type "textarea"}}
 				<textarea class="form-control" id="{{.Name}}" name="{{.Name}}" placeholder="{{.Label}}" {{if eq .Required true}}required{{end}} >{{.Value}}</textarea>
 			{{else if eq .Type "select"}}

@@ -1,8 +1,0 @@
-{{define "content"}}
-	<form action="/admin/application/mapping-to-environment/{{.Environment.ID}}/{{.FileID}}" method="post" enctype="multipart/form-data">
-		<input type="hidden" name="environment_id" value="{{.Environment.ID}}"/>
-		<input type="hidden" name="file_id" value="{{.FileID}}"/>
-		<p>Mapping form goes here</p>
-		<button type="submit" class="btn btn-primary">Upload</button>
-	</form>
-{{end}}

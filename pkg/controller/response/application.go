@@ -271,7 +271,7 @@ func NewApplicationImportToEnvironmentFormResponse(currentUser *model.User, env 
 		1: "Yes",
 	}
 	formItems := []*components.FormItem{
-		components.NewFormItem("File", "file", "file", "", true, nil, nil),
+		components.NewFormItem("CSV File", "csvfile", "file", "", true, nil, nil),
 		components.NewFormItem("Has Header", "has_header", "checkboxgroup", "true", false, checkboxOptions, nil),
 	}
 	form := &components.Form{
@@ -284,22 +284,22 @@ func NewApplicationImportToEnvironmentFormResponse(currentUser *model.User, env 
 	return NewFormResponse(headerText, currentUser, headerContent, form)
 }
 
-// ApplicationMappingToEnvironmentFormResponse is the struct for the mapping application to environment form responses.
-type ApplicationMappingToEnvironmentFormResponse struct {
-	*Response
-	Environment *model.Environment
-	FileID      string
-}
-
 // NewApplicationMappingToEnvironmentFormResponse is a constructor for the ApplicationMappingToEnvironmentFormResponse struct.
-func NewApplicationMappingToEnvironmentFormResponse(user *model.User, env *model.Environment, fileID string) *ApplicationMappingToEnvironmentFormResponse {
+func NewApplicationMappingToEnvironmentFormResponse(currentUser *model.User, env *model.Environment, fileID string) *FormResponse {
 	headerText := "Import Mapping to Environment"
-	header := components.NewContentHeader(headerText, []*components.Link{})
-	return &ApplicationMappingToEnvironmentFormResponse{
-		Response:    NewResponse(headerText, user, header),
-		Environment: env,
-		FileID:      fileID,
+	headerContent := components.NewContentHeader(headerText, []*components.Link{})
+	formItems := []*components.FormItem{
+		components.NewFormItem("", "environment_id", "hidden", fmt.Sprintf("%d", env.ID), true, nil, nil),
+		components.NewFormItem("", "file_id", "hidden", fileID, true, nil, nil),
 	}
+	form := &components.Form{
+		Items:     formItems,
+		Action:    fmt.Sprintf("/admin/application/import-to-environment/%d", env.ID),
+		Method:    "POST",
+		Submit:    "Upload",
+		Multipart: true,
+	}
+	return NewFormResponse(headerText, currentUser, headerContent, form)
 }
 
 // ApplicationImportRowResult is the struct for the application import row results.

@@ -256,7 +256,7 @@ func (c *Controller) ApplicationMappingToEnvironmentFormController(w http.Respon
 	// On case of get method load the form template
 	if r.Method == http.MethodGet {
 		content := response.NewApplicationMappingToEnvironmentFormResponse(currentUser, environment, fileID)
-		err = c.renderer.Template.RenderTemplate(w, "application-mapping.html", content)
+		err = c.renderer.Template.RenderTemplate(w, "form-page.html", content)
 		if err != nil {
 			panic(err)
 		}
