@@ -15,9 +15,9 @@ func (c *Controller) CacheTemplates() {
 	c.renderer.Template.AddTemplate("dashboard.html", []string{headerTemplate, c.renderer.GetTemplateDirectoryPath() + "/dashboard/index.html.tmpl"})
 
 	// Template for the view.
-	c.renderer.Template.AddTemplate("detail-page.html", []string{headerTemplate, detailItemsTemplate})
+	c.renderer.Template.AddTemplate("detail-page.html", []string{headerTemplate, detailItemsTemplate, c.renderer.GetTemplateDirectoryPath() + "/pages/detail.html.tmpl"})
 	// Template for the list.
-	c.renderer.Template.AddTemplate("listing-page.html", []string{headerTemplate, listingItemsTemplate})
+	c.renderer.Template.AddTemplate("listing-page.html", []string{headerTemplate, listingItemsTemplate, c.renderer.GetTemplateDirectoryPath() + "/pages/listing.html.tmpl"})
 	// Template for the update.
-	c.renderer.Template.AddTemplate("form-page.html", []string{headerTemplate, formItemsTemplate})
+	c.renderer.Template.AddTemplate("form-page.html", []string{headerTemplate, formItemsTemplate, c.renderer.GetTemplateDirectoryPath() + "/pages/form.html.tmpl"})
 }

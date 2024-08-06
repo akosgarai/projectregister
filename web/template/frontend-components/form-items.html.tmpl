@@ -1,4 +1,4 @@
-{{define "content"}}
+{{define "formitems"}}
 <form action="{{.Form.Action}}" method="{{.Form.Method}}" {{if .Form.Multipart }}enctype="multipart/form-data"{{end}}>
 	{{ range .Form.Items }}
 		<div class="form-group">
