@@ -289,17 +289,6 @@ func NewApplicationImportToEnvironmentFormResponse(currentUser *model.User, env 
 func NewApplicationMappingToEnvironmentFormResponse(currentUser *model.User, env *model.Environment, fileID string, data [][]string, headers []string) *ApplicationImportMappingResponse {
 	headerText := "Import Mapping to Environment"
 	headerContent := components.NewContentHeader(headerText, []*components.Link{})
-	formItems := []*components.FormItem{
-		components.NewFormItem("", "environment_id", "hidden", fmt.Sprintf("%d", env.ID), true, nil, nil),
-		components.NewFormItem("", "file_id", "hidden", fileID, true, nil, nil),
-	}
-	form := &components.Form{
-		Items:     formItems,
-		Action:    fmt.Sprintf("/admin/application/mapping-to-environment/%d/%s", env.ID, fileID),
-		Method:    "POST",
-		Submit:    "Upload",
-		Multipart: true,
-	}
 	// On case of the headers are not set, we need to set them.
 	// Indexes are starting from 1.
 	if len(headers) == 0 {
@@ -320,6 +309,41 @@ func NewApplicationMappingToEnvironmentFormResponse(currentUser *model.User, env
 	listing := &components.Listing{
 		Header: &components.ListingHeader{Headers: headers},
 		Rows:   &rows,
+	}
+	formMapping := parser.NewApplicationImportMapping()
+	formItems := []*components.FormItem{
+		components.NewFormItem("", "environment_id", "hidden", fmt.Sprintf("%d", env.ID), true, nil, nil),
+		components.NewFormItem("", "file_id", "hidden", fileID, true, nil, nil),
+	}
+	// Select the headers.
+	mappingOptions := map[int64]string{}
+	for i, header := range headers {
+		mappingOptions[int64(i)] = header
+	}
+	// Add the mapping rules to the form items.
+	for header := range formMapping {
+		// on case of we have header in the headers (case insensitive match), we set the column index.
+		// Then add 2 form items. One for the column index (select, options are the headers), and one for the custom value (text input).
+		// On case of the header is not in the headers, we keep the original value.
+		for i, headerItem := range headers {
+			if headerItem == header {
+				formMapping[header].ColumnIndex = i
+				break
+			}
+		}
+		if formMapping[header].ColumnIndex == -1 {
+			formItems = append(formItems, components.NewFormItem(header, header, "select", "", false, mappingOptions, nil))
+		} else {
+			formItems = append(formItems, components.NewFormItem(header, header, "select", "", false, mappingOptions, []int64{int64(formMapping[header].ColumnIndex)}))
+		}
+		formItems = append(formItems, components.NewFormItem(fmt.Sprintf("Custom %s name", header), fmt.Sprintf("%s_custom", header), "text", "", false, nil, nil))
+	}
+	form := &components.Form{
+		Items:     formItems,
+		Action:    fmt.Sprintf("/admin/application/mapping-to-environment/%d/%s", env.ID, fileID),
+		Method:    "POST",
+		Submit:    "Upload",
+		Multipart: true,
 	}
 	return NewApplicationImportMappingResponse(headerText, currentUser, headerContent, listing, form)
 }
