@@ -80,3 +80,20 @@ func NewFormResponse(title string, currentUser *model.User, header *components.C
 		Form:     form,
 	}
 }
+
+// ApplicationImportMappingResponse is the struct for the application import mapping page.
+// It contains the preview listing and the mapping form.
+type ApplicationImportMappingResponse struct {
+	*Response
+	Listing *components.Listing
+	Form    *components.Form
+}
+
+// NewApplicationImportMappingResponse is a constructor for the ApplicationImportMappingResponse struct.
+func NewApplicationImportMappingResponse(title string, currentUser *model.User, header *components.ContentHeader, previewListing *components.Listing, mappingForm *components.Form) *ApplicationImportMappingResponse {
+	return &ApplicationImportMappingResponse{
+		Response: NewResponse(title, currentUser, header),
+		Listing:  previewListing,
+		Form:     mappingForm,
+	}
+}

@@ -286,7 +286,7 @@ func NewApplicationImportToEnvironmentFormResponse(currentUser *model.User, env 
 }
 
 // NewApplicationMappingToEnvironmentFormResponse is a constructor for the ApplicationMappingToEnvironmentFormResponse struct.
-func NewApplicationMappingToEnvironmentFormResponse(currentUser *model.User, env *model.Environment, fileID string) *FormResponse {
+func NewApplicationMappingToEnvironmentFormResponse(currentUser *model.User, env *model.Environment, fileID string, data [][]string, headers []string) *ApplicationImportMappingResponse {
 	headerText := "Import Mapping to Environment"
 	headerContent := components.NewContentHeader(headerText, []*components.Link{})
 	formItems := []*components.FormItem{
@@ -300,7 +300,28 @@ func NewApplicationMappingToEnvironmentFormResponse(currentUser *model.User, env
 		Submit:    "Upload",
 		Multipart: true,
 	}
-	return NewFormResponse(headerText, currentUser, headerContent, form)
+	// On case of the headers are not set, we need to set them.
+	// Indexes are starting from 1.
+	if len(headers) == 0 {
+		for i := range data[0] {
+			headers = append(headers, fmt.Sprintf("Column %d", i+1))
+		}
+	}
+	rows := components.ListingRows{}
+	// Add 5 rows to the listing as preview.
+	for i := 0; i < 5; i++ {
+		columns := components.ListingColumns{}
+		for _, dataItem := range data[i] {
+			columns = append(columns, &components.ListingColumn{Values: &components.ListingColumnValues{{Value: dataItem}}})
+		}
+		rows = append(rows, &components.ListingRow{Columns: &columns})
+	}
+
+	listing := &components.Listing{
+		Header: &components.ListingHeader{Headers: headers},
+		Rows:   &rows,
+	}
+	return NewApplicationImportMappingResponse(headerText, currentUser, headerContent, listing, form)
 }
 
 // NewApplicationImportToEnvironmentListResponse is a constructor for the ApplicationImportToEnvironmentListResponse struct.

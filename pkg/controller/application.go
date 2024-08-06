@@ -226,7 +226,12 @@ func (c *Controller) ApplicationImportToEnvironmentFormController(w http.Respons
 			c.renderer.Error(w, http.StatusInternalServerError, ApplicationImportFailedToSaveFileErrorMessage, err)
 			return
 		}
-		http.Redirect(w, r, "/admin/application/mapping-to-environment/"+environmentIDVariable+"/"+filename, http.StatusSeeOther)
+		hasHeader := r.FormValue("has_header")
+		redirectURL := "/admin/application/mapping-to-environment/" + environmentIDVariable + "/" + filename
+		if hasHeader == "1" {
+			redirectURL += "?has_header=true"
+		}
+		http.Redirect(w, r, redirectURL, http.StatusSeeOther)
 	}
 }
 
@@ -256,8 +261,21 @@ func (c *Controller) ApplicationMappingToEnvironmentFormController(w http.Respon
 	}
 	// On case of get method load the form template
 	if r.Method == http.MethodGet {
-		content := response.NewApplicationMappingToEnvironmentFormResponse(currentUser, environment, fileID)
-		err = c.renderer.Template.RenderTemplate(w, "form-page.html", content)
+		// get the file content
+		csvData, err := c.csvStorage.Read(fileID + ".csv")
+		if err != nil {
+			c.renderer.Error(w, http.StatusInternalServerError, "Failed to read the CSV.", err)
+			return
+		}
+		hasHeader := r.URL.Query().Get("has_header")
+		header := []string{}
+		if hasHeader == "true" {
+			// if the first line is the header, remove it
+			header = csvData[0]
+			csvData = csvData[1:]
+		}
+		content := response.NewApplicationMappingToEnvironmentFormResponse(currentUser, environment, fileID, csvData, header)
+		err = c.renderer.Template.RenderTemplate(w, "application-import-mapping.html", content)
 		if err != nil {
 			panic(err)
 		}

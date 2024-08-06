@@ -13,6 +13,8 @@ func (c *Controller) CacheTemplates() {
 
 	// Template for the dashboard.
 	c.renderer.Template.AddTemplate("dashboard.html", []string{headerTemplate, c.renderer.GetTemplateDirectoryPath() + "/dashboard/index.html.tmpl"})
+	// Template for the application import mapping.
+	c.renderer.Template.AddTemplate("application-import-mapping.html", []string{headerTemplate, formItemsTemplate, listingItemsTemplate, c.renderer.GetTemplateDirectoryPath() + "/pages/application-import-mapping.html.tmpl"})
 
 	// Template for the view.
 	c.renderer.Template.AddTemplate("detail-page.html", []string{headerTemplate, detailItemsTemplate, c.renderer.GetTemplateDirectoryPath() + "/pages/detail.html.tmpl"})
