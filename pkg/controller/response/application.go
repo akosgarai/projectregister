@@ -321,7 +321,8 @@ func NewApplicationMappingToEnvironmentFormResponse(currentUser *model.User, env
 		mappingOptions[int64(i)] = header
 	}
 	// Add the mapping rules to the form items.
-	for header := range formMapping {
+	formItemsInOrder := []string{"client", "project", "runtime", "pool", "domains", "framework", "database", "database_name", "database_user", "doc_root", "repository", "branch"}
+	for _, header := range formItemsInOrder {
 		// on case of we have header in the headers (case insensitive match), we set the column index.
 		// Then add 2 form items. One for the column index (select, options are the headers), and one for the custom value (text input).
 		// On case of the header is not in the headers, we keep the original value.
