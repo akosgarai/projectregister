@@ -282,8 +282,6 @@ func (c *Controller) ApplicationMappingToEnvironmentFormController(w http.Respon
 	}
 	// On case of post process the mapping form and execute the import process.
 	if r.Method == http.MethodPost {
-		// TODO: implement the import process
-		// Now use hardcoded mapping based on the excel file.
 		fileName := r.FormValue("file_id")
 		environmentIDRaw := r.FormValue("environment_id")
 		// it has to be converted to int64
@@ -292,7 +290,12 @@ func (c *Controller) ApplicationMappingToEnvironmentFormController(w http.Respon
 			c.renderer.Error(w, http.StatusBadRequest, ApplicationImportInvalidEnvironmentIDErrorMessage, err)
 			return
 		}
-		results, err := c.importApplicationToEnvironment(environmentID, fileName)
+		mappingRules, err := c.getImportApplicationToEnvironmentMapping(r)
+		if err != nil {
+			c.renderer.Error(w, http.StatusInternalServerError, "Failed to get the mapping rules", err)
+			return
+		}
+		results, err := c.importApplicationToEnvironment(environmentID, fileName, mappingRules)
 		if err != nil {
 			c.renderer.Error(w, http.StatusInternalServerError, "Failed to import", err)
 			return
@@ -303,6 +306,26 @@ func (c *Controller) ApplicationMappingToEnvironmentFormController(w http.Respon
 			panic(err)
 		}
 	}
+}
+
+// getImportApplicationToEnvironmentMapping returns the mapping rules for the import process.
+func (c *Controller) getImportApplicationToEnvironmentMapping(r *http.Request) (parser.ApplicationImportMapping, error) {
+	mappingRules := parser.NewApplicationImportMapping()
+	parameterNames := []string{"client", "project", "domains", "runtime", "pool", "framework", "database", "database_name", "database_user", "doc_root", "repository", "branch"}
+	for _, parameterName := range parameterNames {
+		parameterIndexRaw := r.FormValue(parameterName)
+		parameterCustomValue := r.FormValue(parameterName + "_custom")
+		if parameterIndexRaw != "" {
+			parameterInt, err := strconv.Atoi(parameterIndexRaw)
+			if err != nil {
+				return parser.ApplicationImportMapping{}, err
+			}
+			mappingRules[parameterName].ColumnIndex = parameterInt
+		} else {
+			mappingRules[parameterName].CustomValue = parameterCustomValue
+		}
+	}
+	return mappingRules, nil
 }
 
 // It creates the content for the application forms.
@@ -431,26 +454,13 @@ func (c *Controller) storeImportCSVFile(r *http.Request) (string, error) {
 
 // importApplicationToEnvironment imports the applications to the environment.
 // It returns the results and an error.
-func (c *Controller) importApplicationToEnvironment(environmentID int64, fileName string) (*parser.ApplicationImportResult, error) {
+func (c *Controller) importApplicationToEnvironment(environmentID int64, fileName string, mappingRules parser.ApplicationImportMapping) (*parser.ApplicationImportResult, error) {
 	results := parser.NewApplicationImportResult()
 	// get the file content
 	csvData, err := c.csvStorage.Read(fileName + ".csv")
 	if err != nil {
 		return &results, err
 	}
-	mappingRules := parser.NewApplicationImportMapping()
-	mappingRules["client"].ColumnIndex = 0
-	mappingRules["project"].ColumnIndex = 1
-	mappingRules["domains"].ColumnIndex = 3
-	mappingRules["runtime"].ColumnIndex = 5
-	mappingRules["pool"].ColumnIndex = 6
-	mappingRules["framework"].ColumnIndex = 4
-	mappingRules["database"].ColumnIndex = 7
-	mappingRules["database_name"].ColumnIndex = 8
-	mappingRules["database_user"].ColumnIndex = 9
-	mappingRules["doc_root"].ColumnIndex = 10
-	mappingRules["repository"].ColumnIndex = 11
-	mappingRules["branch"].ColumnIndex = 12
 
 	// parse the file content every line represents an application
 	for rowIndex, line := range csvData {
