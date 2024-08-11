@@ -40,7 +40,7 @@ func (c *Controller) domainViewData(r *http.Request) (*model.Domain, int, error)
 	if err != nil {
 		return nil, http.StatusBadRequest, err
 	}
-	domain, err := c.domainRepository.GetDomainByID(domainID)
+	domain, err := c.repositoryContainer.GetDomainRepository().GetDomainByID(domainID)
 	if err != nil {
 		return nil, http.StatusInternalServerError, err
 	}
@@ -74,7 +74,7 @@ func (c *Controller) DomainCreateViewController(w http.ResponseWriter, r *http.R
 			return
 		}
 
-		_, err := c.domainRepository.CreateDomain(name)
+		_, err := c.repositoryContainer.GetDomainRepository().CreateDomain(name)
 		if err != nil {
 			c.renderer.Error(w, http.StatusInternalServerError, DomainCreateCreateDomainErrorMessage, err)
 			return
@@ -103,7 +103,7 @@ func (c *Controller) DomainUpdateViewController(w http.ResponseWriter, r *http.R
 	}
 
 	// get the domain
-	domain, err := c.domainRepository.GetDomainByID(domainID)
+	domain, err := c.repositoryContainer.GetDomainRepository().GetDomainByID(domainID)
 	if err != nil {
 		c.renderer.Error(w, http.StatusInternalServerError, DomainFailedToGetDomainErrorMessage, err)
 		return
@@ -129,7 +129,7 @@ func (c *Controller) DomainUpdateViewController(w http.ResponseWriter, r *http.R
 
 		// update the domain
 		domain.Name = name
-		err = c.domainRepository.UpdateDomain(domain)
+		err = c.repositoryContainer.GetDomainRepository().UpdateDomain(domain)
 		if err != nil {
 			c.renderer.Error(w, http.StatusInternalServerError, DomainUpdateUpdateDomainErrorMessage, err)
 			return
@@ -157,7 +157,7 @@ func (c *Controller) DomainDeleteViewController(w http.ResponseWriter, r *http.R
 		return
 	}
 	// delete the domain
-	err = c.domainRepository.DeleteDomain(domainID)
+	err = c.repositoryContainer.GetDomainRepository().DeleteDomain(domainID)
 	if err != nil {
 		c.renderer.Error(w, http.StatusInternalServerError, DomainDeleteFailedToDeleteErrorMessage, err)
 		return
@@ -174,7 +174,7 @@ func (c *Controller) DomainListViewController(w http.ResponseWriter, r *http.Req
 		return
 	}
 	// get all domains
-	domains, err := c.domainRepository.GetDomains()
+	domains, err := c.repositoryContainer.GetDomainRepository().GetDomains()
 	if err != nil {
 		c.renderer.Error(w, http.StatusInternalServerError, DomainListFailedToGetDomainsErrorMessage, err)
 		return

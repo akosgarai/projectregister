@@ -40,7 +40,7 @@ func (c *Controller) runtimeViewData(r *http.Request) (*model.Runtime, int, erro
 	if err != nil {
 		return nil, http.StatusBadRequest, err
 	}
-	runtime, err := c.runtimeRepository.GetRuntimeByID(runtimeID)
+	runtime, err := c.repositoryContainer.GetRuntimeRepository().GetRuntimeByID(runtimeID)
 	if err != nil {
 		return nil, http.StatusInternalServerError, err
 	}
@@ -74,7 +74,7 @@ func (c *Controller) RuntimeCreateViewController(w http.ResponseWriter, r *http.
 			return
 		}
 
-		_, err := c.runtimeRepository.CreateRuntime(name)
+		_, err := c.repositoryContainer.GetRuntimeRepository().CreateRuntime(name)
 		if err != nil {
 			c.renderer.Error(w, http.StatusInternalServerError, RuntimeCreateCreateRuntimeErrorMessage, err)
 			return
@@ -103,7 +103,7 @@ func (c *Controller) RuntimeUpdateViewController(w http.ResponseWriter, r *http.
 	}
 
 	// get the runtime
-	runtime, err := c.runtimeRepository.GetRuntimeByID(runtimeID)
+	runtime, err := c.repositoryContainer.GetRuntimeRepository().GetRuntimeByID(runtimeID)
 	if err != nil {
 		c.renderer.Error(w, http.StatusInternalServerError, RuntimeFailedToGetRuntimeErrorMessage, err)
 		return
@@ -129,7 +129,7 @@ func (c *Controller) RuntimeUpdateViewController(w http.ResponseWriter, r *http.
 
 		// update the runtime
 		runtime.Name = name
-		err = c.runtimeRepository.UpdateRuntime(runtime)
+		err = c.repositoryContainer.GetRuntimeRepository().UpdateRuntime(runtime)
 		if err != nil {
 			c.renderer.Error(w, http.StatusInternalServerError, RuntimeUpdateUpdateRuntimeErrorMessage, err)
 			return
@@ -157,7 +157,7 @@ func (c *Controller) RuntimeDeleteViewController(w http.ResponseWriter, r *http.
 		return
 	}
 	// delete the runtime
-	err = c.runtimeRepository.DeleteRuntime(runtimeID)
+	err = c.repositoryContainer.GetRuntimeRepository().DeleteRuntime(runtimeID)
 	if err != nil {
 		c.renderer.Error(w, http.StatusInternalServerError, RuntimeDeleteFailedToDeleteErrorMessage, err)
 		return
@@ -174,7 +174,7 @@ func (c *Controller) RuntimeListViewController(w http.ResponseWriter, r *http.Re
 		return
 	}
 	// get all runtimes
-	runtimes, err := c.runtimeRepository.GetRuntimes()
+	runtimes, err := c.repositoryContainer.GetRuntimeRepository().GetRuntimes()
 	if err != nil {
 		c.renderer.Error(w, http.StatusInternalServerError, RuntimeListFailedToGetRuntimesErrorMessage, err)
 		return

@@ -16,18 +16,7 @@ import (
 
 // New creates a new instance of the router gorilla/mux router.
 func New(
-	userRepository model.UserRepository,
-	roleRepository model.RoleRepository,
-	resourceRepository model.ResourceRepository,
-	clientRepository model.ClientRepository,
-	projectRepository model.ProjectRepository,
-	domainRepository model.DomainRepository,
-	environmentRepository model.EnvironmentRepository,
-	runtimeRepository model.RuntimeRepository,
-	poolRepository model.PoolRepository,
-	databaseRepository model.DatabaseRepository,
-	serverRepository model.ServerRepository,
-	applicationRepository model.ApplicationRepository,
+	repositoryContainer model.RepositoryContainer,
 	sessionStore *session.Store,
 	csvStorage storage.CSVStorage,
 	renderer *render.Renderer,
@@ -36,18 +25,7 @@ func New(
 	// handle the static files
 	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir(renderer.GetStaticDirectoryPath()))))
 	routerController := controller.New(
-		userRepository,
-		roleRepository,
-		resourceRepository,
-		clientRepository,
-		projectRepository,
-		domainRepository,
-		environmentRepository,
-		runtimeRepository,
-		poolRepository,
-		databaseRepository,
-		serverRepository,
-		applicationRepository,
+		repositoryContainer,
 		sessionStore,
 		csvStorage,
 		renderer,

@@ -40,7 +40,7 @@ func (c *Controller) clientViewData(r *http.Request) (*model.Client, int, error)
 	if err != nil {
 		return nil, http.StatusBadRequest, err
 	}
-	client, err := c.clientRepository.GetClientByID(clientID)
+	client, err := c.repositoryContainer.GetClientRepository().GetClientByID(clientID)
 	if err != nil {
 		return nil, http.StatusInternalServerError, err
 	}
@@ -74,7 +74,7 @@ func (c *Controller) ClientCreateViewController(w http.ResponseWriter, r *http.R
 			return
 		}
 
-		_, err := c.clientRepository.CreateClient(name)
+		_, err := c.repositoryContainer.GetClientRepository().CreateClient(name)
 		if err != nil {
 			c.renderer.Error(w, http.StatusInternalServerError, ClientCreateCreateClientErrorMessage, err)
 			return
@@ -103,7 +103,7 @@ func (c *Controller) ClientUpdateViewController(w http.ResponseWriter, r *http.R
 	}
 
 	// get the client
-	client, err := c.clientRepository.GetClientByID(clientID)
+	client, err := c.repositoryContainer.GetClientRepository().GetClientByID(clientID)
 	if err != nil {
 		c.renderer.Error(w, http.StatusInternalServerError, ClientFailedToGetClientErrorMessage, err)
 		return
@@ -129,7 +129,7 @@ func (c *Controller) ClientUpdateViewController(w http.ResponseWriter, r *http.R
 
 		// update the client
 		client.Name = name
-		err = c.clientRepository.UpdateClient(client)
+		err = c.repositoryContainer.GetClientRepository().UpdateClient(client)
 		if err != nil {
 			c.renderer.Error(w, http.StatusInternalServerError, ClientUpdateUpdateClientErrorMessage, err)
 			return
@@ -157,7 +157,7 @@ func (c *Controller) ClientDeleteViewController(w http.ResponseWriter, r *http.R
 		return
 	}
 	// delete the client
-	err = c.clientRepository.DeleteClient(clientID)
+	err = c.repositoryContainer.GetClientRepository().DeleteClient(clientID)
 	if err != nil {
 		c.renderer.Error(w, http.StatusInternalServerError, ClientDeleteFailedToDeleteErrorMessage, err)
 		return
@@ -174,7 +174,7 @@ func (c *Controller) ClientListViewController(w http.ResponseWriter, r *http.Req
 		return
 	}
 	// get all clients
-	clients, err := c.clientRepository.GetClients()
+	clients, err := c.repositoryContainer.GetClientRepository().GetClients()
 	if err != nil {
 		c.renderer.Error(w, http.StatusInternalServerError, ClientListFailedToGetClientsErrorMessage, err)
 		return

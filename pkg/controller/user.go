@@ -52,7 +52,7 @@ func (c *Controller) userViewData(r *http.Request) (*model.User, int, error) {
 	if err != nil {
 		return nil, http.StatusBadRequest, err
 	}
-	u, err := c.userRepository.GetUserByID(userID)
+	u, err := c.repositoryContainer.GetUserRepository().GetUserByID(userID)
 	if err != nil {
 		return nil, http.StatusInternalServerError, err
 	}
@@ -70,7 +70,7 @@ func (c *Controller) UserCreateViewController(w http.ResponseWriter, r *http.Req
 	}
 	if r.Method == http.MethodGet {
 		// get all roles
-		roles, err := c.roleRepository.GetRoles()
+		roles, err := c.repositoryContainer.GetRoleRepository().GetRoles()
 		if err != nil {
 			c.renderer.Error(w, http.StatusInternalServerError, UserFailedToGetRolesErrorMessage, err)
 			return
@@ -106,7 +106,7 @@ func (c *Controller) UserCreateViewController(w http.ResponseWriter, r *http.Req
 			c.renderer.Error(w, http.StatusBadRequest, UserRoleIDInvalidErrorMessagePrefix, err)
 			return
 		}
-		_, err = c.userRepository.CreateUser(name, email, string(password), roleID)
+		_, err = c.repositoryContainer.GetUserRepository().CreateUser(name, email, string(password), roleID)
 		if err != nil {
 			c.renderer.Error(w, http.StatusInternalServerError, UserCreateCreateUserErrorMessagePrefix, err)
 			return
@@ -140,7 +140,7 @@ func (c *Controller) UserCreateAPIController(w http.ResponseWriter, r *http.Requ
 		return
 	}
 	// create the user
-	user, err := c.userRepository.CreateUser(name, email, string(hashedPassword), roleID)
+	user, err := c.repositoryContainer.GetUserRepository().CreateUser(name, email, string(hashedPassword), roleID)
 	if err != nil {
 		c.renderer.Error(w, http.StatusInternalServerError, UserCreateCreateUserErrorMessagePrefix, err)
 		return
@@ -168,7 +168,7 @@ func (c *Controller) UserUpdateViewController(w http.ResponseWriter, r *http.Req
 	}
 
 	// get the user
-	user, err := c.userRepository.GetUserByID(userID)
+	user, err := c.repositoryContainer.GetUserRepository().GetUserByID(userID)
 	if err != nil {
 		c.renderer.Error(w, http.StatusInternalServerError, UserUpdateFailedToGetUserErrorMessage, err)
 		return
@@ -176,7 +176,7 @@ func (c *Controller) UserUpdateViewController(w http.ResponseWriter, r *http.Req
 
 	if r.Method == http.MethodGet {
 		// get all roles
-		roles, err := c.roleRepository.GetRoles()
+		roles, err := c.repositoryContainer.GetRoleRepository().GetRoles()
 		if err != nil {
 			c.renderer.Error(w, http.StatusInternalServerError, UserFailedToGetRolesErrorMessage, err)
 			return
@@ -220,7 +220,7 @@ func (c *Controller) UserUpdateViewController(w http.ResponseWriter, r *http.Req
 			return
 		}
 		user.Role.ID = roleID
-		err = c.userRepository.UpdateUser(user)
+		err = c.repositoryContainer.GetUserRepository().UpdateUser(user)
 		if err != nil {
 			c.renderer.Error(w, http.StatusInternalServerError, UserUpdateFailedToUpdateUserErrorMessage, err)
 			return
@@ -249,7 +249,7 @@ func (c *Controller) UserUpdateAPIController(w http.ResponseWriter, r *http.Requ
 	password := r.FormValue("password")
 	roleIDRaw := r.FormValue("role")
 	// get the user
-	user, err := c.userRepository.GetUserByID(userID)
+	user, err := c.repositoryContainer.GetUserRepository().GetUserByID(userID)
 	if err != nil {
 		c.renderer.Error(w, http.StatusInternalServerError, UserUpdateFailedToGetUserErrorMessage, err)
 		return
@@ -270,7 +270,7 @@ func (c *Controller) UserUpdateAPIController(w http.ResponseWriter, r *http.Requ
 		return
 	}
 	user.Role.ID = roleID
-	err = c.userRepository.UpdateUser(user)
+	err = c.repositoryContainer.GetUserRepository().UpdateUser(user)
 	if err != nil {
 		c.renderer.Error(w, http.StatusInternalServerError, UserUpdateFailedToUpdateUserErrorMessage, err)
 		return
@@ -297,7 +297,7 @@ func (c *Controller) UserDeleteViewController(w http.ResponseWriter, r *http.Req
 		return
 	}
 	// delete the user
-	err = c.userRepository.DeleteUser(userID)
+	err = c.repositoryContainer.GetUserRepository().DeleteUser(userID)
 	if err != nil {
 		c.renderer.Error(w, http.StatusInternalServerError, UserDeleteFailedToDeleteErrorMessage, err)
 		return
@@ -320,7 +320,7 @@ func (c *Controller) UserDeleteAPIController(w http.ResponseWriter, r *http.Requ
 		return
 	}
 	// delete the user
-	err = c.userRepository.DeleteUser(userID)
+	err = c.repositoryContainer.GetUserRepository().DeleteUser(userID)
 	if err != nil {
 		c.renderer.Error(w, http.StatusInternalServerError, UserDeleteFailedToDeleteErrorMessage, err)
 		return
@@ -337,7 +337,7 @@ func (c *Controller) UserListViewController(w http.ResponseWriter, r *http.Reque
 		return
 	}
 	// get all users
-	users, err := c.userRepository.GetUsers()
+	users, err := c.repositoryContainer.GetUserRepository().GetUsers()
 	if err != nil {
 		c.renderer.Error(w, http.StatusInternalServerError, UserFailedToGetUserErrorMessage, err)
 		return
@@ -355,7 +355,7 @@ func (c *Controller) UserListViewController(w http.ResponseWriter, r *http.Reque
 // curl -X GET http://localhost:8090/api/user/list
 func (c *Controller) UserListAPIController(w http.ResponseWriter, r *http.Request) {
 	// get all users
-	users, err := c.userRepository.GetUsers()
+	users, err := c.repositoryContainer.GetUserRepository().GetUsers()
 	if err != nil {
 		c.renderer.Error(w, http.StatusInternalServerError, UserListFailedToGetUsersErrorMessage, err)
 		return

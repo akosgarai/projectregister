@@ -40,7 +40,7 @@ func (c *Controller) projectViewData(r *http.Request) (*model.Project, int, erro
 	if err != nil {
 		return nil, http.StatusBadRequest, err
 	}
-	project, err := c.projectRepository.GetProjectByID(projectID)
+	project, err := c.repositoryContainer.GetProjectRepository().GetProjectByID(projectID)
 	if err != nil {
 		return nil, http.StatusInternalServerError, err
 	}
@@ -74,7 +74,7 @@ func (c *Controller) ProjectCreateViewController(w http.ResponseWriter, r *http.
 			return
 		}
 
-		_, err := c.projectRepository.CreateProject(name)
+		_, err := c.repositoryContainer.GetProjectRepository().CreateProject(name)
 		if err != nil {
 			c.renderer.Error(w, http.StatusInternalServerError, ProjectCreateCreateProjectErrorMessage, err)
 			return
@@ -103,7 +103,7 @@ func (c *Controller) ProjectUpdateViewController(w http.ResponseWriter, r *http.
 	}
 
 	// get the project
-	project, err := c.projectRepository.GetProjectByID(projectID)
+	project, err := c.repositoryContainer.GetProjectRepository().GetProjectByID(projectID)
 	if err != nil {
 		c.renderer.Error(w, http.StatusInternalServerError, ProjectFailedToGetProjectErrorMessage, err)
 		return
@@ -129,7 +129,7 @@ func (c *Controller) ProjectUpdateViewController(w http.ResponseWriter, r *http.
 
 		// update the project
 		project.Name = name
-		err = c.projectRepository.UpdateProject(project)
+		err = c.repositoryContainer.GetProjectRepository().UpdateProject(project)
 		if err != nil {
 			c.renderer.Error(w, http.StatusInternalServerError, ProjectUpdateUpdateProjectErrorMessage, err)
 			return
@@ -157,7 +157,7 @@ func (c *Controller) ProjectDeleteViewController(w http.ResponseWriter, r *http.
 		return
 	}
 	// delete the project
-	err = c.projectRepository.DeleteProject(projectID)
+	err = c.repositoryContainer.GetProjectRepository().DeleteProject(projectID)
 	if err != nil {
 		c.renderer.Error(w, http.StatusInternalServerError, ProjectDeleteFailedToDeleteErrorMessage, err)
 		return
@@ -174,7 +174,7 @@ func (c *Controller) ProjectListViewController(w http.ResponseWriter, r *http.Re
 		return
 	}
 	// get all projects
-	projects, err := c.projectRepository.GetProjects()
+	projects, err := c.repositoryContainer.GetProjectRepository().GetProjects()
 	if err != nil {
 		c.renderer.Error(w, http.StatusInternalServerError, ProjectListFailedToGetProjectsErrorMessage, err)
 		return

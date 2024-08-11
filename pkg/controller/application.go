@@ -42,7 +42,7 @@ func (c *Controller) applicationViewData(r *http.Request) (*model.Application, i
 	if err != nil {
 		return nil, http.StatusBadRequest, err
 	}
-	application, err := c.applicationRepository.GetApplicationByID(applicationID)
+	application, err := c.repositoryContainer.GetApplicationRepository().GetApplicationByID(applicationID)
 	if err != nil {
 		return nil, http.StatusInternalServerError, err
 	}
@@ -76,7 +76,7 @@ func (c *Controller) ApplicationCreateViewController(w http.ResponseWriter, r *h
 			c.renderer.Error(w, http.StatusBadRequest, errorMessage, err)
 			return
 		}
-		_, err = c.applicationRepository.CreateApplication(app.Client.ID, app.Project.ID, app.Environment.ID, app.Database.ID, app.Runtime.ID, app.Pool.ID, app.Repository, app.Branch, app.DBName, app.DBUser, app.Framework, app.DocumentRoot, domainIDS)
+		_, err = c.repositoryContainer.GetApplicationRepository().CreateApplication(app.Client.ID, app.Project.ID, app.Environment.ID, app.Database.ID, app.Runtime.ID, app.Pool.ID, app.Repository, app.Branch, app.DBName, app.DBUser, app.Framework, app.DocumentRoot, domainIDS)
 		if err != nil {
 			c.renderer.Error(w, http.StatusInternalServerError, ApplicationCreateCreateApplicationErrorMessage, err)
 			return
@@ -105,7 +105,7 @@ func (c *Controller) ApplicationUpdateViewController(w http.ResponseWriter, r *h
 	}
 
 	// get the application
-	application, err := c.applicationRepository.GetApplicationByID(applicationID)
+	application, err := c.repositoryContainer.GetApplicationRepository().GetApplicationByID(applicationID)
 	if err != nil {
 		c.renderer.Error(w, http.StatusInternalServerError, ApplicationFailedToGetApplicationErrorMessage, err)
 		return
@@ -131,7 +131,7 @@ func (c *Controller) ApplicationUpdateViewController(w http.ResponseWriter, r *h
 		}
 		app.ID = applicationID
 
-		err = c.applicationRepository.UpdateApplication(app)
+		err = c.repositoryContainer.GetApplicationRepository().UpdateApplication(app)
 		if err != nil {
 			c.renderer.Error(w, http.StatusInternalServerError, ApplicationUpdateUpdateApplicationErrorMessage, err)
 			return
@@ -159,7 +159,7 @@ func (c *Controller) ApplicationDeleteViewController(w http.ResponseWriter, r *h
 		return
 	}
 	// delete the application
-	err = c.applicationRepository.DeleteApplication(applicationID)
+	err = c.repositoryContainer.GetApplicationRepository().DeleteApplication(applicationID)
 	if err != nil {
 		c.renderer.Error(w, http.StatusInternalServerError, ApplicationDeleteFailedToDeleteErrorMessage, err)
 		return
@@ -176,7 +176,7 @@ func (c *Controller) ApplicationListViewController(w http.ResponseWriter, r *htt
 		return
 	}
 	// get all applications
-	applications, err := c.applicationRepository.GetApplications()
+	applications, err := c.repositoryContainer.GetApplicationRepository().GetApplications()
 	if err != nil {
 		c.renderer.Error(w, http.StatusInternalServerError, ApplicationListFailedToGetApplicationsErrorMessage, err)
 		return
@@ -206,7 +206,7 @@ func (c *Controller) ApplicationImportToEnvironmentFormController(w http.Respons
 		return
 	}
 	// load the environment
-	environment, err := c.environmentRepository.GetEnvironmentByID(environmentID)
+	environment, err := c.repositoryContainer.GetEnvironmentRepository().GetEnvironmentByID(environmentID)
 	if err != nil {
 		c.renderer.Error(w, http.StatusInternalServerError, ApplicationImportFailedToGetEnvironmentErrorMessage, err)
 		return
@@ -254,7 +254,7 @@ func (c *Controller) ApplicationMappingToEnvironmentFormController(w http.Respon
 	}
 	fileID := vars["fileId"]
 	// load the environment
-	environment, err := c.environmentRepository.GetEnvironmentByID(environmentID)
+	environment, err := c.repositoryContainer.GetEnvironmentRepository().GetEnvironmentByID(environmentID)
 	if err != nil {
 		c.renderer.Error(w, http.StatusInternalServerError, ApplicationImportFailedToGetEnvironmentErrorMessage, err)
 		return
@@ -330,31 +330,31 @@ func (c *Controller) getImportApplicationToEnvironmentMapping(r *http.Request) (
 
 // It creates the content for the application forms.
 func (c *Controller) createApplicationFormResponse(currentUser *model.User, application *model.Application) (*response.FormResponse, string, error) {
-	runtimes, err := c.runtimeRepository.GetRuntimes()
+	runtimes, err := c.repositoryContainer.GetRuntimeRepository().GetRuntimes()
 	if err != nil {
 		return &response.FormResponse{}, ApplicationCreateFailedToGetRuntimesErrorMessage, err
 	}
-	pools, err := c.poolRepository.GetPools()
+	pools, err := c.repositoryContainer.GetPoolRepository().GetPools()
 	if err != nil {
 		return &response.FormResponse{}, ApplicationCreateFailedToGetPoolsErrorMessage, err
 	}
-	clients, err := c.clientRepository.GetClients()
+	clients, err := c.repositoryContainer.GetClientRepository().GetClients()
 	if err != nil {
 		return &response.FormResponse{}, ApplicationCreateFailedToGetClientsErrorMessage, err
 	}
-	projects, err := c.projectRepository.GetProjects()
+	projects, err := c.repositoryContainer.GetProjectRepository().GetProjects()
 	if err != nil {
 		return &response.FormResponse{}, ApplicationCreateFailedToGetProjectsErrorMessage, err
 	}
-	environments, err := c.environmentRepository.GetEnvironments()
+	environments, err := c.repositoryContainer.GetEnvironmentRepository().GetEnvironments()
 	if err != nil {
 		return &response.FormResponse{}, ApplicationCreateFailedToGetEnvironmentsErrorMessage, err
 	}
-	databases, err := c.databaseRepository.GetDatabases()
+	databases, err := c.repositoryContainer.GetDatabaseRepository().GetDatabases()
 	if err != nil {
 		return &response.FormResponse{}, ApplicationCreateFailedToGetDatabasesErrorMessage, err
 	}
-	domains, err := c.domainRepository.GetFreeDomains()
+	domains, err := c.repositoryContainer.GetDomainRepository().GetFreeDomains()
 	if err != nil {
 		return &response.FormResponse{}, ApplicationCreateFailedToGetDomainsErrorMessage, err
 	}
@@ -488,9 +488,9 @@ func (c *Controller) importApplicationToEnvironment(environmentID int64, fileNam
 		branch := importRow.RowData["branch"]
 
 		// if the client name does not exist, create it
-		client, err := c.clientRepository.GetClientByName(clientName)
+		client, err := c.repositoryContainer.GetClientRepository().GetClientByName(clientName)
 		if err != nil {
-			client, err = c.clientRepository.CreateClient(clientName)
+			client, err = c.repositoryContainer.GetClientRepository().CreateClient(clientName)
 			if err != nil {
 				currentData := results[rowIndex]
 				currentData.ErrorMessage = err.Error()
@@ -500,9 +500,9 @@ func (c *Controller) importApplicationToEnvironment(environmentID int64, fileNam
 		}
 
 		// if the project name does not exist, create it
-		project, err := c.projectRepository.GetProjectByName(projectName)
+		project, err := c.repositoryContainer.GetProjectRepository().GetProjectByName(projectName)
 		if err != nil {
-			project, err = c.projectRepository.CreateProject(projectName)
+			project, err = c.repositoryContainer.GetProjectRepository().CreateProject(projectName)
 			if err != nil {
 				currentData := results[rowIndex]
 				currentData.ErrorMessage = err.Error()
@@ -511,9 +511,9 @@ func (c *Controller) importApplicationToEnvironment(environmentID int64, fileNam
 			}
 		}
 		// if the runtime name does not exist, create it
-		runtime, err := c.runtimeRepository.GetRuntimeByName(runtimeName)
+		runtime, err := c.repositoryContainer.GetRuntimeRepository().GetRuntimeByName(runtimeName)
 		if err != nil {
-			runtime, err = c.runtimeRepository.CreateRuntime(runtimeName)
+			runtime, err = c.repositoryContainer.GetRuntimeRepository().CreateRuntime(runtimeName)
 			if err != nil {
 				currentData := results[rowIndex]
 				currentData.ErrorMessage = err.Error()
@@ -522,9 +522,9 @@ func (c *Controller) importApplicationToEnvironment(environmentID int64, fileNam
 			}
 		}
 		// if the pool name does not exist, create it
-		pool, err := c.poolRepository.GetPoolByName(poolName)
+		pool, err := c.repositoryContainer.GetPoolRepository().GetPoolByName(poolName)
 		if err != nil {
-			pool, err = c.poolRepository.CreatePool(poolName)
+			pool, err = c.repositoryContainer.GetPoolRepository().CreatePool(poolName)
 			if err != nil {
 				currentData := results[rowIndex]
 				currentData.ErrorMessage = err.Error()
@@ -533,9 +533,9 @@ func (c *Controller) importApplicationToEnvironment(environmentID int64, fileNam
 			}
 		}
 		// if the database name does not exist, create it
-		database, err := c.databaseRepository.GetDatabaseByName(databaseTypeName)
+		database, err := c.repositoryContainer.GetDatabaseRepository().GetDatabaseByName(databaseTypeName)
 		if err != nil {
-			database, err = c.databaseRepository.CreateDatabase(databaseTypeName)
+			database, err = c.repositoryContainer.GetDatabaseRepository().CreateDatabase(databaseTypeName)
 			if err != nil {
 				currentData := results[rowIndex]
 				currentData.ErrorMessage = err.Error()
@@ -549,9 +549,9 @@ func (c *Controller) importApplicationToEnvironment(environmentID int64, fileNam
 		domainNames := strings.Split(domainsRaw, " ")
 		domainIDs := []int64{}
 		for _, domainName := range domainNames {
-			domain, err := c.domainRepository.GetDomainByName(domainName)
+			domain, err := c.repositoryContainer.GetDomainRepository().GetDomainByName(domainName)
 			if err != nil {
-				domain, err = c.domainRepository.CreateDomain(domainName)
+				domain, err = c.repositoryContainer.GetDomainRepository().CreateDomain(domainName)
 				if err != nil {
 					currentData := results[rowIndex]
 					currentData.ErrorMessage = err.Error()
@@ -563,7 +563,7 @@ func (c *Controller) importApplicationToEnvironment(environmentID int64, fileNam
 		}
 
 		// create the application
-		app, err := c.applicationRepository.CreateApplication(client.ID, project.ID, environmentID, database.ID, runtime.ID, pool.ID, repository, branch, databaseName, databaseUser, framework, docRoot, domainIDs)
+		app, err := c.repositoryContainer.GetApplicationRepository().CreateApplication(client.ID, project.ID, environmentID, database.ID, runtime.ID, pool.ID, repository, branch, databaseName, databaseUser, framework, docRoot, domainIDs)
 		currentData := results[rowIndex]
 		if err != nil {
 			currentData.ErrorMessage = err.Error()

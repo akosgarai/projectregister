@@ -40,7 +40,7 @@ func (c *Controller) roleViewData(r *http.Request) (*model.Role, int, error) {
 	if err != nil {
 		return nil, http.StatusBadRequest, err
 	}
-	role, err := c.roleRepository.GetRoleByID(roleID)
+	role, err := c.repositoryContainer.GetRoleRepository().GetRoleByID(roleID)
 	if err != nil {
 		return nil, http.StatusInternalServerError, err
 	}
@@ -57,7 +57,7 @@ func (c *Controller) RoleCreateViewController(w http.ResponseWriter, r *http.Req
 		return
 	}
 	if r.Method == http.MethodGet {
-		resources, err := c.resourceRepository.GetResources()
+		resources, err := c.repositoryContainer.GetResourceRepository().GetResources()
 		if err != nil {
 			c.renderer.Error(w, http.StatusInternalServerError, RoleFailedToGetResourcesErrorMessage, err)
 			return
@@ -90,7 +90,7 @@ func (c *Controller) RoleCreateViewController(w http.ResponseWriter, r *http.Req
 			resourceIDs = append(resourceIDs, resourceID)
 		}
 
-		_, err := c.roleRepository.CreateRole(name, resourceIDs)
+		_, err := c.repositoryContainer.GetRoleRepository().CreateRole(name, resourceIDs)
 		if err != nil {
 			c.renderer.Error(w, http.StatusInternalServerError, RoleCreateCreateRoleErrorMessage, err)
 			return
@@ -119,14 +119,14 @@ func (c *Controller) RoleUpdateViewController(w http.ResponseWriter, r *http.Req
 	}
 
 	// get the role
-	role, err := c.roleRepository.GetRoleByID(roleID)
+	role, err := c.repositoryContainer.GetRoleRepository().GetRoleByID(roleID)
 	if err != nil {
 		c.renderer.Error(w, http.StatusInternalServerError, RoleFailedToGetRoleErrorMessage, err)
 		return
 	}
 
 	if r.Method == http.MethodGet {
-		resources, err := c.resourceRepository.GetResources()
+		resources, err := c.repositoryContainer.GetResourceRepository().GetResources()
 		if err != nil {
 			c.renderer.Error(w, http.StatusInternalServerError, RoleFailedToGetResourcesErrorMessage, err)
 			return
@@ -161,7 +161,7 @@ func (c *Controller) RoleUpdateViewController(w http.ResponseWriter, r *http.Req
 			}
 			resourceIDs = append(resourceIDs, resourceID)
 		}
-		err = c.roleRepository.UpdateRole(role, resourceIDs)
+		err = c.repositoryContainer.GetRoleRepository().UpdateRole(role, resourceIDs)
 		if err != nil {
 			c.renderer.Error(w, http.StatusInternalServerError, RoleUpdateUpdateRoleErrorMessage, err)
 			return
@@ -189,7 +189,7 @@ func (c *Controller) RoleDeleteViewController(w http.ResponseWriter, r *http.Req
 		return
 	}
 	// delete the role
-	err = c.roleRepository.DeleteRole(roleID)
+	err = c.repositoryContainer.GetRoleRepository().DeleteRole(roleID)
 	if err != nil {
 		c.renderer.Error(w, http.StatusInternalServerError, RoleDeleteFailedToDeleteErrorMessage, err)
 		return
@@ -206,7 +206,7 @@ func (c *Controller) RoleListViewController(w http.ResponseWriter, r *http.Reque
 		return
 	}
 	// get all roles
-	roles, err := c.roleRepository.GetRoles()
+	roles, err := c.repositoryContainer.GetRoleRepository().GetRoles()
 	if err != nil {
 		c.renderer.Error(w, http.StatusInternalServerError, RoleListFailedToGetRolesErrorMessage, err)
 		return

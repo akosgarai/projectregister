@@ -40,7 +40,7 @@ func (c *Controller) serverViewData(r *http.Request) (*model.Server, int, error)
 	if err != nil {
 		return nil, http.StatusBadRequest, err
 	}
-	server, err := c.serverRepository.GetServerByID(serverID)
+	server, err := c.repositoryContainer.GetServerRepository().GetServerByID(serverID)
 	if err != nil {
 		return nil, http.StatusInternalServerError, err
 	}
@@ -57,12 +57,12 @@ func (c *Controller) ServerCreateViewController(w http.ResponseWriter, r *http.R
 		return
 	}
 	if r.Method == http.MethodGet {
-		runtimes, err := c.runtimeRepository.GetRuntimes()
+		runtimes, err := c.repositoryContainer.GetRuntimeRepository().GetRuntimes()
 		if err != nil {
 			c.renderer.Error(w, http.StatusInternalServerError, ServerCreateFailedToGetRuntimesErrorMessage, err)
 			return
 		}
-		pools, err := c.poolRepository.GetPools()
+		pools, err := c.repositoryContainer.GetPoolRepository().GetPools()
 		if err != nil {
 			c.renderer.Error(w, http.StatusInternalServerError, ServerCreateFailedToGetPoolsErrorMessage, err)
 			return
@@ -105,7 +105,7 @@ func (c *Controller) ServerCreateViewController(w http.ResponseWriter, r *http.R
 			poolIDs = append(poolIDs, id)
 		}
 
-		_, err := c.serverRepository.CreateServer(name, description, remoteAddress, runtimeIDs, poolIDs)
+		_, err := c.repositoryContainer.GetServerRepository().CreateServer(name, description, remoteAddress, runtimeIDs, poolIDs)
 		if err != nil {
 			c.renderer.Error(w, http.StatusInternalServerError, ServerCreateCreateServerErrorMessage, err)
 			return
@@ -134,19 +134,19 @@ func (c *Controller) ServerUpdateViewController(w http.ResponseWriter, r *http.R
 	}
 
 	// get the server
-	server, err := c.serverRepository.GetServerByID(serverID)
+	server, err := c.repositoryContainer.GetServerRepository().GetServerByID(serverID)
 	if err != nil {
 		c.renderer.Error(w, http.StatusInternalServerError, ServerFailedToGetServerErrorMessage, err)
 		return
 	}
 
 	if r.Method == http.MethodGet {
-		runtimes, err := c.runtimeRepository.GetRuntimes()
+		runtimes, err := c.repositoryContainer.GetRuntimeRepository().GetRuntimes()
 		if err != nil {
 			c.renderer.Error(w, http.StatusInternalServerError, ServerCreateFailedToGetRuntimesErrorMessage, err)
 			return
 		}
-		pools, err := c.poolRepository.GetPools()
+		pools, err := c.repositoryContainer.GetPoolRepository().GetPools()
 		if err != nil {
 			c.renderer.Error(w, http.StatusInternalServerError, ServerCreateFailedToGetPoolsErrorMessage, err)
 			return
@@ -196,7 +196,7 @@ func (c *Controller) ServerUpdateViewController(w http.ResponseWriter, r *http.R
 			}
 			server.Pools[i] = &model.Pool{ID: id}
 		}
-		err = c.serverRepository.UpdateServer(server)
+		err = c.repositoryContainer.GetServerRepository().UpdateServer(server)
 		if err != nil {
 			c.renderer.Error(w, http.StatusInternalServerError, ServerUpdateUpdateServerErrorMessage, err)
 			return
@@ -224,7 +224,7 @@ func (c *Controller) ServerDeleteViewController(w http.ResponseWriter, r *http.R
 		return
 	}
 	// delete the server
-	err = c.serverRepository.DeleteServer(serverID)
+	err = c.repositoryContainer.GetServerRepository().DeleteServer(serverID)
 	if err != nil {
 		c.renderer.Error(w, http.StatusInternalServerError, ServerDeleteFailedToDeleteErrorMessage, err)
 		return
@@ -241,7 +241,7 @@ func (c *Controller) ServerListViewController(w http.ResponseWriter, r *http.Req
 		return
 	}
 	// get all servers
-	servers, err := c.serverRepository.GetServers()
+	servers, err := c.repositoryContainer.GetServerRepository().GetServers()
 	if err != nil {
 		c.renderer.Error(w, http.StatusInternalServerError, ServerListFailedToGetServersErrorMessage, err)
 		return

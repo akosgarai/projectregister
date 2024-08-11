@@ -44,7 +44,7 @@ func (c *Controller) LoginActionController(w http.ResponseWriter, r *http.Reques
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
 	}
-	user, err := c.userRepository.GetUserByEmail(username)
+	user, err := c.repositoryContainer.GetUserRepository().GetUserByEmail(username)
 	if err != nil {
 		c.renderer.Error(w, http.StatusInternalServerError, UserFailedToGetUserErrorMessage, err)
 		return

@@ -40,7 +40,7 @@ func (c *Controller) poolViewData(r *http.Request) (*model.Pool, int, error) {
 	if err != nil {
 		return nil, http.StatusBadRequest, err
 	}
-	pool, err := c.poolRepository.GetPoolByID(poolID)
+	pool, err := c.repositoryContainer.GetPoolRepository().GetPoolByID(poolID)
 	if err != nil {
 		return nil, http.StatusInternalServerError, err
 	}
@@ -74,7 +74,7 @@ func (c *Controller) PoolCreateViewController(w http.ResponseWriter, r *http.Req
 			return
 		}
 
-		_, err := c.poolRepository.CreatePool(name)
+		_, err := c.repositoryContainer.GetPoolRepository().CreatePool(name)
 		if err != nil {
 			c.renderer.Error(w, http.StatusInternalServerError, PoolCreateCreatePoolErrorMessage, err)
 			return
@@ -103,7 +103,7 @@ func (c *Controller) PoolUpdateViewController(w http.ResponseWriter, r *http.Req
 	}
 
 	// get the pool
-	pool, err := c.poolRepository.GetPoolByID(poolID)
+	pool, err := c.repositoryContainer.GetPoolRepository().GetPoolByID(poolID)
 	if err != nil {
 		c.renderer.Error(w, http.StatusInternalServerError, PoolFailedToGetPoolErrorMessage, err)
 		return
@@ -129,7 +129,7 @@ func (c *Controller) PoolUpdateViewController(w http.ResponseWriter, r *http.Req
 
 		// update the pool
 		pool.Name = name
-		err = c.poolRepository.UpdatePool(pool)
+		err = c.repositoryContainer.GetPoolRepository().UpdatePool(pool)
 		if err != nil {
 			c.renderer.Error(w, http.StatusInternalServerError, PoolUpdateUpdatePoolErrorMessage, err)
 			return
@@ -157,7 +157,7 @@ func (c *Controller) PoolDeleteViewController(w http.ResponseWriter, r *http.Req
 		return
 	}
 	// delete the pool
-	err = c.poolRepository.DeletePool(poolID)
+	err = c.repositoryContainer.GetPoolRepository().DeletePool(poolID)
 	if err != nil {
 		c.renderer.Error(w, http.StatusInternalServerError, PoolDeleteFailedToDeleteErrorMessage, err)
 		return
@@ -174,7 +174,7 @@ func (c *Controller) PoolListViewController(w http.ResponseWriter, r *http.Reque
 		return
 	}
 	// get all pools
-	pools, err := c.poolRepository.GetPools()
+	pools, err := c.repositoryContainer.GetPoolRepository().GetPools()
 	if err != nil {
 		c.renderer.Error(w, http.StatusInternalServerError, PoolListFailedToGetPoolsErrorMessage, err)
 		return

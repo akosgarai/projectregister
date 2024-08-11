@@ -40,7 +40,7 @@ func (c *Controller) environmentViewData(r *http.Request) (*model.Environment, i
 	if err != nil {
 		return nil, http.StatusBadRequest, err
 	}
-	environment, err := c.environmentRepository.GetEnvironmentByID(environmentID)
+	environment, err := c.repositoryContainer.GetEnvironmentRepository().GetEnvironmentByID(environmentID)
 	if err != nil {
 		return nil, http.StatusInternalServerError, err
 	}
@@ -57,12 +57,12 @@ func (c *Controller) EnvironmentCreateViewController(w http.ResponseWriter, r *h
 		return
 	}
 	if r.Method == http.MethodGet {
-		servers, err := c.serverRepository.GetServers()
+		servers, err := c.repositoryContainer.GetServerRepository().GetServers()
 		if err != nil {
 			c.renderer.Error(w, http.StatusInternalServerError, EnvironmentCreateFailedToGetServersErrorMessage, err)
 			return
 		}
-		databases, err := c.databaseRepository.GetDatabases()
+		databases, err := c.repositoryContainer.GetDatabaseRepository().GetDatabases()
 		if err != nil {
 			c.renderer.Error(w, http.StatusInternalServerError, EnvironmentCreateFailedToGetDatabasesErrorMessage, err)
 			return
@@ -106,7 +106,7 @@ func (c *Controller) EnvironmentCreateViewController(w http.ResponseWriter, r *h
 			databaseIDs = append(databaseIDs, databaseID)
 		}
 
-		_, err := c.environmentRepository.CreateEnvironment(name, description, serverIDs, databaseIDs)
+		_, err := c.repositoryContainer.GetEnvironmentRepository().CreateEnvironment(name, description, serverIDs, databaseIDs)
 		if err != nil {
 			c.renderer.Error(w, http.StatusInternalServerError, EnvironmentCreateCreateEnvironmentErrorMessage, err)
 			return
@@ -135,19 +135,19 @@ func (c *Controller) EnvironmentUpdateViewController(w http.ResponseWriter, r *h
 	}
 
 	// get the environment
-	environment, err := c.environmentRepository.GetEnvironmentByID(environmentID)
+	environment, err := c.repositoryContainer.GetEnvironmentRepository().GetEnvironmentByID(environmentID)
 	if err != nil {
 		c.renderer.Error(w, http.StatusInternalServerError, EnvironmentFailedToGetEnvironmentErrorMessage, err)
 		return
 	}
 
 	if r.Method == http.MethodGet {
-		servers, err := c.serverRepository.GetServers()
+		servers, err := c.repositoryContainer.GetServerRepository().GetServers()
 		if err != nil {
 			c.renderer.Error(w, http.StatusInternalServerError, EnvironmentUpdateFailedToGetServersErrorMessage, err)
 			return
 		}
-		databases, err := c.databaseRepository.GetDatabases()
+		databases, err := c.repositoryContainer.GetDatabaseRepository().GetDatabases()
 		if err != nil {
 			c.renderer.Error(w, http.StatusInternalServerError, EnvironmentUpdateFailedToGetDatabasesErrorMessage, err)
 			return
@@ -195,7 +195,7 @@ func (c *Controller) EnvironmentUpdateViewController(w http.ResponseWriter, r *h
 		// update the environment
 		environment.Name = name
 		environment.Description = description
-		err = c.environmentRepository.UpdateEnvironment(environment)
+		err = c.repositoryContainer.GetEnvironmentRepository().UpdateEnvironment(environment)
 		if err != nil {
 			c.renderer.Error(w, http.StatusInternalServerError, EnvironmentUpdateUpdateEnvironmentErrorMessage, err)
 			return
@@ -223,7 +223,7 @@ func (c *Controller) EnvironmentDeleteViewController(w http.ResponseWriter, r *h
 		return
 	}
 	// delete the environment
-	err = c.environmentRepository.DeleteEnvironment(environmentID)
+	err = c.repositoryContainer.GetEnvironmentRepository().DeleteEnvironment(environmentID)
 	if err != nil {
 		c.renderer.Error(w, http.StatusInternalServerError, EnvironmentDeleteFailedToDeleteErrorMessage, err)
 		return
@@ -240,7 +240,7 @@ func (c *Controller) EnvironmentListViewController(w http.ResponseWriter, r *htt
 		return
 	}
 	// get all environments
-	environments, err := c.environmentRepository.GetEnvironments()
+	environments, err := c.repositoryContainer.GetEnvironmentRepository().GetEnvironments()
 	if err != nil {
 		c.renderer.Error(w, http.StatusInternalServerError, EnvironmentListFailedToGetEnvironmentsErrorMessage, err)
 		return

@@ -45,31 +45,9 @@ func (a *App) Initialize() {
 	// Create a csv file storage.
 	csvFileStorage := storage.NewCSVFileStorage(a.envConfig)
 	// create a new router
-	userRepository := repository.NewUserRepository(a.db)
-	roleRepository := repository.NewRoleRepository(a.db)
-	resourceRepository := repository.NewResourceRepository(a.db)
-	clientRepository := repository.NewClientRepository(a.db)
-	projectRepository := repository.NewProjectRepository(a.db)
-	domainRepository := repository.NewDomainRepository(a.db)
-	environmentRepository := repository.NewEnvironmentRepository(a.db)
-	runtimeRepository := repository.NewRuntimeRepository(a.db)
-	poolRepository := repository.NewPoolRepository(a.db)
-	databaseRepository := repository.NewDatabaseRepository(a.db)
-	serverRepository := repository.NewServerRepository(a.db)
-	applicationRepository := repository.NewApplicationRepository(a.db)
+	repositoryContainer := repository.NewContainerRepository(a.db)
 	a.Router = router.New(
-		userRepository,
-		roleRepository,
-		resourceRepository,
-		clientRepository,
-		projectRepository,
-		domainRepository,
-		environmentRepository,
-		runtimeRepository,
-		poolRepository,
-		databaseRepository,
-		serverRepository,
-		applicationRepository,
+		repositoryContainer,
 		session.NewStore(a.envConfig),
 		csvFileStorage,
 		render.NewRenderer(a.envConfig, render.NewTemplates()),

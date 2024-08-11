@@ -40,7 +40,7 @@ func (c *Controller) databaseViewData(r *http.Request) (*model.Database, int, er
 	if err != nil {
 		return nil, http.StatusBadRequest, err
 	}
-	database, err := c.databaseRepository.GetDatabaseByID(databaseID)
+	database, err := c.repositoryContainer.GetDatabaseRepository().GetDatabaseByID(databaseID)
 	if err != nil {
 		return nil, http.StatusInternalServerError, err
 	}
@@ -74,7 +74,7 @@ func (c *Controller) DatabaseCreateViewController(w http.ResponseWriter, r *http
 			return
 		}
 
-		_, err := c.databaseRepository.CreateDatabase(name)
+		_, err := c.repositoryContainer.GetDatabaseRepository().CreateDatabase(name)
 		if err != nil {
 			c.renderer.Error(w, http.StatusInternalServerError, DatabaseCreateCreateDatabaseErrorMessage, err)
 			return
@@ -103,7 +103,7 @@ func (c *Controller) DatabaseUpdateViewController(w http.ResponseWriter, r *http
 	}
 
 	// get the database
-	database, err := c.databaseRepository.GetDatabaseByID(databaseID)
+	database, err := c.repositoryContainer.GetDatabaseRepository().GetDatabaseByID(databaseID)
 	if err != nil {
 		c.renderer.Error(w, http.StatusInternalServerError, DatabaseFailedToGetDatabaseErrorMessage, err)
 		return
@@ -129,7 +129,7 @@ func (c *Controller) DatabaseUpdateViewController(w http.ResponseWriter, r *http
 
 		// update the database
 		database.Name = name
-		err = c.databaseRepository.UpdateDatabase(database)
+		err = c.repositoryContainer.GetDatabaseRepository().UpdateDatabase(database)
 		if err != nil {
 			c.renderer.Error(w, http.StatusInternalServerError, DatabaseUpdateUpdateDatabaseErrorMessage, err)
 			return
@@ -157,7 +157,7 @@ func (c *Controller) DatabaseDeleteViewController(w http.ResponseWriter, r *http
 		return
 	}
 	// delete the database
-	err = c.databaseRepository.DeleteDatabase(databaseID)
+	err = c.repositoryContainer.GetDatabaseRepository().DeleteDatabase(databaseID)
 	if err != nil {
 		c.renderer.Error(w, http.StatusInternalServerError, DatabaseDeleteFailedToDeleteErrorMessage, err)
 		return
@@ -174,7 +174,7 @@ func (c *Controller) DatabaseListViewController(w http.ResponseWriter, r *http.R
 		return
 	}
 	// get all databases
-	databases, err := c.databaseRepository.GetDatabases()
+	databases, err := c.repositoryContainer.GetDatabaseRepository().GetDatabases()
 	if err != nil {
 		c.renderer.Error(w, http.StatusInternalServerError, DatabaseListFailedToGetDatabasesErrorMessage, err)
 		return
