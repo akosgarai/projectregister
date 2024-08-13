@@ -18,15 +18,11 @@ import (
 // It calls the DashboardController function with the recorder and the request.
 func TestDashboardController(t *testing.T) {
 	testConfig := config.NewEnvironment(testhelper.TestConfigData)
-	sessionStore := session.NewStore(testConfig)
-	renderer := render.NewRenderer(testConfig)
 	c := New(
-		&testhelper.UserRepositoryMock{},
-		&testhelper.RoleRepositoryMock{},
-		&testhelper.ResourceRepositoryMock{},
-		sessionStore,
-		renderer,
-	)
+		testhelper.NewRepositoryContainerMock(),
+		session.NewStore(testConfig),
+		testhelper.CSVStorageMock{},
+		render.NewRenderer(testConfig, render.NewTemplates()))
 
 	req, err := http.NewRequest("GET", "/dashboard", nil)
 	if err != nil {

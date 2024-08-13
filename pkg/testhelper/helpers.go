@@ -1,6 +1,7 @@
 package testhelper
 
 import (
+	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
 	"strconv"
@@ -73,7 +74,7 @@ func (u *UserRepositoryMock) GetUsers() ([]*model.User, error) {
 // Set the UpdateRoleError field to the error you want to return.
 type RoleRepositoryMock struct {
 	LatestRole *model.Role
-	AllRoles   []*model.Role
+	AllRoles   *model.Roles
 
 	Error           error
 	UpdateRoleError error
@@ -105,7 +106,7 @@ func (r *RoleRepositoryMock) DeleteRole(id int64) error {
 }
 
 // GetRoles mocks the GetRoles method.
-func (r *RoleRepositoryMock) GetRoles() ([]*model.Role, error) {
+func (r *RoleRepositoryMock) GetRoles() (*model.Roles, error) {
 	return r.AllRoles, r.Error
 }
 
@@ -117,7 +118,7 @@ func (r *RoleRepositoryMock) GetRoles() ([]*model.Role, error) {
 // Set the UpdateResourceError field to the error you want to return.
 type ResourceRepositoryMock struct {
 	LatestResource *model.Resource
-	AllResources   []*model.Resource
+	AllResources   *model.Resources
 
 	Error               error
 	UpdateResourceError error
@@ -149,7 +150,7 @@ func (r *ResourceRepositoryMock) DeleteResource(id int64) error {
 }
 
 // GetResources mocks the GetResources method.
-func (r *ResourceRepositoryMock) GetResources() ([]*model.Resource, error) {
+func (r *ResourceRepositoryMock) GetResources() (*model.Resources, error) {
 	return r.AllResources, r.Error
 }
 
@@ -161,7 +162,7 @@ func (r *ResourceRepositoryMock) GetResources() ([]*model.Resource, error) {
 // Set the UpdateClientError field to the error you want to return.
 type ClientRepositoryMock struct {
 	LatestClient *model.Client
-	AllClients   []*model.Client
+	AllClients   *model.Clients
 
 	Error             error
 	UpdateClientError error
@@ -193,7 +194,7 @@ func (r *ClientRepositoryMock) DeleteClient(id int64) error {
 }
 
 // GetClients mocks the GetClients method.
-func (r *ClientRepositoryMock) GetClients() ([]*model.Client, error) {
+func (r *ClientRepositoryMock) GetClients() (*model.Clients, error) {
 	return r.AllClients, r.Error
 }
 
@@ -205,7 +206,7 @@ func (r *ClientRepositoryMock) GetClients() ([]*model.Client, error) {
 // Set the UpdateProjectError field to the error you want to return.
 type ProjectRepositoryMock struct {
 	LatestProject *model.Project
-	AllProjects   []*model.Project
+	AllProjects   *model.Projects
 
 	Error              error
 	UpdateProjectError error
@@ -237,7 +238,7 @@ func (r *ProjectRepositoryMock) DeleteProject(id int64) error {
 }
 
 // GetProjects mocks the GetProjects method.
-func (r *ProjectRepositoryMock) GetProjects() ([]*model.Project, error) {
+func (r *ProjectRepositoryMock) GetProjects() (*model.Projects, error) {
 	return r.AllProjects, r.Error
 }
 
@@ -249,7 +250,7 @@ func (r *ProjectRepositoryMock) GetProjects() ([]*model.Project, error) {
 // Set the UpdateDomainError field to the error you want to return.
 type DomainRepositoryMock struct {
 	LatestDomain *model.Domain
-	AllDomains   []*model.Domain
+	AllDomains   *model.Domains
 
 	Error             error
 	UpdateDomainError error
@@ -281,7 +282,12 @@ func (r *DomainRepositoryMock) DeleteDomain(id int64) error {
 }
 
 // GetDomains mocks the GetDomains method.
-func (r *DomainRepositoryMock) GetDomains() ([]*model.Domain, error) {
+func (r *DomainRepositoryMock) GetDomains() (*model.Domains, error) {
+	return r.AllDomains, r.Error
+}
+
+// GetFreeDomains mocks the GetFreeDomains method.
+func (r *DomainRepositoryMock) GetFreeDomains() (*model.Domains, error) {
 	return r.AllDomains, r.Error
 }
 
@@ -293,14 +299,14 @@ func (r *DomainRepositoryMock) GetDomains() ([]*model.Domain, error) {
 // Set the UpdateEnvironmentError field to the error you want to return.
 type EnvironmentRepositoryMock struct {
 	LatestEnvironment *model.Environment
-	AllEnvironments   []*model.Environment
+	AllEnvironments   *model.Environments
 
 	Error                  error
 	UpdateEnvironmentError error
 }
 
 // CreateEnvironment mocks the CreateEnvironment method.
-func (r *EnvironmentRepositoryMock) CreateEnvironment(name string) (*model.Environment, error) {
+func (r *EnvironmentRepositoryMock) CreateEnvironment(name, description string, serverIDs, databaseIDs []int64) (*model.Environment, error) {
 	return r.LatestEnvironment, r.Error
 }
 
@@ -325,7 +331,7 @@ func (r *EnvironmentRepositoryMock) DeleteEnvironment(id int64) error {
 }
 
 // GetEnvironments mocks the GetEnvironments method.
-func (r *EnvironmentRepositoryMock) GetEnvironments() ([]*model.Environment, error) {
+func (r *EnvironmentRepositoryMock) GetEnvironments() (*model.Environments, error) {
 	return r.AllEnvironments, r.Error
 }
 
@@ -337,7 +343,7 @@ func (r *EnvironmentRepositoryMock) GetEnvironments() ([]*model.Environment, err
 // Set the UpdateRuntimeError field to the error you want to return.
 type RuntimeRepositoryMock struct {
 	LatestRuntime *model.Runtime
-	AllRuntimes   []*model.Runtime
+	AllRuntimes   *model.Runtimes
 
 	Error              error
 	UpdateRuntimeError error
@@ -369,7 +375,7 @@ func (r *RuntimeRepositoryMock) DeleteRuntime(id int64) error {
 }
 
 // GetRuntimes mocks the GetRuntimes method.
-func (r *RuntimeRepositoryMock) GetRuntimes() ([]*model.Runtime, error) {
+func (r *RuntimeRepositoryMock) GetRuntimes() (*model.Runtimes, error) {
 	return r.AllRuntimes, r.Error
 }
 
@@ -381,7 +387,7 @@ func (r *RuntimeRepositoryMock) GetRuntimes() ([]*model.Runtime, error) {
 // Set the UpdatePoolError field to the error you want to return.
 type PoolRepositoryMock struct {
 	LatestPool *model.Pool
-	AllPools   []*model.Pool
+	AllPools   *model.Pools
 
 	Error           error
 	UpdatePoolError error
@@ -413,7 +419,7 @@ func (r *PoolRepositoryMock) DeletePool(id int64) error {
 }
 
 // GetPools mocks the GetPools method.
-func (r *PoolRepositoryMock) GetPools() ([]*model.Pool, error) {
+func (r *PoolRepositoryMock) GetPools() (*model.Pools, error) {
 	return r.AllPools, r.Error
 }
 
@@ -425,7 +431,7 @@ func (r *PoolRepositoryMock) GetPools() ([]*model.Pool, error) {
 // Set the UpdateDatabaseError field to the error you want to return.
 type DatabaseRepositoryMock struct {
 	LatestDatabase *model.Database
-	AllDatabases   []*model.Database
+	AllDatabases   *model.Databases
 
 	Error               error
 	UpdateDatabaseError error
@@ -457,7 +463,7 @@ func (r *DatabaseRepositoryMock) DeleteDatabase(id int64) error {
 }
 
 // GetDatabases mocks the GetDatabases method.
-func (r *DatabaseRepositoryMock) GetDatabases() ([]*model.Database, error) {
+func (r *DatabaseRepositoryMock) GetDatabases() (*model.Databases, error) {
 	return r.AllDatabases, r.Error
 }
 
@@ -469,7 +475,7 @@ func (r *DatabaseRepositoryMock) GetDatabases() ([]*model.Database, error) {
 // Set the UpdateServerError field to the error you want to return.
 type ServerRepositoryMock struct {
 	LatestServer *model.Server
-	AllServers   []*model.Server
+	AllServers   *model.Servers
 
 	Error             error
 	UpdateServerError error
@@ -501,8 +507,13 @@ func (r *ServerRepositoryMock) DeleteServer(id int64) error {
 }
 
 // GetServers mocks the GetServers method.
-func (r *ServerRepositoryMock) GetServers() ([]*model.Server, error) {
+func (r *ServerRepositoryMock) GetServers() (*model.Servers, error) {
 	return r.AllServers, r.Error
+}
+
+// GetServerByRemoteAddress mocks the GetServerByRemoteAddress method.
+func (r *ServerRepositoryMock) GetServerByRemoteAddress(remoteAddress string) (*model.Server, error) {
+	return r.LatestServer, r.Error
 }
 
 // ApplicationRepositoryMock is a mock for the ApplicationRepository interface.
@@ -513,14 +524,14 @@ func (r *ServerRepositoryMock) GetServers() ([]*model.Server, error) {
 // Set the UpdateApplicationError field to the error you want to return.
 type ApplicationRepositoryMock struct {
 	LatestApplication *model.Application
-	AllApplications   []*model.Application
+	AllApplications   *model.Applications
 
 	Error                  error
 	UpdateApplicationError error
 }
 
 // CreateApplication mocks the CreateApplication method.
-func (r *ApplicationRepositoryMock) CreateApplication(name, description, remoteAddress string, runtimes, pools []int64) (*model.Application, error) {
+func (r *ApplicationRepositoryMock) CreateApplication(clientID, projectID, environmentID, databaseID, runtimeID, poolID int64, repository, branch, dbName, dbUser, framework, docRoot string, domains []int64) (*model.Application, error) {
 	return r.LatestApplication, r.Error
 }
 
@@ -545,8 +556,127 @@ func (r *ApplicationRepositoryMock) DeleteApplication(id int64) error {
 }
 
 // GetApplications mocks the GetApplications method.
-func (r *ApplicationRepositoryMock) GetApplications() ([]*model.Application, error) {
+func (r *ApplicationRepositoryMock) GetApplications() (*model.Applications, error) {
 	return r.AllApplications, r.Error
+}
+
+// RepositoryContainerMock is a mock for the RepositoryContainer interface.
+// It can be used to mock the RepositoryContainer interface.
+type RepositoryContainerMock struct {
+	Applications *ApplicationRepositoryMock
+	Clients      *ClientRepositoryMock
+	Databases    *DatabaseRepositoryMock
+	Domains      *DomainRepositoryMock
+	Environments *EnvironmentRepositoryMock
+	Pools        *PoolRepositoryMock
+	Projects     *ProjectRepositoryMock
+	Resources    *ResourceRepositoryMock
+	Roles        *RoleRepositoryMock
+	Runtimes     *RuntimeRepositoryMock
+	Servers      *ServerRepositoryMock
+	Users        *UserRepositoryMock
+}
+
+// NewRepositoryContainerMock creates a new RepositoryContainerMock.
+func NewRepositoryContainerMock() *RepositoryContainerMock {
+	return &RepositoryContainerMock{
+		Applications: &ApplicationRepositoryMock{},
+		Clients:      &ClientRepositoryMock{},
+		Databases:    &DatabaseRepositoryMock{},
+		Domains:      &DomainRepositoryMock{},
+		Environments: &EnvironmentRepositoryMock{},
+		Pools:        &PoolRepositoryMock{},
+		Projects:     &ProjectRepositoryMock{},
+		Resources:    &ResourceRepositoryMock{},
+		Roles:        &RoleRepositoryMock{},
+		Runtimes:     &RuntimeRepositoryMock{},
+		Servers:      &ServerRepositoryMock{},
+		Users:        &UserRepositoryMock{},
+	}
+}
+
+// GetApplicationRepository mocks the GetApplicationRepository method.
+func (r *RepositoryContainerMock) GetApplicationRepository() model.ApplicationRepository {
+	return r.Applications
+}
+
+// GetClientRepository mocks the GetClientRepository method.
+func (r *RepositoryContainerMock) GetClientRepository() model.ClientRepository {
+	return r.Clients
+}
+
+// GetDatabaseRepository mocks the GetDatabaseRepository method.
+func (r *RepositoryContainerMock) GetDatabaseRepository() model.DatabaseRepository {
+	return r.Databases
+}
+
+// GetDomainRepository mocks the GetDomainRepository method.
+func (r *RepositoryContainerMock) GetDomainRepository() model.DomainRepository {
+	return r.Domains
+}
+
+// GetEnvironmentRepository mocks the GetEnvironmentRepository method.
+func (r *RepositoryContainerMock) GetEnvironmentRepository() model.EnvironmentRepository {
+	return r.Environments
+}
+
+// GetPoolRepository mocks the GetPoolRepository method.
+func (r *RepositoryContainerMock) GetPoolRepository() model.PoolRepository {
+	return r.Pools
+}
+
+// GetProjectRepository mocks the GetProjectRepository method.
+func (r *RepositoryContainerMock) GetProjectRepository() model.ProjectRepository {
+	return r.Projects
+}
+
+// GetResourceRepository mocks the GetResourceRepository method.
+func (r *RepositoryContainerMock) GetResourceRepository() model.ResourceRepository {
+	return r.Resources
+}
+
+// GetRoleRepository mocks the GetRoleRepository method.
+func (r *RepositoryContainerMock) GetRoleRepository() model.RoleRepository {
+	return r.Roles
+}
+
+// GetRuntimeRepository mocks the GetRuntimeRepository method.
+func (r *RepositoryContainerMock) GetRuntimeRepository() model.RuntimeRepository {
+	return r.Runtimes
+}
+
+// GetServerRepository mocks the GetServerRepository method.
+func (r *RepositoryContainerMock) GetServerRepository() model.ServerRepository {
+	return r.Servers
+}
+
+// GetUserRepository mocks the GetUserRepository method.
+func (r *RepositoryContainerMock) GetUserRepository() model.UserRepository {
+	return r.Users
+}
+
+// CSVStorageMock is a mock for the CSVStorage interface.
+// It can be used to mock the CSVStorage interface.
+// Set the Error field to the error you want to return.
+type CSVStorageMock struct {
+	Error    error
+	FileName string
+	Data     [][]string
+}
+
+// Save mocks the Save method.
+func (c CSVStorageMock) Save(file multipart.File) (string, error) {
+	return c.FileName, c.Error
+}
+
+// Delete mocks the Delete method.
+func (c CSVStorageMock) Delete(fileName string) error {
+	return c.Error
+}
+
+// Read mocks the Read method.
+func (c CSVStorageMock) Read(fileName string) ([][]string, error) {
+	return c.Data, c.Error
 }
 
 // NewRequestWithSessionCookie creates a new request with the session cookie.

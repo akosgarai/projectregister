@@ -16,14 +16,11 @@ import (
 
 func getNewAuthController() *Controller {
 	testConfig := config.NewEnvironment(testhelper.TestConfigData)
-	sessionStore := session.NewStore(testConfig)
-	renderer := render.NewRenderer(testConfig)
 	return New(
-		&testhelper.UserRepositoryMock{},
-		&testhelper.RoleRepositoryMock{},
-		&testhelper.ResourceRepositoryMock{},
-		sessionStore,
-		renderer)
+		testhelper.NewRepositoryContainerMock(),
+		session.NewStore(testConfig),
+		testhelper.CSVStorageMock{},
+		render.NewRenderer(testConfig, render.NewTemplates()))
 }
 
 // TestLoginPageControllerWithoutSession tests the LoginPageController function without session.
@@ -114,17 +111,14 @@ func TestLoginActionControllerNoInput(t *testing.T) {
 // It calls the LoginActionController function with the recorder and the request.
 // It checks the status code of the response.
 func TestLoginActionControllerNoUser(t *testing.T) {
-	userRepository := &testhelper.UserRepositoryMock{}
-	userRepository.Error = sql.ErrNoRows
 	testConfig := config.NewEnvironment(testhelper.TestConfigData)
-	sessionStore := session.NewStore(testConfig)
-	renderer := render.NewRenderer(testConfig)
+	repositoryContainer := testhelper.NewRepositoryContainerMock()
+	repositoryContainer.Users.Error = sql.ErrNoRows
 	c := New(
-		userRepository,
-		&testhelper.RoleRepositoryMock{},
-		&testhelper.ResourceRepositoryMock{},
-		sessionStore,
-		renderer,
+		repositoryContainer,
+		session.NewStore(testConfig),
+		testhelper.CSVStorageMock{},
+		render.NewRenderer(testConfig, render.NewTemplates()),
 	)
 
 	// Send request with the username and password.
@@ -151,22 +145,19 @@ func TestLoginActionControllerNoUser(t *testing.T) {
 // It calls the LoginActionController function with the recorder and the request.
 // It checks the status code of the response.
 func TestLoginActionControllerWrongPassword(t *testing.T) {
-	userRepository := &testhelper.UserRepositoryMock{}
-	userRepository.Error = nil
+	testConfig := config.NewEnvironment(testhelper.TestConfigData)
+	repositoryContainer := testhelper.NewRepositoryContainerMock()
+	repositoryContainer.Users.Error = nil
 	passwordHash, _ := passwd.HashPassword("test-password")
-	userRepository.LatestUser = &model.User{
+	repositoryContainer.Users.LatestUser = &model.User{
 		Email:    "test-email@address.com",
 		Password: passwordHash,
 	}
-	testConfig := config.NewEnvironment(testhelper.TestConfigData)
-	sessionStore := session.NewStore(testConfig)
-	renderer := render.NewRenderer(testConfig)
 	c := New(
-		userRepository,
-		&testhelper.RoleRepositoryMock{},
-		&testhelper.ResourceRepositoryMock{},
-		sessionStore,
-		renderer)
+		repositoryContainer,
+		session.NewStore(testConfig),
+		testhelper.CSVStorageMock{},
+		render.NewRenderer(testConfig, render.NewTemplates()))
 
 	// Send request with the username and password.
 	// The user db is not empty, but the password is wrong.
@@ -194,23 +185,20 @@ func TestLoginActionControllerWrongPassword(t *testing.T) {
 // It calls the LoginActionController function with the recorder and the request.
 // It checks the status code of the response.
 func TestLoginActionController(t *testing.T) {
-	userRepository := &testhelper.UserRepositoryMock{}
-	userRepository.Error = nil
-	passwordHash, _ := passwd.HashPassword("test-password")
+	testConfig := config.NewEnvironment(testhelper.TestConfigData)
+	repositoryContainer := testhelper.NewRepositoryContainerMock()
+	repositoryContainer.Users.Error = nil
 	email := "test-email@address.com"
-	userRepository.LatestUser = &model.User{
+	passwordHash, _ := passwd.HashPassword("test-password")
+	repositoryContainer.Users.LatestUser = &model.User{
 		Email:    email,
 		Password: passwordHash,
 	}
-	testConfig := config.NewEnvironment(testhelper.TestConfigData)
-	sessionStore := session.NewStore(testConfig)
-	renderer := render.NewRenderer(testConfig)
 	c := New(
-		userRepository,
-		&testhelper.RoleRepositoryMock{},
-		&testhelper.ResourceRepositoryMock{},
-		sessionStore,
-		renderer)
+		repositoryContainer,
+		session.NewStore(testConfig),
+		testhelper.CSVStorageMock{},
+		render.NewRenderer(testConfig, render.NewTemplates()))
 
 	// Send request with the username and password.
 	// The user db is not empty, and the password is correct.

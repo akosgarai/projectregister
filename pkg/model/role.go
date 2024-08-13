@@ -7,7 +7,7 @@ type Role struct {
 	CreatedAt string
 	UpdatedAt string
 
-	Resources []*Resource
+	Resources Resources
 }
 
 // HasResource checks if the role has the resource

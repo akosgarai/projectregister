@@ -12,70 +12,50 @@ import (
 // TestNew tests the New function.
 // It creates a new controller and checks the fields.
 func TestNew(t *testing.T) {
-	userRepository := &testhelper.UserRepositoryMock{}
-	roleRepository := &testhelper.RoleRepositoryMock{}
-	resourceRepository := &testhelper.ResourceRepositoryMock{}
-	clientRepository := &testhelper.ClientRepositoryMock{}
-	projectRepository := &testhelper.ProjectRepositoryMock{}
-	domainRepository := &testhelper.DomainRepositoryMock{}
-	environmentRepository := &testhelper.EnvironmentRepositoryMock{}
-	runtimeRepository := &testhelper.RuntimeRepositoryMock{}
-	poolRepository := &testhelper.PoolRepositoryMock{}
-	databaseRepository := &testhelper.DatabaseRepositoryMock{}
-	serverRepository := &testhelper.ServerRepositoryMock{}
-	applicationRepository := &testhelper.ApplicationRepositoryMock{}
+	repositoryContainer := testhelper.NewRepositoryContainerMock()
 	sessionStore := session.NewStore(config.DefaultEnvironment())
-	renderer := render.NewRenderer(config.DefaultEnvironment())
+	csvStorage := testhelper.CSVStorageMock{}
+	renderer := render.NewRenderer(config.DefaultEnvironment(), render.NewTemplates())
 	c := New(
-		userRepository,
-		roleRepository,
-		resourceRepository,
-		clientRepository,
-		projectRepository,
-		domainRepository,
-		environmentRepository,
-		runtimeRepository,
-		poolRepository,
-		databaseRepository,
-		serverRepository,
-		applicationRepository,
+		repositoryContainer,
 		sessionStore,
+		csvStorage,
 		renderer,
 	)
-	if c.userRepository != userRepository {
+	if c.repositoryContainer.GetUserRepository() != repositoryContainer.Users {
 		t.Errorf("UserRepository field is not the same as the input.")
 	}
-	if c.roleRepository != roleRepository {
+	if c.repositoryContainer.GetRoleRepository() != repositoryContainer.Roles {
 		t.Errorf("RoleRepository field is not the same as the input.")
 	}
-	if c.resourceRepository != resourceRepository {
+	if c.repositoryContainer.GetResourceRepository() != repositoryContainer.Resources {
 		t.Errorf("ResourceRepository field is not the same as the input.")
 	}
-	if c.clientRepository != clientRepository {
+	if c.repositoryContainer.GetClientRepository() != repositoryContainer.Clients {
 		t.Errorf("ClientRepository field is not the same as the input.")
 	}
-	if c.projectRepository != projectRepository {
+	if c.repositoryContainer.GetProjectRepository() != repositoryContainer.Projects {
 		t.Errorf("ProjectRepository field is not the same as the input.")
 	}
-	if c.domainRepository != domainRepository {
+	if c.repositoryContainer.GetDomainRepository() != repositoryContainer.Domains {
 		t.Errorf("DomainRepository field is not the same as the input.")
 	}
-	if c.environmentRepository != environmentRepository {
+	if c.repositoryContainer.GetEnvironmentRepository() != repositoryContainer.Environments {
 		t.Errorf("EnvironmentRepository field is not the same as the input.")
 	}
-	if c.runTimeRepository != runtimeRepository {
+	if c.repositoryContainer.GetRuntimeRepository() != repositoryContainer.Runtimes {
 		t.Errorf("RunTimeRepository field is not the same as the input.")
 	}
-	if c.poolRepository != poolRepository {
+	if c.repositoryContainer.GetPoolRepository() != repositoryContainer.Pools {
 		t.Errorf("PoolRepository field is not the same as the input.")
 	}
-	if c.databaseRepository != databaseRepository {
+	if c.repositoryContainer.GetDatabaseRepository() != repositoryContainer.Databases {
 		t.Errorf("DatabaseRepository field is not the same as the input.")
 	}
-	if c.serverRepository != serverRepository {
+	if c.repositoryContainer.GetServerRepository() != repositoryContainer.Servers {
 		t.Errorf("ServerRepository field is not the same as the input.")
 	}
-	if c.applicationRepository != applicationRepository {
+	if c.repositoryContainer.GetApplicationRepository() != repositoryContainer.Applications {
 		t.Errorf("ApplicationRepository field is not the same as the input.")
 	}
 	if c.sessionStore != sessionStore {

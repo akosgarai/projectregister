@@ -19,15 +19,12 @@ func TestHealthCheckHandler(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	sessionStore := session.NewStore(config.DefaultEnvironment())
-	renderer := render.NewRenderer(config.DefaultEnvironment())
+	testConfig := config.NewEnvironment(testhelper.TestConfigData)
 	c := New(
-		&testhelper.UserRepositoryMock{},
-		&testhelper.RoleRepositoryMock{},
-		&testhelper.ResourceRepositoryMock{},
-		sessionStore,
-		renderer,
-	)
+		testhelper.NewRepositoryContainerMock(),
+		session.NewStore(testConfig),
+		testhelper.CSVStorageMock{},
+		render.NewRenderer(testConfig, render.NewTemplates()))
 
 	// We create a ResponseRecorder (which satisfies http.ResponseWriter) to record the response.
 	rr := httptest.NewRecorder()
