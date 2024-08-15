@@ -4,8 +4,8 @@ import (
 	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
+	"regexp"
 	"strconv"
-	"strings"
 	"testing"
 
 	"github.com/akosgarai/projectregister/pkg/model"
@@ -696,7 +696,11 @@ func NewRequestWithSessionCookie(method, url string) (*http.Request, error) {
 // CheckBodyContains checks if the body contains the needles.
 func CheckBodyContains(t *testing.T, body string, needles []string) {
 	for _, needle := range needles {
-		if !strings.Contains(body, needle) {
+		match, err := regexp.MatchString(needle, body)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if !match {
 			t.Errorf("Missing needle in the body: %s / %s", needle, body)
 		}
 	}

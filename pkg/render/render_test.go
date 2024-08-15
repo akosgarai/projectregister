@@ -17,19 +17,19 @@ var (
 // TestNewRenderer is a test function for the NewRenderer function.
 func TestNewRenderer(t *testing.T) {
 	testConfig := config.NewEnvironment(testhelper.TestConfigData)
-	renderer := NewRenderer(testConfig)
+	renderer := NewRenderer(testConfig, NewTemplates())
 	if renderer == nil {
 		t.Error("The renderer is nil.")
 	}
-	if renderer.baseTemplate != testConfig.GetRenderTemplateDirectoryPath()+"/"+testConfig.GetRenderBaseTemplate() {
-		t.Errorf("The base template is not correct. Expected: %s, got: %s", testConfig.GetRenderTemplateDirectoryPath()+"/"+testConfig.GetRenderBaseTemplate(), renderer.baseTemplate)
+	if renderer.Template == nil {
+		t.Errorf("The template is nil.")
 	}
 }
 
 // TestGetTemplateDirectoryPath is a test function for the GetTemplateDirectoryPath function.
 func TestGetTemplateDirectoryPath(t *testing.T) {
 	testConfig := config.NewEnvironment(testhelper.TestConfigData)
-	renderer := NewRenderer(testConfig)
+	renderer := NewRenderer(testConfig, NewTemplates())
 	if renderer.GetTemplateDirectoryPath() != testConfig.GetRenderTemplateDirectoryPath() {
 		t.Errorf("The template directory path is not correct. Expected: %s, got: %s", testConfig.GetRenderTemplateDirectoryPath(), renderer.GetTemplateDirectoryPath())
 	}
@@ -38,33 +38,16 @@ func TestGetTemplateDirectoryPath(t *testing.T) {
 // TestGetStaticDirectoryPath is a test function for the GetStaticDirectoryPath function.
 func TestGetStaticDirectoryPath(t *testing.T) {
 	testConfig := config.NewEnvironment(testhelper.TestConfigData)
-	renderer := NewRenderer(testConfig)
+	renderer := NewRenderer(testConfig, NewTemplates())
 	if renderer.GetStaticDirectoryPath() != testConfig.GetStaticDirectoryPath() {
 		t.Errorf("The static directory path is not correct. Expected: %s, got: %s", testConfig.GetStaticDirectoryPath(), renderer.GetStaticDirectoryPath())
-	}
-}
-
-// TestBuildTemplate is a test function for the BuildTemplate function.
-func TestBuildTemplate(t *testing.T) {
-	// Test the template building with empty file list.
-	testConfig := config.NewEnvironment(testhelper.TestConfigData)
-	renderer := NewRenderer(testConfig)
-	emptyList := []string{}
-	templateName := "test"
-	template := renderer.BuildTemplate(templateName, emptyList)
-	if template == nil {
-		t.Error("The template is nil.")
-	}
-	// The template name has to be 'test'
-	if template.Name() != templateName {
-		t.Errorf("The template name is not correct. Expected: %s, got: %s", templateName, template.Name())
 	}
 }
 
 // TestJSON is a test function for the JSON function.
 func TestJSON(t *testing.T) {
 	testConfig := config.NewEnvironment(testhelper.TestConfigData)
-	renderer := NewRenderer(testConfig)
+	renderer := NewRenderer(testConfig, NewTemplates())
 	// Test the JSON function with a nil value.
 	// The function should return an error.
 	for _, code := range httpStatusCodes {
@@ -96,7 +79,7 @@ func TestJSON(t *testing.T) {
 // TestStatus is a test function for the Status function.
 func TestStatus(t *testing.T) {
 	testConfig := config.NewEnvironment(testhelper.TestConfigData)
-	renderer := NewRenderer(testConfig)
+	renderer := NewRenderer(testConfig, NewTemplates())
 	// Test the Status function with different status codes.
 	for _, code := range httpStatusCodes {
 		w := httptest.NewRecorder()
@@ -114,7 +97,7 @@ func TestStatus(t *testing.T) {
 // TestErrorWithoutDetails is a test function for the Error function.
 func TestErrorWithoutDetails(t *testing.T) {
 	testConfig := config.NewEnvironment(testhelper.TestConfigData)
-	renderer := NewRenderer(testConfig)
+	renderer := NewRenderer(testConfig, NewTemplates())
 	// Test the Error function with different status codes and messages.
 	for _, code := range httpStatusCodes {
 		w := httptest.NewRecorder()
@@ -132,7 +115,7 @@ func TestErrorWithoutDetails(t *testing.T) {
 // TestErrorWithDetails is a test function for the Error function.
 func TestErrorWithDetails(t *testing.T) {
 	testConfig := config.NewEnvironment(testhelper.TestConfigData)
-	renderer := NewRenderer(testConfig)
+	renderer := NewRenderer(testConfig, NewTemplates())
 	// Test the Error function with different status codes and messages.
 	for _, code := range httpStatusCodes {
 		w := httptest.NewRecorder()

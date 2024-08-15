@@ -16,11 +16,10 @@ import (
 func TestNew(t *testing.T) {
 	sessionStore := session.NewStore(config.DefaultEnvironment())
 	router := New(
-		&testhelper.UserRepositoryMock{},
-		&testhelper.RoleRepositoryMock{},
-		&testhelper.ResourceRepositoryMock{},
+		testhelper.NewRepositoryContainerMock(),
 		sessionStore,
-		render.NewRenderer(config.DefaultEnvironment()))
+		testhelper.CSVStorageMock{},
+		render.NewRenderer(config.NewEnvironment(testhelper.TestConfigData), render.NewTemplates()))
 	if router == nil {
 		t.Error("New router is nil")
 	}

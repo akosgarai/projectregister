@@ -17,14 +17,18 @@ import (
 // The test creates a new controller, a new request with a new response recorder.
 // It calls the DashboardController function with the recorder and the request.
 func TestDashboardController(t *testing.T) {
+	testUser := testhelper.GetUserWithAccessToResources(1, []string{"users.view"})
 	testConfig := config.NewEnvironment(testhelper.TestConfigData)
+	sessionStore := session.NewStore(testConfig)
+	sessionStore.Set(testhelper.TestSessionCookieValue, session.New(testUser))
 	c := New(
 		testhelper.NewRepositoryContainerMock(),
-		session.NewStore(testConfig),
+		sessionStore,
 		testhelper.CSVStorageMock{},
 		render.NewRenderer(testConfig, render.NewTemplates()))
+	c.CacheTemplates()
 
-	req, err := http.NewRequest("GET", "/dashboard", nil)
+	req, err := testhelper.NewRequestWithSessionCookie("GET", "/dashboard")
 	if err != nil {
 		t.Fatal(err)
 	}

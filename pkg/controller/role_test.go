@@ -76,17 +76,16 @@ func TestRoleViewControllerWithoutPrivilege(t *testing.T) {
 func getRoleViewController(resources []string, repositoryMock *testhelper.RepositoryContainerMock) *Controller {
 	testUser := testhelper.GetUserWithAccessToResources(1, resources)
 	testConfig := config.NewEnvironment(testhelper.TestConfigData)
-	repositoryContainer := testhelper.NewRepositoryContainerMock()
-	repositoryContainer.Users.LatestUser = testUser
 	sessionStore := session.NewStore(testConfig)
 	// Add the user to the session store.
 	sessionStore.Set(testhelper.TestSessionCookieValue, session.New(testUser))
-	return New(
+	c := New(
 		repositoryMock,
 		sessionStore,
 		testhelper.CSVStorageMock{},
 		render.NewRenderer(testConfig, render.NewTemplates()))
-
+	c.CacheTemplates()
+	return c
 }
 
 // The user has the required privilege to view the role.
@@ -163,15 +162,16 @@ func TestRoleViewControllerRoleViewSuccess(t *testing.T) {
 	router.ServeHTTP(rr, req)
 
 	needles := []string{
-		"<title>Role View</title>",
-		"<h1>Role View</h1>",
-		"<p>ID: " + strconv.Itoa((int)(repositoryMock.Roles.LatestRole.ID)) + "</p>",
-		"<p>Name: " + repositoryMock.Roles.LatestRole.Name + "</p>",
-		"<p>Resources:</p>",
-		"<li>roles.view</li>",
+		"<title>Role Detail</title>",
+		"<h1>Role Detail</h1>",
+		"<div class=\"label\">ID<\\/div>\\s+<div class=\"value\">\\s+<p>\\s+" + strconv.Itoa((int)(repositoryMock.Roles.LatestRole.ID)) + "\\s+<\\/p>\\s+<\\/div>\\s+<\\/div>",
+		"<div class=\"label\">Name<\\/div>\\s+<div class=\"value\">\\s+<p>\\s+" + repositoryMock.Roles.LatestRole.Name + "\\s+<\\/p>\\s+<\\/div>\\s+<\\/div>",
+		"<div class=\"label\">Resources<\\/div>\\s+<div class=\"value\">\\s+<p>\\s+roles.view\\s+<\\/p>\\s+<\\/div>\\s+<\\/div>",
 	}
 	testhelper.CheckResponse(t, rr, http.StatusOK, needles)
 }
+
+// <div class=\"label\">ID<\/div>\\n\\s+<div class=\"value\">\\s+<p>\\s+" + 1 + "\\s+<\/p>\\s+<\/div>\\s+<\/div>
 
 // The user has the required privilege to create roles.
 // The resource repository returns error.
@@ -213,12 +213,10 @@ func TestRoleCreateViewControllerRendersTemplate(t *testing.T) {
 	router.ServeHTTP(rr, req)
 
 	needles := []string{
-		"<title>Role Create</title>",
-		"<h1>Role Create</h1>",
-		"<label for=\"name\">Name</label>",
-		"<input type=\"text\" class=\"form-control\" id=\"name\" name=\"name\" value=\"\" required>",
-		"<input type=\"checkbox\" id=\"r_1\" name=\"resources\" value=\"1\">",
-		"<label for=\"r_1\">roles.view</label>",
+		"<title>Create Role</title>",
+		"<h1>Create Role</h1>",
+		"<div class=\"form-group\">\\s+<label for=\"name\">Name<\\/label>\\s+<input type=\"text\" class=\"form-control\" id=\"name\" name=\"name\" placeholder=\"Name\" value=\"\" required >\\s+<\\/div>",
+		"<div class=\"form-group\">\\s+<label for=\"resources\">Resources<\\/label>\\s+<div class=\"checkbox\">\\s+<input type=\"checkbox\" id=\"r_1\" name=\"resources\" value=\"1\" >\\s+<label for=\"r_1\">roles.view<\\/label>\\s+<\\/div>\\s+<\\/div>",
 	}
 	testhelper.CheckResponse(t, rr, http.StatusOK, needles)
 }
@@ -360,7 +358,7 @@ func TestRoleUpdateViewControllerGetRoleRepositoryError(t *testing.T) {
 	missingDataError := "Missing data error"
 	repositoryMock := testhelper.NewRepositoryContainerMock()
 	repositoryMock.Roles.Error = errors.New(missingDataError)
-	c := getRoleViewController(createRoleResources, repositoryMock)
+	c := getRoleViewController(updateRoleResources, repositoryMock)
 
 	req, err := testhelper.NewRequestWithSessionCookie("GET", "/admin/role/update/2")
 	if err != nil {
@@ -421,12 +419,10 @@ func TestRoleUpdateViewControllerRendersTemplate(t *testing.T) {
 	router.ServeHTTP(rr, req)
 
 	needles := []string{
-		"<title>Role Update</title>",
-		"<h1>Role Update</h1>",
-		"<label for=\"name\">Name</label>",
-		"<input type=\"text\" class=\"form-control\" id=\"name\" name=\"name\" value=\"" + repositoryMock.Roles.LatestRole.Name + "\" required>",
-		"<input type=\"checkbox\" id=\"r_1\" name=\"resources\" value=\"1\"  checked >",
-		"<label for=\"r_1\">roles.view</label>",
+		"<title>Update Role</title>",
+		"<h1>Update Role</h1>",
+		"<div class=\"form-group\">\\s+<label for=\"name\">Name<\\/label>\\s+<input type=\"text\" class=\"form-control\" id=\"name\" name=\"name\" placeholder=\"Name\" value=\"Test Role\" required >\\s+<\\/div>",
+		"<div class=\"form-group\">\\s+<label for=\"resources\">Resources<\\/label>\\s+<div class=\"checkbox\">\\s+<input type=\"checkbox\" id=\"r_1\" name=\"resources\" value=\"1\" checked>\\s+<label for=\"r_1\">roles.view<\\/label>\\s+<\\/div>\\s+<\\/div>",
 	}
 	testhelper.CheckResponse(t, rr, http.StatusOK, needles)
 }
@@ -659,10 +655,11 @@ func TestRoleListViewControllerRendersTemplate(t *testing.T) {
 		"<h1>Role List</h1>",
 	}
 	for _, role := range *repositoryMock.Roles.AllRoles {
-		needles = append(needles, "<td>"+strconv.Itoa((int)(role.ID))+"</td>")
-		needles = append(needles, "<td>"+role.Name+"</td>")
-		needles = append(needles, "<a href=\"/admin/role/update/"+strconv.Itoa((int)(role.ID))+"\">Edit</a>")
+		needles = append(needles, "<td>\\s+"+strconv.Itoa((int)(role.ID))+"\\s+<\\/td>")
+		needles = append(needles, "<td>\\s+"+role.Name+"\\s+<\\/td>")
+		needles = append(needles, "<a href=\"/admin/role/update/"+strconv.Itoa((int)(role.ID))+"\">Update</a>")
 		needles = append(needles, "<a href=\"/admin/role/view/"+strconv.Itoa((int)(role.ID))+"\">View</a>")
+		needles = append(needles, "<form action=\"/admin/role/delete/"+strconv.Itoa((int)(role.ID))+"\" method=\"post\">\\s+<input type=\"submit\" value=\"Delete\">\\s+<\\/form>")
 	}
 	testhelper.CheckResponse(t, rr, http.StatusOK, needles)
 }

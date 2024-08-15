@@ -16,11 +16,14 @@ import (
 
 func getNewAuthController() *Controller {
 	testConfig := config.NewEnvironment(testhelper.TestConfigData)
-	return New(
+	c := New(
 		testhelper.NewRepositoryContainerMock(),
 		session.NewStore(testConfig),
 		testhelper.CSVStorageMock{},
 		render.NewRenderer(testConfig, render.NewTemplates()))
+	// call the cacheTemplate function
+	c.CacheTemplates()
+	return c
 }
 
 // TestLoginPageControllerWithoutSession tests the LoginPageController function without session.
