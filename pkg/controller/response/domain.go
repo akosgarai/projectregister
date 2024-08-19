@@ -10,16 +10,7 @@ import (
 // NewDomainDetailResponse is a constructor for the DetailResponse struct for a domain.
 func NewDomainDetailResponse(currentUser *model.User, domain *model.Domain) *DetailResponse {
 	headerText := "Domain Detail"
-	headerContent := components.NewContentHeader(headerText, []*components.Link{})
-	if currentUser.HasPrivilege("domains.update") {
-		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("Edit", fmt.Sprintf("/admin/domain/update/%d", domain.ID)))
-	}
-	if currentUser.HasPrivilege("domains.delete") {
-		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("Delete", fmt.Sprintf("/admin/domain/delete/%d", domain.ID)))
-	}
-	if currentUser.HasPrivilege("domains.view") {
-		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("List", "/admin/domain/list"))
-	}
+	headerContent := components.NewContentHeader(headerText, newDetailHeaderButtons(currentUser, "domains", fmt.Sprintf("%d", domain.ID)))
 	details := &components.DetailItems{
 		{Label: "ID", Value: &components.DetailValues{{Value: fmt.Sprintf("%d", domain.ID)}}},
 		{Label: "Name", Value: &components.DetailValues{{Value: domain.Name, Link: domain.Name}}},

@@ -10,16 +10,7 @@ import (
 // NewRuntimeDetailResponse is a constructor for the DetailResponse struct for a runtime.
 func NewRuntimeDetailResponse(currentUser *model.User, runtime *model.Runtime) *DetailResponse {
 	headerText := "Runtime Detail"
-	headerContent := components.NewContentHeader(headerText, []*components.Link{})
-	if currentUser.HasPrivilege("runtimes.update") {
-		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("Edit", fmt.Sprintf("/admin/runtime/update/%d", runtime.ID)))
-	}
-	if currentUser.HasPrivilege("runtimes.delete") {
-		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("Delete", fmt.Sprintf("/admin/runtime/delete/%d", runtime.ID)))
-	}
-	if currentUser.HasPrivilege("runtimes.view") {
-		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("List", "/admin/runtime/list"))
-	}
+	headerContent := components.NewContentHeader(headerText, newDetailHeaderButtons(currentUser, "runtimes", fmt.Sprintf("%d", runtime.ID)))
 	details := &components.DetailItems{
 		{Label: "ID", Value: &components.DetailValues{{Value: fmt.Sprintf("%d", runtime.ID)}}},
 		{Label: "Name", Value: &components.DetailValues{{Value: runtime.Name}}},

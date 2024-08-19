@@ -10,16 +10,7 @@ import (
 // NewPoolDetailResponse is a constructor for the DetailResponse struct for a pool.
 func NewPoolDetailResponse(currentUser *model.User, pool *model.Pool) *DetailResponse {
 	headerText := "Pool Detail"
-	headerContent := components.NewContentHeader(headerText, []*components.Link{})
-	if currentUser.HasPrivilege("pools.update") {
-		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("Edit", fmt.Sprintf("/admin/pool/update/%d", pool.ID)))
-	}
-	if currentUser.HasPrivilege("pools.delete") {
-		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("Delete", fmt.Sprintf("/admin/pool/delete/%d", pool.ID)))
-	}
-	if currentUser.HasPrivilege("pools.view") {
-		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("List", "/admin/pool/list"))
-	}
+	headerContent := components.NewContentHeader(headerText, newDetailHeaderButtons(currentUser, "pools", fmt.Sprintf("%d", pool.ID)))
 	details := &components.DetailItems{
 		{Label: "ID", Value: &components.DetailValues{{Value: fmt.Sprintf("%d", pool.ID)}}},
 		{Label: "Name", Value: &components.DetailValues{{Value: pool.Name}}},

@@ -10,16 +10,7 @@ import (
 // NewDatabaseDetailResponse is a constructor for the DetailResponse struct for a database.
 func NewDatabaseDetailResponse(currentUser *model.User, database *model.Database) *DetailResponse {
 	headerText := "Database Detail"
-	headerContent := components.NewContentHeader(headerText, []*components.Link{})
-	if currentUser.HasPrivilege("databases.update") {
-		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("Edit", fmt.Sprintf("/admin/database/update/%d", database.ID)))
-	}
-	if currentUser.HasPrivilege("databases.delete") {
-		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("Delete", fmt.Sprintf("/admin/database/delete/%d", database.ID)))
-	}
-	if currentUser.HasPrivilege("databases.view") {
-		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("List", "/admin/database/list"))
-	}
+	headerContent := components.NewContentHeader(headerText, newDetailHeaderButtons(currentUser, "databases", fmt.Sprintf("%d", database.ID)))
 	details := &components.DetailItems{
 		{Label: "ID", Value: &components.DetailValues{{Value: fmt.Sprintf("%d", database.ID)}}},
 		{Label: "Name", Value: &components.DetailValues{{Value: database.Name}}},

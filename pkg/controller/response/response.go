@@ -51,6 +51,21 @@ func NewDetailResponse(title string, currentUser *model.User, header *components
 	}
 }
 
+// newDetailHeaderButtons is a helper function to generate the buttons for the detail page.
+func newDetailHeaderButtons(currentUser *model.User, resource, id string) []*components.Link {
+	buttons := []*components.Link{}
+	if currentUser.HasPrivilege(resource + ".update") {
+		buttons = append(buttons, components.NewLink("Edit", "/admin/"+resource+"/update/"+id))
+	}
+	if currentUser.HasPrivilege(resource + ".delete") {
+		buttons = append(buttons, components.NewLink("Delete", "/admin/"+resource+"/delete/"+id))
+	}
+	if currentUser.HasPrivilege(resource + ".view") {
+		buttons = append(buttons, components.NewLink("List", "/admin/"+resource+"/list"))
+	}
+	return buttons
+}
+
 // ListingResponse is the struct for the listing page.
 // It contains the response and the listing.
 type ListingResponse struct {

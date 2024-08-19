@@ -10,16 +10,7 @@ import (
 // NewClientDetailResponse is a constructor for the DetailResponse struct for a client.
 func NewClientDetailResponse(currentUser *model.User, client *model.Client) *DetailResponse {
 	headerText := "Client Detail"
-	headerContent := components.NewContentHeader(headerText, []*components.Link{})
-	if currentUser.HasPrivilege("clients.update") {
-		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("Edit", fmt.Sprintf("/admin/client/update/%d", client.ID)))
-	}
-	if currentUser.HasPrivilege("clients.delete") {
-		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("Delete", fmt.Sprintf("/admin/client/delete/%d", client.ID)))
-	}
-	if currentUser.HasPrivilege("clients.view") {
-		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("List", "/admin/client/list"))
-	}
+	headerContent := components.NewContentHeader(headerText, newDetailHeaderButtons(currentUser, "clients", fmt.Sprintf("%d", client.ID)))
 	details := &components.DetailItems{
 		{Label: "ID", Value: &components.DetailValues{{Value: fmt.Sprintf("%d", client.ID)}}},
 		{Label: "Name", Value: &components.DetailValues{{Value: client.Name}}},
@@ -47,13 +38,13 @@ func newClientFormResponse(title string, currentUser *model.User, client *model.
 	return NewFormResponse(title, currentUser, headerContent, form)
 }
 
-// NewClientCreateResponse is a constructor for the FormResponse struct for the client create page.
-func NewClientCreateResponse(currentUser *model.User) *FormResponse {
+// NewCreateClientResponse is a constructor for the FormResponse struct for the client create page.
+func NewCreateClientResponse(currentUser *model.User) *FormResponse {
 	return newClientFormResponse("Create Client", currentUser, &model.Client{}, "/admin/client/create", "POST", "Create")
 }
 
-// NewClientUpdateResponse is a constructor for the FormResponse struct for the client update page.
-func NewClientUpdateResponse(currentUser *model.User, client *model.Client) *FormResponse {
+// NewUpdateClientResponse is a constructor for the FormResponse struct for the client update page.
+func NewUpdateClientResponse(currentUser *model.User, client *model.Client) *FormResponse {
 	return newClientFormResponse("Update Client", currentUser, client, fmt.Sprintf("/admin/client/update/%d", client.ID), "POST", "Update")
 }
 
@@ -73,11 +64,11 @@ func NewClientListResponse(currentUser *model.User, clients *model.Clients) *Lis
 	userCanDelete := currentUser.HasPrivilege("clients.delete")
 	for _, client := range *clients {
 		columns := components.ListingColumns{}
-		idColumn := &components.ListingColumn{&components.ListingColumnValues{{Value: fmt.Sprintf("%d", client.ID)}}}
+		idColumn := &components.ListingColumn{Values: &components.ListingColumnValues{{Value: fmt.Sprintf("%d", client.ID)}}}
 		columns = append(columns, idColumn)
-		nameColumn := &components.ListingColumn{&components.ListingColumnValues{{Value: client.Name}}}
+		nameColumn := &components.ListingColumn{Values: &components.ListingColumnValues{{Value: client.Name}}}
 		columns = append(columns, nameColumn)
-		actionsColumn := components.ListingColumn{&components.ListingColumnValues{
+		actionsColumn := components.ListingColumn{Values: &components.ListingColumnValues{
 			{Value: "View", Link: fmt.Sprintf("/admin/client/view/%d", client.ID)},
 		}}
 		if userCanEdit {

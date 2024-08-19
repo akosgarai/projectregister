@@ -10,16 +10,7 @@ import (
 // NewProjectDetailResponse is a constructor for the ProjectDetailResponse struct.
 func NewProjectDetailResponse(currentUser *model.User, project *model.Project) *DetailResponse {
 	headerText := "Project Detail"
-	headerContent := components.NewContentHeader(headerText, []*components.Link{})
-	if currentUser.HasPrivilege("projects.update") {
-		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("Edit", fmt.Sprintf("/admin/project/update/%d", project.ID)))
-	}
-	if currentUser.HasPrivilege("projects.delete") {
-		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("Delete", fmt.Sprintf("/admin/project/delete/%d", project.ID)))
-	}
-	if currentUser.HasPrivilege("projects.view") {
-		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("List", "/admin/project/list"))
-	}
+	headerContent := components.NewContentHeader(headerText, newDetailHeaderButtons(currentUser, "projects", fmt.Sprintf("%d", project.ID)))
 	details := &components.DetailItems{
 		{Label: "ID", Value: &components.DetailValues{{Value: fmt.Sprintf("%d", project.ID)}}},
 		{Label: "Name", Value: &components.DetailValues{{Value: project.Name}}},
