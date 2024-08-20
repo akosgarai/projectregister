@@ -10,16 +10,7 @@ import (
 // NewRoleDetailResponse is a constructor for the DetailResponse struct for a pool.
 func NewRoleDetailResponse(currentUser *model.User, role *model.Role) *DetailResponse {
 	headerText := "Role Detail"
-	headerContent := components.NewContentHeader(headerText, []*components.Link{})
-	if currentUser.HasPrivilege("roles.update") {
-		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("Edit", fmt.Sprintf("/admin/role/update/%d", role.ID)))
-	}
-	if currentUser.HasPrivilege("roles.delete") {
-		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("Delete", fmt.Sprintf("/admin/role/delete/%d", role.ID)))
-	}
-	if currentUser.HasPrivilege("roles.view") {
-		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("List", "/admin/role/list"))
-	}
+	headerContent := components.NewContentHeader(headerText, newDetailHeaderButtons(currentUser, "roles", fmt.Sprintf("%d", role.ID)))
 	resourceValues := components.DetailValues{}
 	if len(role.Resources) > 0 {
 		for _, resource := range role.Resources {
@@ -86,11 +77,11 @@ func NewRoleListResponse(currentUser *model.User, roles *model.Roles) *ListingRe
 	userCanDelete := currentUser.HasPrivilege("roles.delete")
 	for _, role := range *roles {
 		columns := components.ListingColumns{}
-		idColumn := &components.ListingColumn{&components.ListingColumnValues{{Value: fmt.Sprintf("%d", role.ID)}}}
+		idColumn := &components.ListingColumn{Values: &components.ListingColumnValues{{Value: fmt.Sprintf("%d", role.ID)}}}
 		columns = append(columns, idColumn)
-		nameColumn := &components.ListingColumn{&components.ListingColumnValues{{Value: role.Name}}}
+		nameColumn := &components.ListingColumn{Values: &components.ListingColumnValues{{Value: role.Name}}}
 		columns = append(columns, nameColumn)
-		actionsColumn := components.ListingColumn{&components.ListingColumnValues{
+		actionsColumn := components.ListingColumn{Values: &components.ListingColumnValues{
 			{Value: "View", Link: fmt.Sprintf("/admin/role/view/%d", role.ID)},
 		}}
 		if userCanEdit {

@@ -10,16 +10,7 @@ import (
 // NewUserDetailResponse is a constructor for the DetailResponse struct for a user.
 func NewUserDetailResponse(currentUser, user *model.User) *DetailResponse {
 	headerText := "User Detail"
-	headerContent := components.NewContentHeader(headerText, []*components.Link{})
-	if currentUser.HasPrivilege("users.update") {
-		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("Edit", fmt.Sprintf("/admin/user/update/%d", user.ID)))
-	}
-	if currentUser.HasPrivilege("users.delete") {
-		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("Delete", fmt.Sprintf("/admin/user/delete/%d", user.ID)))
-	}
-	if currentUser.HasPrivilege("users.view") {
-		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("List", "/admin/user/list"))
-	}
+	headerContent := components.NewContentHeader(headerText, newDetailHeaderButtons(currentUser, "users", fmt.Sprintf("%d", user.ID)))
 	roleLink := ""
 	if currentUser.HasPrivilege("roles.view") {
 		roleLink = fmt.Sprintf("/admin/role/view/%d", user.Role.ID)
@@ -90,23 +81,23 @@ func NewUserListResponse(currentUser *model.User, users []*model.User) *ListingR
 	for _, user := range users {
 		columns := components.ListingColumns{}
 		// ID
-		idColumn := components.ListingColumn{&components.ListingColumnValues{{Value: fmt.Sprintf("%d", user.ID)}}}
+		idColumn := components.ListingColumn{Values: &components.ListingColumnValues{{Value: fmt.Sprintf("%d", user.ID)}}}
 		columns = append(columns, &idColumn)
 		// Name
-		nameColumn := components.ListingColumn{&components.ListingColumnValues{{Value: user.Name}}}
+		nameColumn := components.ListingColumn{Values: &components.ListingColumnValues{{Value: user.Name}}}
 		columns = append(columns, &nameColumn)
 		// Email
-		emailColumn := components.ListingColumn{&components.ListingColumnValues{{Value: user.Email}}}
+		emailColumn := components.ListingColumn{Values: &components.ListingColumnValues{{Value: user.Email}}}
 		columns = append(columns, &emailColumn)
 		// Role
 		roleLink := ""
 		if userCanViewRoles {
 			roleLink = fmt.Sprintf("/admin/role/view/%d", user.Role.ID)
 		}
-		roleColumn := components.ListingColumn{&components.ListingColumnValues{{Value: user.Role.Name, Link: roleLink}}}
+		roleColumn := components.ListingColumn{Values: &components.ListingColumnValues{{Value: user.Role.Name, Link: roleLink}}}
 		// Actions
 		columns = append(columns, &roleColumn)
-		actionsColumn := components.ListingColumn{&components.ListingColumnValues{
+		actionsColumn := components.ListingColumn{Values: &components.ListingColumnValues{
 			// view link
 			{Value: "View", Link: fmt.Sprintf("/admin/user/view/%d", user.ID)},
 		}}
