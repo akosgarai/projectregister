@@ -10,16 +10,7 @@ import (
 // NewServerDetailResponse is a constructor for the DetailResponse struct for a server.
 func NewServerDetailResponse(currentUser *model.User, server *model.Server) *DetailResponse {
 	headerText := "Server Detail"
-	headerContent := components.NewContentHeader(headerText, []*components.Link{})
-	if currentUser.HasPrivilege("servers.update") {
-		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("Edit", fmt.Sprintf("/admin/server/update/%d", server.ID)))
-	}
-	if currentUser.HasPrivilege("servers.delete") {
-		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("Delete", fmt.Sprintf("/admin/server/delete/%d", server.ID)))
-	}
-	if currentUser.HasPrivilege("servers.view") {
-		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("List", "/admin/server/list"))
-	}
+	headerContent := components.NewContentHeader(headerText, newDetailHeaderButtons(currentUser, "servers", fmt.Sprintf("%d", server.ID)))
 	runtimeValues := components.DetailValues{}
 	if len(server.Runtimes) > 0 {
 		for _, runtime := range server.Runtimes {
@@ -106,15 +97,15 @@ func NewServerListResponse(currentUser *model.User, servers *model.Servers) *Lis
 	userCanDelete := currentUser.HasPrivilege("servers.delete")
 	for _, server := range *servers {
 		columns := components.ListingColumns{}
-		idColumn := &components.ListingColumn{&components.ListingColumnValues{{Value: fmt.Sprintf("%d", server.ID)}}}
+		idColumn := &components.ListingColumn{Values: &components.ListingColumnValues{{Value: fmt.Sprintf("%d", server.ID)}}}
 		columns = append(columns, idColumn)
-		nameColumn := &components.ListingColumn{&components.ListingColumnValues{{Value: server.Name}}}
+		nameColumn := &components.ListingColumn{Values: &components.ListingColumnValues{{Value: server.Name}}}
 		columns = append(columns, nameColumn)
-		remoteAddrColumn := &components.ListingColumn{&components.ListingColumnValues{{Value: server.RemoteAddr}}}
+		remoteAddrColumn := &components.ListingColumn{Values: &components.ListingColumnValues{{Value: server.RemoteAddr}}}
 		columns = append(columns, remoteAddrColumn)
-		desctiptionColumn := &components.ListingColumn{&components.ListingColumnValues{{Value: server.Description}}}
+		desctiptionColumn := &components.ListingColumn{Values: &components.ListingColumnValues{{Value: server.Description}}}
 		columns = append(columns, desctiptionColumn)
-		actionsColumn := components.ListingColumn{&components.ListingColumnValues{
+		actionsColumn := components.ListingColumn{Values: &components.ListingColumnValues{
 			{Value: "View", Link: fmt.Sprintf("/admin/server/view/%d", server.ID)},
 		}}
 		if userCanEdit {

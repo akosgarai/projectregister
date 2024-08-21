@@ -9,18 +9,9 @@ import (
 )
 
 // NewApplicationDetailResponse is a constructor for the DetailResponse struct for an application.
-func NewApplicationDetailResponse(user *model.User, app *model.Application) *DetailResponse {
+func NewApplicationDetailResponse(currentUser *model.User, app *model.Application) *DetailResponse {
 	headerText := "Application Detail"
-	headerContent := components.NewContentHeader(headerText, []*components.Link{})
-	if user.HasPrivilege("applications.update") {
-		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("Edit", fmt.Sprintf("/admin/application/update/%d", app.ID)))
-	}
-	if user.HasPrivilege("applications.delete") {
-		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("Delete", fmt.Sprintf("/admin/application/delete/%d", app.ID)))
-	}
-	if user.HasPrivilege("applications.view") {
-		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("List", "/admin/application/list"))
-	}
+	headerContent := components.NewContentHeader(headerText, newDetailHeaderButtons(currentUser, "applications", fmt.Sprintf("%d", app.ID)))
 	dbValues := &components.DetailValues{
 		{Value: app.Database.Name, Link: fmt.Sprintf("/admin/database/view/%d", app.Database.ID)},
 	}
@@ -56,7 +47,7 @@ func NewApplicationDetailResponse(user *model.User, app *model.Application) *Det
 		{Label: "Updated At", Value: &components.DetailValues{{Value: app.UpdatedAt}}},
 		{Label: "Domains", Value: domainValues},
 	}
-	return NewDetailResponse(headerText, user, headerContent, details)
+	return NewDetailResponse(headerText, currentUser, headerContent, details)
 }
 
 // NewCreateApplicationResponse is a constructor for the FormResponse struct for the application create page.
@@ -171,10 +162,10 @@ func newApplicationFormResponse(
 }
 
 // NewApplicationListResponse is a constructor for the ListingResponse struct of the applications.
-func NewApplicationListResponse(user *model.User, apps *model.Applications) *ListingResponse {
+func NewApplicationListResponse(currentUser *model.User, apps *model.Applications) *ListingResponse {
 	headerText := "Application List"
 	headerContent := components.NewContentHeader(headerText, []*components.Link{})
-	if user.HasPrivilege("applications.create") {
+	if currentUser.HasPrivilege("applications.create") {
 		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("Create", "/admin/application/create"))
 	}
 	listingHeader := &components.ListingHeader{
@@ -182,32 +173,32 @@ func NewApplicationListResponse(user *model.User, apps *model.Applications) *Lis
 	}
 	// create the rows
 	listingRows := components.ListingRows{}
-	userCanEdit := user.HasPrivilege("applications.update")
-	userCanDelete := user.HasPrivilege("applications.delete")
+	userCanEdit := currentUser.HasPrivilege("applications.update")
+	userCanDelete := currentUser.HasPrivilege("applications.delete")
 	for _, application := range *apps {
 		columns := components.ListingColumns{}
 		idColumn := &components.ListingColumn{Values: &components.ListingColumnValues{{Value: fmt.Sprintf("%d", application.ID)}}}
 		columns = append(columns, idColumn)
 		clientViewLink := ""
-		if user.HasPrivilege("clients.view") {
+		if currentUser.HasPrivilege("clients.view") {
 			clientViewLink = fmt.Sprintf("/admin/client/view/%d", application.Client.ID)
 		}
 		clientColumn := &components.ListingColumn{Values: &components.ListingColumnValues{{Value: application.Client.Name, Link: clientViewLink}}}
 		columns = append(columns, clientColumn)
 		projectViewLink := ""
-		if user.HasPrivilege("projects.view") {
+		if currentUser.HasPrivilege("projects.view") {
 			projectViewLink = fmt.Sprintf("/admin/project/view/%d", application.Project.ID)
 		}
 		projectColumn := &components.ListingColumn{Values: &components.ListingColumnValues{{Value: application.Project.Name, Link: projectViewLink}}}
 		columns = append(columns, projectColumn)
 		environmentViewLink := ""
-		if user.HasPrivilege("environments.view") {
+		if currentUser.HasPrivilege("environments.view") {
 			environmentViewLink = fmt.Sprintf("/admin/environment/view/%d", application.Environment.ID)
 		}
 		environmentColumn := &components.ListingColumn{Values: &components.ListingColumnValues{{Value: application.Environment.Name, Link: environmentViewLink}}}
 		columns = append(columns, environmentColumn)
 		databaseViewLink := ""
-		if user.HasPrivilege("databases.view") {
+		if currentUser.HasPrivilege("databases.view") {
 			databaseViewLink = fmt.Sprintf("/admin/database/view/%d", application.Database.ID)
 		}
 		databaseColumn := &components.ListingColumn{Values: &components.ListingColumnValues{{Value: application.Database.Name, Link: databaseViewLink}}}
@@ -216,13 +207,13 @@ func NewApplicationListResponse(user *model.User, apps *model.Applications) *Lis
 		}
 		columns = append(columns, databaseColumn)
 		runtimeViewLink := ""
-		if user.HasPrivilege("runtimes.view") {
+		if currentUser.HasPrivilege("runtimes.view") {
 			runtimeViewLink = fmt.Sprintf("/admin/runtime/view/%d", application.Runtime.ID)
 		}
 		runtimeColumn := &components.ListingColumn{Values: &components.ListingColumnValues{{Value: application.Runtime.Name, Link: runtimeViewLink}}}
 		columns = append(columns, runtimeColumn)
 		poolViewLink := ""
-		if user.HasPrivilege("pools.view") {
+		if currentUser.HasPrivilege("pools.view") {
 			poolViewLink = fmt.Sprintf("/admin/pool/view/%d", application.Pool.ID)
 		}
 		poolColumn := &components.ListingColumn{Values: &components.ListingColumnValues{{Value: application.Pool.Name, Link: poolViewLink}}}
@@ -261,7 +252,7 @@ func NewApplicationListResponse(user *model.User, apps *model.Applications) *Lis
 
 		listingRows = append(listingRows, &components.ListingRow{Columns: &columns})
 	}
-	return NewListingResponse(headerText, user, headerContent, &components.Listing{Header: listingHeader, Rows: &listingRows})
+	return NewListingResponse(headerText, currentUser, headerContent, &components.Listing{Header: listingHeader, Rows: &listingRows})
 }
 
 // NewApplicationImportToEnvironmentFormResponse is a constructor for the ApplicationImportToEnvironmentFormResponse struct.
@@ -300,6 +291,10 @@ func NewApplicationMappingToEnvironmentFormResponse(currentUser *model.User, env
 	// Add 5 rows to the listing as preview.
 	for i := 0; i < 5; i++ {
 		columns := components.ListingColumns{}
+		// if the data index is missing, we are done, no need to continue.
+		if len(data) <= i {
+			break
+		}
 		for _, dataItem := range data[i] {
 			columns = append(columns, &components.ListingColumn{Values: &components.ListingColumnValues{{Value: dataItem}}})
 		}

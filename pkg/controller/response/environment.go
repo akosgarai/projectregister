@@ -10,16 +10,7 @@ import (
 // NewEnvironmentDetailResponse is a constructor for the DetailResponse struct for an environment.
 func NewEnvironmentDetailResponse(currentUser *model.User, environment *model.Environment) *DetailResponse {
 	headerText := "Environment Detail"
-	headerContent := components.NewContentHeader(headerText, []*components.Link{})
-	if currentUser.HasPrivilege("environments.update") {
-		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("Edit", fmt.Sprintf("/admin/environment/update/%d", environment.ID)))
-	}
-	if currentUser.HasPrivilege("environments.delete") {
-		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("Delete", fmt.Sprintf("/admin/environment/delete/%d", environment.ID)))
-	}
-	if currentUser.HasPrivilege("environments.view") {
-		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("List", "/admin/environment/list"))
-	}
+	headerContent := components.NewContentHeader(headerText, newDetailHeaderButtons(currentUser, "environments", fmt.Sprintf("%d", environment.ID)))
 	if currentUser.HasPrivilege("applications.create") {
 		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("Import Applications", fmt.Sprintf("/admin/application/import-to-environment/%d", environment.ID)))
 	}
@@ -114,7 +105,7 @@ func NewEnvironmentListResponse(currentUser *model.User, environments *model.Env
 		columns = append(columns, nameColumn)
 		desctiptionColumn := &components.ListingColumn{Values: &components.ListingColumnValues{{Value: environment.Description}}}
 		columns = append(columns, desctiptionColumn)
-		actionsColumn := components.ListingColumn{&components.ListingColumnValues{
+		actionsColumn := components.ListingColumn{Values: &components.ListingColumnValues{
 			{Value: "View", Link: fmt.Sprintf("/admin/environment/view/%d", environment.ID)},
 		}}
 		if userCanEdit {
