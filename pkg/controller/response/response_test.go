@@ -59,11 +59,12 @@ func TestNewDetailHeaderButtons(t *testing.T) {
 		// User with view priv only allowed to have the list button.
 		testUser := testhelper.GetUserWithAccessToResources(1, []string{resource + ".view"})
 		buttons := newDetailHeaderButtons(testUser, resource, "1")
+		resourceSingular := resource[:len(resource)-1]
 		if len(buttons) != 1 {
 			t.Errorf("Buttons are not generated properly. Got: %v", buttons)
 		}
 		// The button has to be the list button link to the listing.
-		if buttons[0].Text != "List" || buttons[0].Href != "/admin/"+resource+"/list" {
+		if buttons[0].Text != "List" || buttons[0].Href != "/admin/"+resourceSingular+"/list" {
 			t.Errorf("List button is not generated properly. Got: %s / %s", buttons[0].Text, buttons[0].Href)
 		}
 		// User with view and update priv allowed to have the list and update buttons.
@@ -74,11 +75,11 @@ func TestNewDetailHeaderButtons(t *testing.T) {
 		}
 		// The buttons have to be the list and update buttons.
 		// The first button has to be the update button links to the edit page.
-		if buttons[0].Text != "Edit" || buttons[0].Href != "/admin/"+resource+"/update/1" {
+		if buttons[0].Text != "Edit" || buttons[0].Href != "/admin/"+resourceSingular+"/update/1" {
 			t.Errorf("Edit button is not generated properly. Got: %s / %s", buttons[0].Text, buttons[0].Href)
 		}
 		// The second button has to be the list button links to the listing.
-		if buttons[1].Text != "List" || buttons[1].Href != "/admin/"+resource+"/list" {
+		if buttons[1].Text != "List" || buttons[1].Href != "/admin/"+resourceSingular+"/list" {
 			t.Errorf("Edit button is not generated properly. Got: %s / %s", buttons[1].Text, buttons[1].Href)
 		}
 		// User with view, update and delete priv allowed to have the list, update and delete buttons.
@@ -88,15 +89,15 @@ func TestNewDetailHeaderButtons(t *testing.T) {
 			t.Errorf("Buttons are not generated properly. Got: %v", buttons)
 		}
 		// The first button has to be the update button links to the edit page.
-		if buttons[0].Text != "Edit" || buttons[0].Href != "/admin/"+resource+"/update/1" {
+		if buttons[0].Text != "Edit" || buttons[0].Href != "/admin/"+resourceSingular+"/update/1" {
 			t.Errorf("Edit button is not generated properly. Got: %s / %s", buttons[0].Text, buttons[0].Href)
 		}
 		// The second button has to be the delete button links to the delete page.
-		if buttons[1].Text != "Delete" || buttons[1].Href != "/admin/"+resource+"/delete/1" {
+		if buttons[1].Text != "Delete" || buttons[1].Href != "/admin/"+resourceSingular+"/delete/1" {
 			t.Errorf("Edit button is not generated properly. Got: %s / %s", buttons[1].Text, buttons[1].Href)
 		}
 		// The third button has to be the list button links to the listing.
-		if buttons[2].Text != "List" || buttons[2].Href != "/admin/"+resource+"/list" {
+		if buttons[2].Text != "List" || buttons[2].Href != "/admin/"+resourceSingular+"/list" {
 			t.Errorf("Edit button is not generated properly. Got: %s / %s", buttons[2].Text, buttons[2].Href)
 		}
 	}

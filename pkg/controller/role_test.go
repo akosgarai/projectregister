@@ -659,7 +659,7 @@ func TestRoleListViewControllerRendersTemplate(t *testing.T) {
 		needles = append(needles, "<td>\\s+"+role.Name+"\\s+<\\/td>")
 		needles = append(needles, "<a href=\"/admin/role/update/"+strconv.Itoa((int)(role.ID))+"\">Update</a>")
 		needles = append(needles, "<a href=\"/admin/role/view/"+strconv.Itoa((int)(role.ID))+"\">View</a>")
-		needles = append(needles, "<form action=\"/admin/role/delete/"+strconv.Itoa((int)(role.ID))+"\" method=\"post\">\\s+<input type=\"submit\" value=\"Delete\">\\s+<\\/form>")
+		needles = append(needles, "<form action=\"/admin/role/delete/"+strconv.Itoa((int)(role.ID))+"\" method=\"post\" class=\"form-link\">\\s+<input type=\"submit\" value=\"Delete\">\\s+<\\/form>")
 	}
 	testhelper.CheckResponse(t, rr, http.StatusOK, needles)
 }

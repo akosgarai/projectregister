@@ -52,16 +52,19 @@ func NewDetailResponse(title string, currentUser *model.User, header *components
 }
 
 // newDetailHeaderButtons is a helper function to generate the buttons for the detail page.
+// The input resource is plural, as the plural is needed for the privilege check.
+// The link need the singular version of the resource. It is the resource without the 's' at the end.
 func newDetailHeaderButtons(currentUser *model.User, resource, id string) []*components.Link {
 	buttons := []*components.Link{}
+	resourceSingular := resource[:len(resource)-1]
 	if currentUser.HasPrivilege(resource + ".update") {
-		buttons = append(buttons, components.NewLink("Edit", "/admin/"+resource+"/update/"+id))
+		buttons = append(buttons, components.NewLink("Edit", "/admin/"+resourceSingular+"/update/"+id))
 	}
 	if currentUser.HasPrivilege(resource + ".delete") {
-		buttons = append(buttons, components.NewLink("Delete", "/admin/"+resource+"/delete/"+id))
+		buttons = append(buttons, components.NewLink("Delete", "/admin/"+resourceSingular+"/delete/"+id))
 	}
 	if currentUser.HasPrivilege(resource + ".view") {
-		buttons = append(buttons, components.NewLink("List", "/admin/"+resource+"/list"))
+		buttons = append(buttons, components.NewLink("List", "/admin/"+resourceSingular+"/list"))
 	}
 	return buttons
 }
