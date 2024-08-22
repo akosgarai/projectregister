@@ -227,6 +227,7 @@ input[type="submit"] {
 	display: flex;
 	flex-direction: row;
 	align-items: center;
+	gap: 10px;
 }
 
 .content {
@@ -253,6 +254,12 @@ thead tr {
 	top: 0;
 }
 
+table tr td:last-child {
+	display: flex;
+	gap: 10px;
+	justify-content: flex-end;
+}
+table tr td:last-child > a,
 .button-link {
 	text-decoration: none;
 	background-color: var(--button-background-color);
@@ -263,6 +270,25 @@ thead tr {
 	height: var(--input-height);
 	line-height: 28px;
 	box-sizing: border-box;
+	display: inline-block;
+}
+
+.form-link {
+	display: inline-block;
+}
+.form-link input[type="submit"] {
+	text-decoration: none;
+	background-color: var(--button-background-color);
+	color: var(--button-text-color);
+	padding: 14px 20px;
+	border: 1.5px solid grey;
+	border-radius: var(--general-border-radius);
+	height: var(--input-height);
+	line-height: 28px;
+	box-sizing: border-box;
+
+	margin-top: 0;
+	font-size: 16px;
 }
 
 /* Detail Page */

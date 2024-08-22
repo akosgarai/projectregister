@@ -15,7 +15,7 @@
 							{{range .Values}}
 								{{if ne .Link ""}}
 									{{if .Form}}
-										<form action="{{.Link}}" method="post">
+										<form action="{{.Link}}" method="post" class="form-link">
 											<input type="submit" value="{{.Value}}">
 										</form>
 									{{else}}
