@@ -205,8 +205,12 @@ func (c *Controller) RoleListViewController(w http.ResponseWriter, r *http.Reque
 		c.renderer.Error(w, http.StatusForbidden, "Forbidden", nil)
 		return
 	}
+	filter := model.NewRoleFilter()
+	if r.Method == http.MethodPost {
+		filter.Name = r.FormValue("name")
+	}
 	// get all roles
-	roles, err := c.repositoryContainer.GetRoleRepository().GetRoles()
+	roles, err := c.repositoryContainer.GetRoleRepository().GetRoles(filter)
 	if err != nil {
 		c.renderer.Error(w, http.StatusInternalServerError, RoleListFailedToGetRolesErrorMessage, err)
 		return

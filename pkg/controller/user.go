@@ -70,7 +70,7 @@ func (c *Controller) UserCreateViewController(w http.ResponseWriter, r *http.Req
 	}
 	if r.Method == http.MethodGet {
 		// get all roles
-		roles, err := c.repositoryContainer.GetRoleRepository().GetRoles()
+		roles, err := c.repositoryContainer.GetRoleRepository().GetRoles(model.NewRoleFilter())
 		if err != nil {
 			c.renderer.Error(w, http.StatusInternalServerError, UserFailedToGetRolesErrorMessage, err)
 			return
@@ -176,7 +176,7 @@ func (c *Controller) UserUpdateViewController(w http.ResponseWriter, r *http.Req
 
 	if r.Method == http.MethodGet {
 		// get all roles
-		roles, err := c.repositoryContainer.GetRoleRepository().GetRoles()
+		roles, err := c.repositoryContainer.GetRoleRepository().GetRoles(model.NewRoleFilter())
 		if err != nil {
 			c.renderer.Error(w, http.StatusInternalServerError, UserFailedToGetRolesErrorMessage, err)
 			return

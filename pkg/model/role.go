@@ -34,6 +34,19 @@ func (r Roles) ToMap() map[int64]string {
 	return result
 }
 
+// RoleFilter type is the filter for the roles
+// It contains the name filter
+type RoleFilter struct {
+	Name string
+}
+
+// NewRoleFilter creates a new role filter
+func NewRoleFilter() *RoleFilter {
+	return &RoleFilter{
+		Name: "",
+	}
+}
+
 // RoleRepository interface
 type RoleRepository interface {
 	CreateRole(name string, resourceIDs []int64) (*Role, error)
@@ -41,5 +54,5 @@ type RoleRepository interface {
 	GetRoleByID(id int64) (*Role, error)
 	UpdateRole(role *Role, resourceIDs []int64) error
 	DeleteRole(id int64) error
-	GetRoles() (*Roles, error)
+	GetRoles(filter *RoleFilter) (*Roles, error)
 }

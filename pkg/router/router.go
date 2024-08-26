@@ -47,7 +47,7 @@ func New(
 	adminRouter.HandleFunc("/role/view/{roleId}", routerController.RoleViewController)
 	adminRouter.HandleFunc("/role/update/{roleId}", routerController.RoleUpdateViewController).Methods("GET", "POST")
 	adminRouter.HandleFunc("/role/delete/{roleId}", routerController.RoleDeleteViewController).Methods("POST")
-	adminRouter.HandleFunc("/role/list", routerController.RoleListViewController)
+	adminRouter.HandleFunc("/role/list", routerController.RoleListViewController).Methods("GET", "POST")
 
 	adminRouter.HandleFunc("/client/create", routerController.ClientCreateViewController).Methods("GET", "POST")
 	adminRouter.HandleFunc("/client/view/{clientId}", routerController.ClientViewController)

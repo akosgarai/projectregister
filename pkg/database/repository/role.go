@@ -135,11 +135,16 @@ func (r *RoleRepository) DeleteRole(id int64) error {
 
 // GetRoles gets all roles
 // it returns the roles and an error
-func (r *RoleRepository) GetRoles() (*model.Roles, error) {
+func (r *RoleRepository) GetRoles(filters *model.RoleFilter) (*model.Roles, error) {
 	// get all roles
 	var roles model.Roles
 	query := "SELECT * FROM roles"
-	rows, err := r.db.Query(query)
+	params := []interface{}{}
+	if filters.Name != "" {
+		query += " WHERE name LIKE '%' || $1 || '%'"
+		params = append(params, filters.Name)
+	}
+	rows, err := r.db.Query(query, params...)
 	if err != nil {
 		return nil, err
 	}
