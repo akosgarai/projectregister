@@ -89,7 +89,7 @@ func New(
 	adminRouter.HandleFunc("/database/view/{databaseId}", routerController.DatabaseViewController)
 	adminRouter.HandleFunc("/database/update/{databaseId}", routerController.DatabaseUpdateViewController).Methods("GET", "POST")
 	adminRouter.HandleFunc("/database/delete/{databaseId}", routerController.DatabaseDeleteViewController).Methods("POST")
-	adminRouter.HandleFunc("/database/list", routerController.DatabaseListViewController)
+	adminRouter.HandleFunc("/database/list", routerController.DatabaseListViewController).Methods("GET", "POST")
 
 	adminRouter.HandleFunc("/server/create", routerController.ServerCreateViewController).Methods("GET", "POST")
 	adminRouter.HandleFunc("/server/view/{serverId}", routerController.ServerViewController)

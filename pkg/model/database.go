@@ -22,6 +22,19 @@ func (d Databases) ToMap() map[int64]string {
 	return result
 }
 
+// DatabaseFilter type is the filter for the databases
+// It contains the name filter
+type DatabaseFilter struct {
+	Name string
+}
+
+// NewDatabaseFilter creates a new database filter
+func NewDatabaseFilter() *DatabaseFilter {
+	return &DatabaseFilter{
+		Name: "",
+	}
+}
+
 // DatabaseRepository interface
 type DatabaseRepository interface {
 	CreateDatabase(name string) (*Database, error)
@@ -29,5 +42,5 @@ type DatabaseRepository interface {
 	GetDatabaseByID(id int64) (*Database, error)
 	UpdateDatabase(client *Database) error
 	DeleteDatabase(id int64) error
-	GetDatabases() (*Databases, error)
+	GetDatabases(filter *DatabaseFilter) (*Databases, error)
 }

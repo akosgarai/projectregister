@@ -62,7 +62,7 @@ func (c *Controller) EnvironmentCreateViewController(w http.ResponseWriter, r *h
 			c.renderer.Error(w, http.StatusInternalServerError, EnvironmentCreateFailedToGetServersErrorMessage, err)
 			return
 		}
-		databases, err := c.repositoryContainer.GetDatabaseRepository().GetDatabases()
+		databases, err := c.repositoryContainer.GetDatabaseRepository().GetDatabases(model.NewDatabaseFilter())
 		if err != nil {
 			c.renderer.Error(w, http.StatusInternalServerError, EnvironmentCreateFailedToGetDatabasesErrorMessage, err)
 			return
@@ -147,7 +147,7 @@ func (c *Controller) EnvironmentUpdateViewController(w http.ResponseWriter, r *h
 			c.renderer.Error(w, http.StatusInternalServerError, EnvironmentUpdateFailedToGetServersErrorMessage, err)
 			return
 		}
-		databases, err := c.repositoryContainer.GetDatabaseRepository().GetDatabases()
+		databases, err := c.repositoryContainer.GetDatabaseRepository().GetDatabases(model.NewDatabaseFilter())
 		if err != nil {
 			c.renderer.Error(w, http.StatusInternalServerError, EnvironmentUpdateFailedToGetDatabasesErrorMessage, err)
 			return

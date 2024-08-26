@@ -350,7 +350,7 @@ func (c *Controller) createApplicationFormResponse(currentUser *model.User, appl
 	if err != nil {
 		return &response.FormResponse{}, ApplicationCreateFailedToGetEnvironmentsErrorMessage, err
 	}
-	databases, err := c.repositoryContainer.GetDatabaseRepository().GetDatabases()
+	databases, err := c.repositoryContainer.GetDatabaseRepository().GetDatabases(model.NewDatabaseFilter())
 	if err != nil {
 		return &response.FormResponse{}, ApplicationCreateFailedToGetDatabasesErrorMessage, err
 	}

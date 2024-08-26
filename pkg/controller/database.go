@@ -173,8 +173,12 @@ func (c *Controller) DatabaseListViewController(w http.ResponseWriter, r *http.R
 		c.renderer.Error(w, http.StatusForbidden, "Forbidden", nil)
 		return
 	}
+	filter := model.NewDatabaseFilter()
+	if r.Method == http.MethodPost {
+		filter.Name = r.FormValue("name")
+	}
 	// get all databases
-	databases, err := c.repositoryContainer.GetDatabaseRepository().GetDatabases()
+	databases, err := c.repositoryContainer.GetDatabaseRepository().GetDatabases(filter)
 	if err != nil {
 		c.renderer.Error(w, http.StatusInternalServerError, DatabaseListFailedToGetDatabasesErrorMessage, err)
 		return
