@@ -173,8 +173,12 @@ func (c *Controller) PoolListViewController(w http.ResponseWriter, r *http.Reque
 		c.renderer.Error(w, http.StatusForbidden, "Forbidden", nil)
 		return
 	}
+	filter := model.NewPoolFilter()
+	if r.Method == http.MethodPost {
+		filter.Name = r.FormValue("name")
+	}
 	// get all pools
-	pools, err := c.repositoryContainer.GetPoolRepository().GetPools()
+	pools, err := c.repositoryContainer.GetPoolRepository().GetPools(filter)
 	if err != nil {
 		c.renderer.Error(w, http.StatusInternalServerError, PoolListFailedToGetPoolsErrorMessage, err)
 		return

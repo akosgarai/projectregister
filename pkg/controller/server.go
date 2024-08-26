@@ -62,7 +62,7 @@ func (c *Controller) ServerCreateViewController(w http.ResponseWriter, r *http.R
 			c.renderer.Error(w, http.StatusInternalServerError, ServerCreateFailedToGetRuntimesErrorMessage, err)
 			return
 		}
-		pools, err := c.repositoryContainer.GetPoolRepository().GetPools()
+		pools, err := c.repositoryContainer.GetPoolRepository().GetPools(model.NewPoolFilter())
 		if err != nil {
 			c.renderer.Error(w, http.StatusInternalServerError, ServerCreateFailedToGetPoolsErrorMessage, err)
 			return
@@ -146,7 +146,7 @@ func (c *Controller) ServerUpdateViewController(w http.ResponseWriter, r *http.R
 			c.renderer.Error(w, http.StatusInternalServerError, ServerCreateFailedToGetRuntimesErrorMessage, err)
 			return
 		}
-		pools, err := c.repositoryContainer.GetPoolRepository().GetPools()
+		pools, err := c.repositoryContainer.GetPoolRepository().GetPools(model.NewPoolFilter())
 		if err != nil {
 			c.renderer.Error(w, http.StatusInternalServerError, ServerCreateFailedToGetPoolsErrorMessage, err)
 			return

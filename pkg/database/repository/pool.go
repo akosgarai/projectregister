@@ -74,11 +74,16 @@ func (r *PoolRepository) DeletePool(id int64) error {
 
 // GetPools gets all pools
 // it returns the pools and an error
-func (r *PoolRepository) GetPools() (*model.Pools, error) {
+func (r *PoolRepository) GetPools(filters *model.PoolFilter) (*model.Pools, error) {
 	// get all pools
 	var pools model.Pools
 	query := "SELECT * FROM pools"
-	rows, err := r.db.Query(query)
+	params := []interface{}{}
+	if filters.Name != "" {
+		query += " WHERE name LIKE '%' || $1 || '%'"
+		params = append(params, filters.Name)
+	}
+	rows, err := r.db.Query(query, params...)
 	if err != nil {
 		return nil, err
 	}

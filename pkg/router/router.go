@@ -77,13 +77,13 @@ func New(
 	adminRouter.HandleFunc("/runtime/view/{runtimeId}", routerController.RuntimeViewController)
 	adminRouter.HandleFunc("/runtime/update/{runtimeId}", routerController.RuntimeUpdateViewController).Methods("GET", "POST")
 	adminRouter.HandleFunc("/runtime/delete/{runtimeId}", routerController.RuntimeDeleteViewController).Methods("POST")
-	adminRouter.HandleFunc("/runtime/list", routerController.RuntimeListViewController)
+	adminRouter.HandleFunc("/runtime/list", routerController.RuntimeListViewController).Methods("GET", "POST")
 
 	adminRouter.HandleFunc("/pool/create", routerController.PoolCreateViewController).Methods("GET", "POST")
 	adminRouter.HandleFunc("/pool/view/{poolId}", routerController.PoolViewController)
 	adminRouter.HandleFunc("/pool/update/{poolId}", routerController.PoolUpdateViewController).Methods("GET", "POST")
 	adminRouter.HandleFunc("/pool/delete/{poolId}", routerController.PoolDeleteViewController).Methods("POST")
-	adminRouter.HandleFunc("/pool/list", routerController.PoolListViewController)
+	adminRouter.HandleFunc("/pool/list", routerController.PoolListViewController).Methods("GET", "POST")
 
 	adminRouter.HandleFunc("/database/create", routerController.DatabaseCreateViewController).Methods("GET", "POST")
 	adminRouter.HandleFunc("/database/view/{databaseId}", routerController.DatabaseViewController)

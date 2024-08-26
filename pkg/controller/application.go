@@ -334,7 +334,7 @@ func (c *Controller) createApplicationFormResponse(currentUser *model.User, appl
 	if err != nil {
 		return &response.FormResponse{}, ApplicationCreateFailedToGetRuntimesErrorMessage, err
 	}
-	pools, err := c.repositoryContainer.GetPoolRepository().GetPools()
+	pools, err := c.repositoryContainer.GetPoolRepository().GetPools(model.NewPoolFilter())
 	if err != nil {
 		return &response.FormResponse{}, ApplicationCreateFailedToGetPoolsErrorMessage, err
 	}
