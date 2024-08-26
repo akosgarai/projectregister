@@ -22,6 +22,19 @@ func (d Domains) ToMap() map[int64]string {
 	return result
 }
 
+// DomainFilter type is the filter for the domains
+// It contains the name filter
+type DomainFilter struct {
+	Name string
+}
+
+// NewDomainFilter creates a new domain filter
+func NewDomainFilter() *DomainFilter {
+	return &DomainFilter{
+		Name: "",
+	}
+}
+
 // DomainRepository interface
 type DomainRepository interface {
 	CreateDomain(name string) (*Domain, error)
@@ -29,6 +42,6 @@ type DomainRepository interface {
 	GetDomainByID(id int64) (*Domain, error)
 	UpdateDomain(client *Domain) error
 	DeleteDomain(id int64) error
-	GetDomains() (*Domains, error)
+	GetDomains(filter *DomainFilter) (*Domains, error)
 	GetFreeDomains() (*Domains, error)
 }

@@ -173,8 +173,12 @@ func (c *Controller) DomainListViewController(w http.ResponseWriter, r *http.Req
 		c.renderer.Error(w, http.StatusForbidden, "Forbidden", nil)
 		return
 	}
+	filter := model.NewDomainFilter()
+	if r.Method == http.MethodPost {
+		filter.Name = r.FormValue("name")
+	}
 	// get all domains
-	domains, err := c.repositoryContainer.GetDomainRepository().GetDomains()
+	domains, err := c.repositoryContainer.GetDomainRepository().GetDomains(filter)
 	if err != nil {
 		c.renderer.Error(w, http.StatusInternalServerError, DomainListFailedToGetDomainsErrorMessage, err)
 		return

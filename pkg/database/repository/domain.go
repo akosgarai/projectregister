@@ -74,11 +74,16 @@ func (r *DomainRepository) DeleteDomain(id int64) error {
 
 // GetDomains gets all domains
 // it returns the domains and an error
-func (r *DomainRepository) GetDomains() (*model.Domains, error) {
+func (r *DomainRepository) GetDomains(filters *model.DomainFilter) (*model.Domains, error) {
 	// get all domains
 	var domains model.Domains
 	query := "SELECT * FROM domains"
-	rows, err := r.db.Query(query)
+	params := []interface{}{}
+	if filters.Name != "" {
+		query += " WHERE name LIKE '%' || $1 || '%'"
+		params = append(params, filters.Name)
+	}
+	rows, err := r.db.Query(query, params...)
 	if err != nil {
 		return nil, err
 	}

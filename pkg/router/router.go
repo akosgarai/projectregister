@@ -65,7 +65,7 @@ func New(
 	adminRouter.HandleFunc("/domain/view/{domainId}", routerController.DomainViewController)
 	adminRouter.HandleFunc("/domain/update/{domainId}", routerController.DomainUpdateViewController).Methods("GET", "POST")
 	adminRouter.HandleFunc("/domain/delete/{domainId}", routerController.DomainDeleteViewController).Methods("POST")
-	adminRouter.HandleFunc("/domain/list", routerController.DomainListViewController)
+	adminRouter.HandleFunc("/domain/list", routerController.DomainListViewController).Methods("GET", "POST")
 
 	adminRouter.HandleFunc("/environment/create", routerController.EnvironmentCreateViewController).Methods("GET", "POST")
 	adminRouter.HandleFunc("/environment/view/{environmentId}", routerController.EnvironmentViewController)
