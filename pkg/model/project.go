@@ -22,6 +22,19 @@ func (p Projects) ToMap() map[int64]string {
 	return result
 }
 
+// ProjectFilter type is the filter for the projects
+// It contains the name filter
+type ProjectFilter struct {
+	Name string
+}
+
+// NewProjectFilter creates a new project filter
+func NewProjectFilter() *ProjectFilter {
+	return &ProjectFilter{
+		Name: "",
+	}
+}
+
 // ProjectRepository interface
 type ProjectRepository interface {
 	CreateProject(name string) (*Project, error)
@@ -29,5 +42,5 @@ type ProjectRepository interface {
 	GetProjectByID(id int64) (*Project, error)
 	UpdateProject(client *Project) error
 	DeleteProject(id int64) error
-	GetProjects() (*Projects, error)
+	GetProjects(filters *ProjectFilter) (*Projects, error)
 }

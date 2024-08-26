@@ -342,7 +342,7 @@ func (c *Controller) createApplicationFormResponse(currentUser *model.User, appl
 	if err != nil {
 		return &response.FormResponse{}, ApplicationCreateFailedToGetClientsErrorMessage, err
 	}
-	projects, err := c.repositoryContainer.GetProjectRepository().GetProjects()
+	projects, err := c.repositoryContainer.GetProjectRepository().GetProjects(model.NewProjectFilter())
 	if err != nil {
 		return &response.FormResponse{}, ApplicationCreateFailedToGetProjectsErrorMessage, err
 	}

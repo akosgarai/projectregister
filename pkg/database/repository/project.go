@@ -74,11 +74,16 @@ func (r *ProjectRepository) DeleteProject(id int64) error {
 
 // GetProjects gets all projects
 // it returns the projects and an error
-func (r *ProjectRepository) GetProjects() (*model.Projects, error) {
+func (r *ProjectRepository) GetProjects(filters *model.ProjectFilter) (*model.Projects, error) {
 	// get all projects
 	var projects model.Projects
 	query := "SELECT * FROM projects"
-	rows, err := r.db.Query(query)
+	params := []interface{}{}
+	if filters.Name != "" {
+		query += " WHERE name LIKE '%' || $1 || '%'"
+		params = append(params, filters.Name)
+	}
+	rows, err := r.db.Query(query, params...)
 	if err != nil {
 		return nil, err
 	}

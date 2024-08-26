@@ -173,8 +173,16 @@ func (c *Controller) ProjectListViewController(w http.ResponseWriter, r *http.Re
 		c.renderer.Error(w, http.StatusForbidden, "Forbidden", nil)
 		return
 	}
+	// Define the empty filter here.
+	filter := model.NewProjectFilter()
+	if r.Method == http.MethodPost {
+		// On case of post request, the filter is not empty.
+		// Set the values based on the form values.
+		filterName := r.FormValue("name")
+		filter.Name = filterName
+	}
 	// get all projects
-	projects, err := c.repositoryContainer.GetProjectRepository().GetProjects()
+	projects, err := c.repositoryContainer.GetProjectRepository().GetProjects(filter)
 	if err != nil {
 		c.renderer.Error(w, http.StatusInternalServerError, ProjectListFailedToGetProjectsErrorMessage, err)
 		return

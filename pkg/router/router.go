@@ -59,7 +59,7 @@ func New(
 	adminRouter.HandleFunc("/project/view/{projectId}", routerController.ProjectViewController)
 	adminRouter.HandleFunc("/project/update/{projectId}", routerController.ProjectUpdateViewController).Methods("GET", "POST")
 	adminRouter.HandleFunc("/project/delete/{projectId}", routerController.ProjectDeleteViewController).Methods("POST")
-	adminRouter.HandleFunc("/project/list", routerController.ProjectListViewController)
+	adminRouter.HandleFunc("/project/list", routerController.ProjectListViewController).Methods("GET", "POST")
 
 	adminRouter.HandleFunc("/domain/create", routerController.DomainCreateViewController).Methods("GET", "POST")
 	adminRouter.HandleFunc("/domain/view/{domainId}", routerController.DomainViewController)
