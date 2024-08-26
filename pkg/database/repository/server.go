@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/akosgarai/projectregister/pkg/database"
@@ -156,11 +158,41 @@ func (r *ServerRepository) DeleteServer(id int64) error {
 
 // GetServers gets all servers
 // it returns the servers and an error
-func (r *ServerRepository) GetServers() (*model.Servers, error) {
+func (r *ServerRepository) GetServers(filters *model.ServerFilter) (*model.Servers, error) {
 	// get all servers
 	var servers model.Servers
 	query := "SELECT * FROM servers"
-	rows, err := r.db.Query(query)
+	params := []interface{}{}
+	whereConditions := []string{}
+	if filters.Name != "" {
+		index := len(params) + 1
+		whereConditions = append(whereConditions, "name LIKE '%' || $"+strconv.Itoa(index)+" || '%'")
+		params = append(params, filters.Name)
+	}
+	if filters.Description != "" {
+		index := len(params) + 1
+		whereConditions = append(whereConditions, "description LIKE '%' || $"+strconv.Itoa(index)+" || '%'")
+		params = append(params, filters.Description)
+	}
+	if filters.RemoteAddr != "" {
+		index := len(params) + 1
+		whereConditions = append(whereConditions, "remote_address LIKE '%' || $"+strconv.Itoa(index)+" || '%'")
+		params = append(params, filters.RemoteAddr)
+	}
+	if len(filters.RuntimeIDs) > 0 {
+		index := len(params) + 1
+		whereConditions = append(whereConditions, "id IN (SELECT server_id FROM server_to_runtime WHERE runtime_id = ANY($"+strconv.Itoa(index)+"::bigint[]))")
+		params = append(params, "{"+strings.Join(filters.RuntimeIDs, ",")+"}")
+	}
+	if len(filters.PoolIDs) > 0 {
+		index := len(params) + 1
+		whereConditions = append(whereConditions, "id IN (SELECT server_id FROM server_to_pool WHERE pool_id = ANY($"+strconv.Itoa(index)+"::bigint[]))")
+		params = append(params, "{"+strings.Join(filters.PoolIDs, ",")+"}")
+	}
+	if len(whereConditions) > 0 {
+		query += " WHERE " + strings.Join(whereConditions, " AND ")
+	}
+	rows, err := r.db.Query(query, params...)
 	if err != nil {
 		return nil, err
 	}

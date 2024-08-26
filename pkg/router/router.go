@@ -41,7 +41,7 @@ func New(
 	adminRouter.HandleFunc("/user/view/{userId}", routerController.UserViewController)
 	adminRouter.HandleFunc("/user/update/{userId}", routerController.UserUpdateViewController).Methods("GET", "POST")
 	adminRouter.HandleFunc("/user/delete/{userId}", routerController.UserDeleteViewController).Methods("POST")
-	adminRouter.HandleFunc("/user/list", routerController.UserListViewController)
+	adminRouter.HandleFunc("/user/list", routerController.UserListViewController).Methods("GET", "POST")
 
 	adminRouter.HandleFunc("/role/create", routerController.RoleCreateViewController).Methods("GET", "POST")
 	adminRouter.HandleFunc("/role/view/{roleId}", routerController.RoleViewController)
@@ -95,7 +95,7 @@ func New(
 	adminRouter.HandleFunc("/server/view/{serverId}", routerController.ServerViewController)
 	adminRouter.HandleFunc("/server/update/{serverId}", routerController.ServerUpdateViewController).Methods("GET", "POST")
 	adminRouter.HandleFunc("/server/delete/{serverId}", routerController.ServerDeleteViewController).Methods("POST")
-	adminRouter.HandleFunc("/server/list", routerController.ServerListViewController)
+	adminRouter.HandleFunc("/server/list", routerController.ServerListViewController).Methods("GET", "POST")
 
 	adminRouter.HandleFunc("/application/create", routerController.ApplicationCreateViewController).Methods("GET", "POST")
 	adminRouter.HandleFunc("/application/view/{applicationId}", routerController.ApplicationViewController)

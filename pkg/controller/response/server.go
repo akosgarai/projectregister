@@ -82,7 +82,7 @@ func newServerFormResponse(title string, currentUser *model.User, server *model.
 }
 
 // NewServerListResponse is a constructor for the ListingResponse struct of the servers.
-func NewServerListResponse(currentUser *model.User, servers *model.Servers) *ListingResponse {
+func NewServerListResponse(currentUser *model.User, servers *model.Servers, pools *model.Pools, runtimes *model.Runtimes) *ListingResponse {
 	headerText := "Server List"
 	headerContent := components.NewContentHeader(headerText, []*components.Link{})
 	if currentUser.HasPrivilege("servers.create") {
@@ -118,5 +118,19 @@ func NewServerListResponse(currentUser *model.User, servers *model.Servers) *Lis
 
 		listingRows = append(listingRows, &components.ListingRow{Columns: &columns})
 	}
-	return NewListingResponse(headerText, currentUser, headerContent, &components.Listing{Header: listingHeader, Rows: &listingRows}, nil)
+	/* Create the search form. The only form item is the name. */
+	formItems := []*components.FormItem{
+		components.NewFormItem("Name", "name", "text", "", false, nil, nil),
+		components.NewFormItem("Remote Address", "remote_address", "text", "", false, nil, nil),
+		components.NewFormItem("Description", "description", "text", "", false, nil, nil),
+		components.NewFormItem("Pool", "pool", "multiselect", "", false, pools.ToMap(), nil),
+		components.NewFormItem("Runtime", "runtime", "multiselect", "", false, runtimes.ToMap(), nil),
+	}
+	form := &components.Form{
+		Items:  formItems,
+		Action: "/admin/server/list",
+		Method: "POST",
+		Submit: "Search",
+	}
+	return NewListingResponse(headerText, currentUser, headerContent, &components.Listing{Header: listingHeader, Rows: &listingRows}, form)
 }

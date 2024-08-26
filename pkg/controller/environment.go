@@ -57,7 +57,7 @@ func (c *Controller) EnvironmentCreateViewController(w http.ResponseWriter, r *h
 		return
 	}
 	if r.Method == http.MethodGet {
-		servers, err := c.repositoryContainer.GetServerRepository().GetServers()
+		servers, err := c.repositoryContainer.GetServerRepository().GetServers(model.NewServerFilter())
 		if err != nil {
 			c.renderer.Error(w, http.StatusInternalServerError, EnvironmentCreateFailedToGetServersErrorMessage, err)
 			return
@@ -142,7 +142,7 @@ func (c *Controller) EnvironmentUpdateViewController(w http.ResponseWriter, r *h
 	}
 
 	if r.Method == http.MethodGet {
-		servers, err := c.repositoryContainer.GetServerRepository().GetServers()
+		servers, err := c.repositoryContainer.GetServerRepository().GetServers(model.NewServerFilter())
 		if err != nil {
 			c.renderer.Error(w, http.StatusInternalServerError, EnvironmentUpdateFailedToGetServersErrorMessage, err)
 			return

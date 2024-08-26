@@ -240,13 +240,47 @@ func (c *Controller) ServerListViewController(w http.ResponseWriter, r *http.Req
 		c.renderer.Error(w, http.StatusForbidden, "Forbidden", nil)
 		return
 	}
+	filter := model.NewServerFilter()
+	if r.Method == http.MethodPost {
+		filter.Name = r.FormValue("name")
+		filter.Description = r.FormValue("description")
+		filter.RemoteAddr = r.FormValue("remote_address")
+		for _, v := range r.Form["runtime"] {
+			_, err := strconv.ParseInt(v, 10, 64)
+			if err != nil {
+				c.renderer.Error(w, http.StatusBadRequest, ServerListRuntimeIDInvalidErrorMessage, err)
+				return
+			}
+			filter.RuntimeIDs = append(filter.RuntimeIDs, v)
+		}
+		for _, v := range r.Form["pool"] {
+			_, err := strconv.ParseInt(v, 10, 64)
+			if err != nil {
+				c.renderer.Error(w, http.StatusBadRequest, ServerListPoolIDInvalidErrorMessage, err)
+				return
+			}
+			filter.PoolIDs = append(filter.PoolIDs, v)
+		}
+	}
 	// get all servers
-	servers, err := c.repositoryContainer.GetServerRepository().GetServers()
+	servers, err := c.repositoryContainer.GetServerRepository().GetServers(filter)
 	if err != nil {
 		c.renderer.Error(w, http.StatusInternalServerError, ServerListFailedToGetServersErrorMessage, err)
 		return
 	}
-	content := response.NewServerListResponse(currentUser, servers)
+	// get all runtimes
+	runtimes, err := c.repositoryContainer.GetRuntimeRepository().GetRuntimes(model.NewRuntimeFilter())
+	if err != nil {
+		c.renderer.Error(w, http.StatusInternalServerError, ServerListFailedToGetRuntimesErrorMessage, err)
+		return
+	}
+	// get all pools
+	pools, err := c.repositoryContainer.GetPoolRepository().GetPools(model.NewPoolFilter())
+	if err != nil {
+		c.renderer.Error(w, http.StatusInternalServerError, ServerListFailedToGetPoolsErrorMessage, err)
+		return
+	}
+	content := response.NewServerListResponse(currentUser, servers, pools, runtimes)
 	err = c.renderer.Template.RenderTemplate(w, "listing-page.html", content)
 	if err != nil {
 		panic(err)

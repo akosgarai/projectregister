@@ -47,6 +47,27 @@ func (s Servers) ToMap() map[int64]string {
 	return result
 }
 
+// ServerFilter type is the filter for the servers
+// It contains the name filter
+type ServerFilter struct {
+	Name        string
+	Description string
+	RemoteAddr  string
+	RuntimeIDs  []string
+	PoolIDs     []string
+}
+
+// NewServerFilter creates a new server filter
+func NewServerFilter() *ServerFilter {
+	return &ServerFilter{
+		Name:        "",
+		Description: "",
+		RemoteAddr:  "",
+		RuntimeIDs:  []string{},
+		PoolIDs:     []string{},
+	}
+}
+
 // ServerRepository interface
 type ServerRepository interface {
 	CreateServer(name, description, remoteAddress string, runtimes, pools []int64) (*Server, error)
@@ -55,5 +76,5 @@ type ServerRepository interface {
 	GetServerByID(id int64) (*Server, error)
 	UpdateServer(server *Server) error
 	DeleteServer(id int64) error
-	GetServers() (*Servers, error)
+	GetServers(filter *ServerFilter) (*Servers, error)
 }

@@ -218,8 +218,16 @@ var (
 	ServerServerIDInvalidErrorMessage = "Invalid server id"
 	// ServerFailedToGetServerErrorMessage is the error message for the failed server get.
 	ServerFailedToGetServerErrorMessage = "Failed to get server data"
+	// ServerListFailedToGetPoolsErrorMessage is the error message for the failed pools get.
+	ServerListFailedToGetPoolsErrorMessage = "Failed to get pools"
+	// ServerListFailedToGetRuntimesErrorMessage is the error message for the failed runtimes get.
+	ServerListFailedToGetRuntimesErrorMessage = "Failed to get runtimes"
 	// ServerListFailedToGetServersErrorMessage is the error message for the failed servers get.
 	ServerListFailedToGetServersErrorMessage = "Failed to get servers"
+	// ServerListPoolIDInvalidErrorMessage is the error message for the invalid pool id in the server list form.
+	ServerListPoolIDInvalidErrorMessage = "Invalid pool id"
+	// ServerListRuntimeIDInvalidErrorMessage is the error message for the invalid runtime id in the server list form.
+	ServerListRuntimeIDInvalidErrorMessage = "Invalid runtime id"
 	// ServerUpdateRequiredFieldMissing is the error message for the required fields in the server update.
 	ServerUpdateRequiredFieldMissing = "Name and remote address are required"
 	// ServerUpdateUpdateServerErrorMessage is the error message for the failed server update.
