@@ -84,7 +84,7 @@ func (c *Controller) EnvironmentCreateViewController(w http.ResponseWriter, r *h
 			c.renderer.Error(w, http.StatusBadRequest, EnvironmentCreateRequiredFieldMissing, nil)
 			return
 		}
-		serverIDsRaw := r.Form["server_id"]
+		serverIDsRaw := r.Form["servers"]
 		var serverIDs []int64
 		for _, serverIDRaw := range serverIDsRaw {
 			serverID, err := strconv.ParseInt(serverIDRaw, 10, 64)
@@ -95,7 +95,7 @@ func (c *Controller) EnvironmentCreateViewController(w http.ResponseWriter, r *h
 			serverIDs = append(serverIDs, serverID)
 		}
 
-		databaseIDsRaw := r.Form["database_id"]
+		databaseIDsRaw := r.Form["databases"]
 		var databaseIDs []int64
 		for _, databaseIDRaw := range databaseIDsRaw {
 			databaseID, err := strconv.ParseInt(databaseIDRaw, 10, 64)
@@ -170,7 +170,7 @@ func (c *Controller) EnvironmentUpdateViewController(w http.ResponseWriter, r *h
 			return
 		}
 
-		serverIDsRaw := r.Form["server_id"]
+		serverIDsRaw := r.Form["servers"]
 		environment.Servers = make([]*model.Server, len(serverIDsRaw))
 		for i, serverIDRaw := range serverIDsRaw {
 			serverID, err := strconv.ParseInt(serverIDRaw, 10, 64)
@@ -181,7 +181,7 @@ func (c *Controller) EnvironmentUpdateViewController(w http.ResponseWriter, r *h
 			environment.Servers[i] = &model.Server{ID: serverID}
 		}
 
-		databaseIDsRaw := r.Form["database_id"]
+		databaseIDsRaw := r.Form["databases"]
 		environment.Databases = make([]*model.Database, len(databaseIDsRaw))
 		for i, databaseIDRaw := range databaseIDsRaw {
 			databaseID, err := strconv.ParseInt(databaseIDRaw, 10, 64)
