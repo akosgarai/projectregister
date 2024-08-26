@@ -81,5 +81,15 @@ func NewClientListResponse(currentUser *model.User, clients *model.Clients) *Lis
 
 		listingRows = append(listingRows, &components.ListingRow{Columns: &columns})
 	}
-	return NewListingResponse(headerText, currentUser, headerContent, &components.Listing{Header: listingHeader, Rows: &listingRows})
+	/* Create the search form. The only form item is the name. */
+	formItems := []*components.FormItem{
+		components.NewFormItem("Name", "name", "text", "", false, nil, nil),
+	}
+	form := &components.Form{
+		Items:  formItems,
+		Action: "/admin/client/list",
+		Method: "POST",
+		Submit: "Search",
+	}
+	return NewListingResponse(headerText, currentUser, headerContent, &components.Listing{Header: listingHeader, Rows: &listingRows}, form)
 }

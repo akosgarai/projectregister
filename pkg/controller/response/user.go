@@ -112,5 +112,5 @@ func NewUserListResponse(currentUser *model.User, users []*model.User) *ListingR
 		row := components.ListingRow{Columns: &columns}
 		listingRows = append(listingRows, &row)
 	}
-	return NewListingResponse(headerText, currentUser, headerContent, &components.Listing{Header: listingHeader, Rows: &listingRows})
+	return NewListingResponse(headerText, currentUser, headerContent, &components.Listing{Header: listingHeader, Rows: &listingRows}, nil)
 }

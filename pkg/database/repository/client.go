@@ -74,11 +74,16 @@ func (r *ClientRepository) DeleteClient(id int64) error {
 
 // GetClients gets all clients
 // it returns the clients and an error
-func (r *ClientRepository) GetClients() (*model.Clients, error) {
+func (r *ClientRepository) GetClients(filters *model.ClientFilter) (*model.Clients, error) {
 	// get all clients
 	var clients model.Clients
 	query := "SELECT * FROM clients"
-	rows, err := r.db.Query(query)
+	params := []interface{}{}
+	if filters.Name != "" {
+		query += " WHERE name LIKE '%' || $1 || '%'"
+		params = append(params, filters.Name)
+	}
+	rows, err := r.db.Query(query, params...)
 	if err != nil {
 		return nil, err
 	}

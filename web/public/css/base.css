@@ -7,6 +7,7 @@
 	--input-height: 56px;
 	--left-panel-open-width: 400px;
 	--left-panel-closed-width: 50px;
+	--searchbar-background-color: #d3d3d3;
 }
 * {
 	margin: 0;
@@ -320,4 +321,24 @@ table tr td:last-child > a,
 	max-height: 300px;
 	overflow-y: auto;
 	width: 100%;
+}
+
+.searchbar {
+	align-self: flex-start;
+	background-color: var(--searchbar-background-color);
+}
+.searchbar form {
+	display: flex;
+}
+.searchbar form .form-group {
+	display: flex;
+	height: var(--input-height);
+}
+.searchbar form .form-group label {
+	margin: 0;
+	padding-top: 14px;
+	height: calc(var(--input-height) - 14px);
+}
+.searchbar form input[type="submit"] {
+	margin-top: 0;
 }

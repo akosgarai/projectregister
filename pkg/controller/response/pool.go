@@ -79,5 +79,5 @@ func NewPoolListResponse(currentUser *model.User, pools *model.Pools) *ListingRe
 
 		listingRows = append(listingRows, &components.ListingRow{Columns: &columns})
 	}
-	return NewListingResponse(headerText, currentUser, headerContent, &components.Listing{Header: listingHeader, Rows: &listingRows})
+	return NewListingResponse(headerText, currentUser, headerContent, &components.Listing{Header: listingHeader, Rows: &listingRows}, nil)
 }

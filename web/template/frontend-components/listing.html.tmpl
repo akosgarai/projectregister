@@ -1,4 +1,9 @@
 {{define "listing"}}
+	{{if .Form }}
+		<div class="searchbar">
+			{{template "formitems" .}}
+		</div>
+	{{end}}
 	<table>
 		<thead>
 			<tr>

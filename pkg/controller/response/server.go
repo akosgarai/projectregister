@@ -118,5 +118,5 @@ func NewServerListResponse(currentUser *model.User, servers *model.Servers) *Lis
 
 		listingRows = append(listingRows, &components.ListingRow{Columns: &columns})
 	}
-	return NewListingResponse(headerText, currentUser, headerContent, &components.Listing{Header: listingHeader, Rows: &listingRows})
+	return NewListingResponse(headerText, currentUser, headerContent, &components.Listing{Header: listingHeader, Rows: &listingRows}, nil)
 }

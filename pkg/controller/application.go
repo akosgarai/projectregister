@@ -338,7 +338,7 @@ func (c *Controller) createApplicationFormResponse(currentUser *model.User, appl
 	if err != nil {
 		return &response.FormResponse{}, ApplicationCreateFailedToGetPoolsErrorMessage, err
 	}
-	clients, err := c.repositoryContainer.GetClientRepository().GetClients()
+	clients, err := c.repositoryContainer.GetClientRepository().GetClients(model.NewClientFilter())
 	if err != nil {
 		return &response.FormResponse{}, ApplicationCreateFailedToGetClientsErrorMessage, err
 	}

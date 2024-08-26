@@ -73,14 +73,16 @@ func newDetailHeaderButtons(currentUser *model.User, resource, id string) []*com
 // It contains the response and the listing.
 type ListingResponse struct {
 	*Response
+	Form    *components.Form
 	Listing *components.Listing
 }
 
 // NewListingResponse is a constructor for the ListingResponse struct.
-func NewListingResponse(title string, currentUser *model.User, header *components.ContentHeader, listing *components.Listing) *ListingResponse {
+func NewListingResponse(title string, currentUser *model.User, header *components.ContentHeader, listing *components.Listing, search *components.Form) *ListingResponse {
 	return &ListingResponse{
 		Response: NewResponse(title, currentUser, header),
 		Listing:  listing,
+		Form:     search,
 	}
 }
 

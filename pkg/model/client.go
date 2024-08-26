@@ -22,6 +22,19 @@ func (c Clients) ToMap() map[int64]string {
 	return result
 }
 
+// ClientFilter type is the filter for the clients
+// It contains the name filter
+type ClientFilter struct {
+	Name string
+}
+
+// NewClientFilter creates a new client filter
+func NewClientFilter() *ClientFilter {
+	return &ClientFilter{
+		Name: "",
+	}
+}
+
 // ClientRepository interface
 type ClientRepository interface {
 	CreateClient(name string) (*Client, error)
@@ -29,5 +42,5 @@ type ClientRepository interface {
 	GetClientByID(id int64) (*Client, error)
 	UpdateClient(client *Client) error
 	DeleteClient(id int64) error
-	GetClients() (*Clients, error)
+	GetClients(filters *ClientFilter) (*Clients, error)
 }

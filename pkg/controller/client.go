@@ -173,8 +173,16 @@ func (c *Controller) ClientListViewController(w http.ResponseWriter, r *http.Req
 		c.renderer.Error(w, http.StatusForbidden, "Forbidden", nil)
 		return
 	}
+	// Define the empty filter here.
+	clientFilter := model.NewClientFilter()
+	if r.Method == http.MethodPost {
+		// On case of post request, the filter is not empty.
+		// Set the values based on the form values.
+		filterName := r.FormValue("name")
+		clientFilter.Name = filterName
+	}
 	// get all clients
-	clients, err := c.repositoryContainer.GetClientRepository().GetClients()
+	clients, err := c.repositoryContainer.GetClientRepository().GetClients(clientFilter)
 	if err != nil {
 		c.renderer.Error(w, http.StatusInternalServerError, ClientListFailedToGetClientsErrorMessage, err)
 		return
