@@ -173,8 +173,12 @@ func (c *Controller) RuntimeListViewController(w http.ResponseWriter, r *http.Re
 		c.renderer.Error(w, http.StatusForbidden, "Forbidden", nil)
 		return
 	}
+	filter := model.NewRuntimeFilter()
+	if r.Method == http.MethodPost {
+		filter.Name = r.FormValue("name")
+	}
 	// get all runtimes
-	runtimes, err := c.repositoryContainer.GetRuntimeRepository().GetRuntimes()
+	runtimes, err := c.repositoryContainer.GetRuntimeRepository().GetRuntimes(filter)
 	if err != nil {
 		c.renderer.Error(w, http.StatusInternalServerError, RuntimeListFailedToGetRuntimesErrorMessage, err)
 		return

@@ -330,7 +330,7 @@ func (c *Controller) getImportApplicationToEnvironmentMapping(r *http.Request) (
 
 // It creates the content for the application forms.
 func (c *Controller) createApplicationFormResponse(currentUser *model.User, application *model.Application) (*response.FormResponse, string, error) {
-	runtimes, err := c.repositoryContainer.GetRuntimeRepository().GetRuntimes()
+	runtimes, err := c.repositoryContainer.GetRuntimeRepository().GetRuntimes(model.NewRuntimeFilter())
 	if err != nil {
 		return &response.FormResponse{}, ApplicationCreateFailedToGetRuntimesErrorMessage, err
 	}

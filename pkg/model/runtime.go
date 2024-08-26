@@ -22,6 +22,19 @@ func (r Runtimes) ToMap() map[int64]string {
 	return result
 }
 
+// RuntimeFilter type is the filter for the runtimes
+// It contains the name filter
+type RuntimeFilter struct {
+	Name string
+}
+
+// NewRuntimeFilter creates a new runtime filter
+func NewRuntimeFilter() *RuntimeFilter {
+	return &RuntimeFilter{
+		Name: "",
+	}
+}
+
 // RuntimeRepository interface
 type RuntimeRepository interface {
 	CreateRuntime(name string) (*Runtime, error)
@@ -29,5 +42,5 @@ type RuntimeRepository interface {
 	GetRuntimeByID(id int64) (*Runtime, error)
 	UpdateRuntime(client *Runtime) error
 	DeleteRuntime(id int64) error
-	GetRuntimes() (*Runtimes, error)
+	GetRuntimes(filter *RuntimeFilter) (*Runtimes, error)
 }

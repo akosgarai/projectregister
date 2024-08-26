@@ -74,11 +74,16 @@ func (r *RuntimeRepository) DeleteRuntime(id int64) error {
 
 // GetRuntimes gets all runtimes
 // it returns the runtimes and an error
-func (r *RuntimeRepository) GetRuntimes() (*model.Runtimes, error) {
+func (r *RuntimeRepository) GetRuntimes(filters *model.RuntimeFilter) (*model.Runtimes, error) {
 	// get all runtimes
 	var runtimes model.Runtimes
 	query := "SELECT * FROM runtimes"
-	rows, err := r.db.Query(query)
+	params := []interface{}{}
+	if filters.Name != "" {
+		query += " WHERE name LIKE '%' || $1 || '%'"
+		params = append(params, filters.Name)
+	}
+	rows, err := r.db.Query(query, params...)
 	if err != nil {
 		return nil, err
 	}

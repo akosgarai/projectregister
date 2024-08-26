@@ -57,7 +57,7 @@ func (c *Controller) ServerCreateViewController(w http.ResponseWriter, r *http.R
 		return
 	}
 	if r.Method == http.MethodGet {
-		runtimes, err := c.repositoryContainer.GetRuntimeRepository().GetRuntimes()
+		runtimes, err := c.repositoryContainer.GetRuntimeRepository().GetRuntimes(model.NewRuntimeFilter())
 		if err != nil {
 			c.renderer.Error(w, http.StatusInternalServerError, ServerCreateFailedToGetRuntimesErrorMessage, err)
 			return
@@ -141,7 +141,7 @@ func (c *Controller) ServerUpdateViewController(w http.ResponseWriter, r *http.R
 	}
 
 	if r.Method == http.MethodGet {
-		runtimes, err := c.repositoryContainer.GetRuntimeRepository().GetRuntimes()
+		runtimes, err := c.repositoryContainer.GetRuntimeRepository().GetRuntimes(model.NewRuntimeFilter())
 		if err != nil {
 			c.renderer.Error(w, http.StatusInternalServerError, ServerCreateFailedToGetRuntimesErrorMessage, err)
 			return
