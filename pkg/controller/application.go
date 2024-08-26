@@ -346,7 +346,7 @@ func (c *Controller) createApplicationFormResponse(currentUser *model.User, appl
 	if err != nil {
 		return &response.FormResponse{}, ApplicationCreateFailedToGetProjectsErrorMessage, err
 	}
-	environments, err := c.repositoryContainer.GetEnvironmentRepository().GetEnvironments()
+	environments, err := c.repositoryContainer.GetEnvironmentRepository().GetEnvironments(model.NewEnvironmentFilter())
 	if err != nil {
 		return &response.FormResponse{}, ApplicationCreateFailedToGetEnvironmentsErrorMessage, err
 	}

@@ -45,6 +45,25 @@ func (e Environments) ToMap() map[int64]string {
 	return result
 }
 
+// EnvironmentFilter type is the filter for the environments
+// It contains the name filter
+type EnvironmentFilter struct {
+	Name        string
+	Description string
+	ServerIDs   []string
+	DatabaseIDs []string
+}
+
+// NewEnvironmentFilter creates a new environment filter
+func NewEnvironmentFilter() *EnvironmentFilter {
+	return &EnvironmentFilter{
+		Name:        "",
+		Description: "",
+		ServerIDs:   []string{},
+		DatabaseIDs: []string{},
+	}
+}
+
 // EnvironmentRepository interface
 type EnvironmentRepository interface {
 	CreateEnvironment(name, description string, serverIDs, databaseIDs []int64) (*Environment, error)
@@ -52,5 +71,5 @@ type EnvironmentRepository interface {
 	GetEnvironmentByID(id int64) (*Environment, error)
 	UpdateEnvironment(client *Environment) error
 	DeleteEnvironment(id int64) error
-	GetEnvironments() (*Environments, error)
+	GetEnvironments(filter *EnvironmentFilter) (*Environments, error)
 }

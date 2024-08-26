@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/akosgarai/projectregister/pkg/database"
@@ -139,11 +141,36 @@ func (r *EnvironmentRepository) DeleteEnvironment(id int64) error {
 
 // GetEnvironments gets all environments
 // it returns the environments and an error
-func (r *EnvironmentRepository) GetEnvironments() (*model.Environments, error) {
+func (r *EnvironmentRepository) GetEnvironments(filters *model.EnvironmentFilter) (*model.Environments, error) {
 	// get all environments
 	var environments model.Environments
 	query := "SELECT * FROM environments"
-	rows, err := r.db.Query(query)
+	params := []interface{}{}
+	whereConditions := []string{}
+	if filters.Name != "" {
+		index := len(params) + 1
+		whereConditions = append(whereConditions, "name LIKE '%' || $"+strconv.Itoa(index)+" || '%'")
+		params = append(params, filters.Name)
+	}
+	if filters.Description != "" {
+		index := len(params) + 1
+		whereConditions = append(whereConditions, "description LIKE '%' || $"+strconv.Itoa(index)+" || '%'")
+		params = append(params, filters.Description)
+	}
+	if len(filters.ServerIDs) > 0 {
+		index := len(params) + 1
+		whereConditions = append(whereConditions, "id IN (SELECT environment_id FROM environment_to_servers WHERE server_id = ANY($"+strconv.Itoa(index)+"::bigint[]))")
+		params = append(params, "{"+strings.Join(filters.ServerIDs, ",")+"}")
+	}
+	if len(filters.DatabaseIDs) > 0 {
+		index := len(params) + 1
+		whereConditions = append(whereConditions, "id IN (SELECT environment_id FROM environment_to_databases WHERE database_id = ANY($"+strconv.Itoa(index)+"::bigint[]))")
+		params = append(params, "{"+strings.Join(filters.DatabaseIDs, ",")+"}")
+	}
+	if len(whereConditions) > 0 {
+		query += " WHERE " + strings.Join(whereConditions, " AND ")
+	}
+	rows, err := r.db.Query(query, params...)
 	if err != nil {
 		return nil, err
 	}

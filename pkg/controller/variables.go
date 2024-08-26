@@ -117,8 +117,16 @@ var (
 	EnvironmentEnvironmentIDInvalidErrorMessage = "Invalid environment id"
 	// EnvironmentFailedToGetEnvironmentErrorMessage is the error message for the failed environment get.
 	EnvironmentFailedToGetEnvironmentErrorMessage = "Failed to get environment data"
+	// EnvironmentListFailedToGetServersErrorMessage is the error message for the failed servers get.
+	EnvironmentListFailedToGetServersErrorMessage = "Failed to get servers"
+	// EnvironmentListFailedToGetDatabasesErrorMessage is the error message for the failed databases get.
+	EnvironmentListFailedToGetDatabasesErrorMessage = "Failed to get databases"
 	// EnvironmentListFailedToGetEnvironmentsErrorMessage is the error message for the failed environments get.
 	EnvironmentListFailedToGetEnvironmentsErrorMessage = "Failed to get environments"
+	// EnvironmentListDatabaseIDInvalidErrorMessage is the error message for the invalid database id in the environment list form.
+	EnvironmentListDatabaseIDInvalidErrorMessage = "Invalid database id"
+	// EnvironmentListServerIDInvalidErrorMessage is the error message for the invalid server id in the environment list form.
+	EnvironmentListServerIDInvalidErrorMessage = "Invalid server id"
 	// EnvironmentUpdateDatabaseIDInvalidErrorMessage is the error message for the invalid database id in the environment form.
 	EnvironmentUpdateDatabaseIDInvalidErrorMessage = "Invalid database id"
 	// EnvironmentUpdateFailedToGetDatabasesErrorMessage is the error message for the failed databases get.

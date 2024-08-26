@@ -84,7 +84,7 @@ func newEnvironmentFormResponse(title string, currentUser *model.User, environme
 }
 
 // NewEnvironmentListResponse is a constructor for the ListingResponse struct of the environments.
-func NewEnvironmentListResponse(currentUser *model.User, environments *model.Environments) *ListingResponse {
+func NewEnvironmentListResponse(currentUser *model.User, environments *model.Environments, servers *model.Servers, databases *model.Databases) *ListingResponse {
 	headerText := "Environment List"
 	headerContent := components.NewContentHeader(headerText, []*components.Link{})
 	if currentUser.HasPrivilege("environments.create") {
@@ -118,5 +118,18 @@ func NewEnvironmentListResponse(currentUser *model.User, environments *model.Env
 
 		listingRows = append(listingRows, &components.ListingRow{Columns: &columns})
 	}
-	return NewListingResponse(headerText, currentUser, headerContent, &components.Listing{Header: listingHeader, Rows: &listingRows}, nil)
+	/* Create the search form. The only form item is the name. */
+	formItems := []*components.FormItem{
+		components.NewFormItem("Name", "name", "text", "", false, nil, nil),
+		components.NewFormItem("Description", "description", "text", "", false, nil, nil),
+		components.NewFormItem("Server", "server", "multiselect", "", false, servers.ToMap(), nil),
+		components.NewFormItem("Database", "database", "multiselect", "", false, databases.ToMap(), nil),
+	}
+	form := &components.Form{
+		Items:  formItems,
+		Action: "/admin/environment/list",
+		Method: "POST",
+		Submit: "Search",
+	}
+	return NewListingResponse(headerText, currentUser, headerContent, &components.Listing{Header: listingHeader, Rows: &listingRows}, form)
 }

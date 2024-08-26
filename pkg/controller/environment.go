@@ -239,13 +239,44 @@ func (c *Controller) EnvironmentListViewController(w http.ResponseWriter, r *htt
 		c.renderer.Error(w, http.StatusForbidden, "Forbidden", nil)
 		return
 	}
+	filter := model.NewEnvironmentFilter()
+	if r.Method == http.MethodPost {
+		filter.Name = r.FormValue("name")
+		filter.Description = r.FormValue("description")
+		for _, v := range r.Form["server"] {
+			_, err := strconv.ParseInt(v, 10, 64)
+			if err != nil {
+				c.renderer.Error(w, http.StatusBadRequest, EnvironmentListServerIDInvalidErrorMessage, err)
+				return
+			}
+			filter.ServerIDs = append(filter.ServerIDs, v)
+		}
+		for _, v := range r.Form["database"] {
+			_, err := strconv.ParseInt(v, 10, 64)
+			if err != nil {
+				c.renderer.Error(w, http.StatusBadRequest, EnvironmentListDatabaseIDInvalidErrorMessage, err)
+				return
+			}
+			filter.DatabaseIDs = append(filter.DatabaseIDs, v)
+		}
+	}
 	// get all environments
-	environments, err := c.repositoryContainer.GetEnvironmentRepository().GetEnvironments()
+	environments, err := c.repositoryContainer.GetEnvironmentRepository().GetEnvironments(filter)
 	if err != nil {
 		c.renderer.Error(w, http.StatusInternalServerError, EnvironmentListFailedToGetEnvironmentsErrorMessage, err)
 		return
 	}
-	content := response.NewEnvironmentListResponse(currentUser, environments)
+	servers, err := c.repositoryContainer.GetServerRepository().GetServers(model.NewServerFilter())
+	if err != nil {
+		c.renderer.Error(w, http.StatusInternalServerError, EnvironmentListFailedToGetServersErrorMessage, err)
+		return
+	}
+	databases, err := c.repositoryContainer.GetDatabaseRepository().GetDatabases(model.NewDatabaseFilter())
+	if err != nil {
+		c.renderer.Error(w, http.StatusInternalServerError, EnvironmentListFailedToGetDatabasesErrorMessage, err)
+		return
+	}
+	content := response.NewEnvironmentListResponse(currentUser, environments, servers, databases)
 	err = c.renderer.Template.RenderTemplate(w, "listing-page.html", content)
 	if err != nil {
 		panic(err)
