@@ -64,7 +64,7 @@ func newUserFormResponse(title string, currentUser, user *model.User, roles *mod
 }
 
 // NewUserListResponse is a constructor for the ListingResponse struct of the users.
-func NewUserListResponse(currentUser *model.User, users []*model.User) *ListingResponse {
+func NewUserListResponse(currentUser *model.User, users []*model.User, roles *model.Roles) *ListingResponse {
 	headerText := "User List"
 	headerContent := components.NewContentHeader(headerText, []*components.Link{})
 	if currentUser.HasPrivilege("users.create") {
@@ -112,5 +112,18 @@ func NewUserListResponse(currentUser *model.User, users []*model.User) *ListingR
 		row := components.ListingRow{Columns: &columns}
 		listingRows = append(listingRows, &row)
 	}
-	return NewListingResponse(headerText, currentUser, headerContent, &components.Listing{Header: listingHeader, Rows: &listingRows}, nil)
+	/* Create the search form. The only form item is the name. */
+	formItems := []*components.FormItem{
+		components.NewFormItem("Name", "name", "text", "", false, nil, nil),
+		components.NewFormItem("Email", "email", "text", "", false, nil, nil),
+		// Roles.
+		components.NewFormItem("Role", "role", "multiselect", "", false, roles.ToMap(), nil),
+	}
+	form := &components.Form{
+		Items:  formItems,
+		Action: "/admin/user/list",
+		Method: "POST",
+		Submit: "Search",
+	}
+	return NewListingResponse(headerText, currentUser, headerContent, &components.Listing{Header: listingHeader, Rows: &listingRows}, form)
 }

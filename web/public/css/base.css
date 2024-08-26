@@ -341,4 +341,9 @@ table tr td:last-child > a,
 }
 .searchbar form input[type="submit"] {
 	margin-top: 0;
+	max-width: 100px;
+}
+.searchbar select,
+.searchbar input {
+	min-width: 100px;
 }

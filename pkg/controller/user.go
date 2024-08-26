@@ -336,13 +336,36 @@ func (c *Controller) UserListViewController(w http.ResponseWriter, r *http.Reque
 		c.renderer.Error(w, http.StatusForbidden, "Forbidden", nil)
 		return
 	}
+	filter := model.NewUserFilter()
+	if r.Method == http.MethodPost {
+		filter.Name = r.FormValue("name")
+		filter.Email = r.FormValue("email")
+		for _, roleID := range r.Form["role"] {
+			if roleID == "" {
+				continue
+			}
+			_, err := strconv.ParseInt(roleID, 10, 64)
+			if err != nil {
+				c.renderer.Error(w, http.StatusBadRequest, UserRoleIDInvalidErrorMessagePrefix, err)
+				return
+			}
+			filter.RoleIDs = append(filter.RoleIDs, roleID)
+		}
+
+	}
 	// get all users
-	users, err := c.repositoryContainer.GetUserRepository().GetUsers()
+	users, err := c.repositoryContainer.GetUserRepository().GetUsers(filter)
 	if err != nil {
 		c.renderer.Error(w, http.StatusInternalServerError, UserFailedToGetUserErrorMessage, err)
 		return
 	}
-	content := response.NewUserListResponse(currentUser, users)
+	// get all roles
+	roles, err := c.repositoryContainer.GetRoleRepository().GetRoles(model.NewRoleFilter())
+	if err != nil {
+		c.renderer.Error(w, http.StatusInternalServerError, UserFailedToGetRolesErrorMessage, err)
+		return
+	}
+	content := response.NewUserListResponse(currentUser, users, roles)
 	err = c.renderer.Template.RenderTemplate(w, "listing-page.html", content)
 	if err != nil {
 		panic(err)
@@ -355,7 +378,7 @@ func (c *Controller) UserListViewController(w http.ResponseWriter, r *http.Reque
 // curl -X GET http://localhost:8090/api/user/list
 func (c *Controller) UserListAPIController(w http.ResponseWriter, r *http.Request) {
 	// get all users
-	users, err := c.repositoryContainer.GetUserRepository().GetUsers()
+	users, err := c.repositoryContainer.GetUserRepository().GetUsers(model.NewUserFilter())
 	if err != nil {
 		c.renderer.Error(w, http.StatusInternalServerError, UserListFailedToGetUsersErrorMessage, err)
 		return

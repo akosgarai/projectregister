@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/akosgarai/projectregister/pkg/database"
@@ -82,11 +84,31 @@ func (u *UserRepository) DeleteUser(id int64) error {
 }
 
 // GetUsers gets all users
-func (u *UserRepository) GetUsers() ([]*model.User, error) {
+func (u *UserRepository) GetUsers(filters *model.UserFilter) ([]*model.User, error) {
 	// get all users
 	var users []*model.User
 	query := "SELECT users.*, roles.name, roles.created_at, roles.updated_at FROM users JOIN roles ON users.role_id = roles.id"
-	rows, err := u.db.Query(query)
+	params := []interface{}{}
+	whereConditions := []string{}
+	if filters.Name != "" {
+		index := len(params) + 1
+		whereConditions = append(whereConditions, "users.name LIKE '%' || $"+strconv.Itoa(index)+" || '%'")
+		params = append(params, filters.Name)
+	}
+	if filters.Email != "" {
+		index := len(params) + 1
+		whereConditions = append(whereConditions, "users.email LIKE '%' || $"+strconv.Itoa(index)+" || '%'")
+		params = append(params, filters.Email)
+	}
+	if len(filters.RoleIDs) > 0 {
+		index := len(params) + 1
+		whereConditions = append(whereConditions, "users.role_id = ANY($"+strconv.Itoa(index)+"::bigint[])")
+		params = append(params, "{"+strings.Join(filters.RoleIDs, ",")+"}")
+	}
+	if len(whereConditions) > 0 {
+		query += " WHERE " + strings.Join(whereConditions, " AND ")
+	}
+	rows, err := u.db.Query(query, params...)
 	if err != nil {
 		return nil, err
 	}
