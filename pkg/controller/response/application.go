@@ -162,7 +162,16 @@ func newApplicationFormResponse(
 }
 
 // NewApplicationListResponse is a constructor for the ListingResponse struct of the applications.
-func NewApplicationListResponse(currentUser *model.User, apps *model.Applications) *ListingResponse {
+func NewApplicationListResponse(
+	currentUser *model.User,
+	apps *model.Applications,
+	clients *model.Clients,
+	projects *model.Projects,
+	envs *model.Environments,
+	dbs *model.Databases,
+	runtimes *model.Runtimes,
+	pools *model.Pools,
+) *ListingResponse {
 	headerText := "Application List"
 	headerContent := components.NewContentHeader(headerText, []*components.Link{})
 	if currentUser.HasPrivilege("applications.create") {
@@ -252,7 +261,29 @@ func NewApplicationListResponse(currentUser *model.User, apps *model.Application
 
 		listingRows = append(listingRows, &components.ListingRow{Columns: &columns})
 	}
-	return NewListingResponse(headerText, currentUser, headerContent, &components.Listing{Header: listingHeader, Rows: &listingRows}, nil)
+	/* Create the search form. */
+	formItems := []*components.FormItem{
+		components.NewFormItem("Client", "client", "multiselect", "", false, clients.ToMap(), nil),
+		components.NewFormItem("Project", "project", "multiselect", "", false, projects.ToMap(), nil),
+		components.NewFormItem("Environment", "environment", "multiselect", "", false, envs.ToMap(), nil),
+		components.NewFormItem("Database", "database", "multiselect", "", false, dbs.ToMap(), nil),
+		components.NewFormItem("DB User", "db_user", "text", "", false, nil, nil),
+		components.NewFormItem("DB Name", "db_name", "text", "", false, nil, nil),
+		components.NewFormItem("Runtime", "runtime", "multiselect", "", false, runtimes.ToMap(), nil),
+		components.NewFormItem("Pool", "pool", "multiselect", "", false, pools.ToMap(), nil),
+		components.NewFormItem("Domain", "domain", "text", "", false, nil, nil),
+		components.NewFormItem("Repository", "repository", "text", "", false, nil, nil),
+		components.NewFormItem("Branch", "branch", "text", "", false, nil, nil),
+		components.NewFormItem("Framework", "framework", "text", "", false, nil, nil),
+		components.NewFormItem("Document Root", "doc_root", "text", "", false, nil, nil),
+	}
+	form := &components.Form{
+		Items:  formItems,
+		Action: "/admin/application/list",
+		Method: "POST",
+		Submit: "Search",
+	}
+	return NewListingResponse(headerText, currentUser, headerContent, &components.Listing{Header: listingHeader, Rows: &listingRows}, form)
 }
 
 // NewApplicationImportToEnvironmentFormResponse is a constructor for the ApplicationImportToEnvironmentFormResponse struct.

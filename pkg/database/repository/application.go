@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/akosgarai/projectregister/pkg/database"
@@ -118,11 +120,76 @@ func (a *ApplicationRepository) DeleteApplication(id int64) error {
 
 // GetApplications gets all applications
 // it returns the applications and an error
-func (a *ApplicationRepository) GetApplications() (*model.Applications, error) {
+func (a *ApplicationRepository) GetApplications(filters *model.ApplicationFilter) (*model.Applications, error) {
 	// get all applications
 	var applications model.Applications
 	query := "SELECT id FROM applications"
-	rows, err := a.db.Query(query)
+	params := []interface{}{}
+	whereConditions := []string{}
+	if len(filters.ClientIDs) > 0 {
+		index := len(params) + 1
+		whereConditions = append(whereConditions, "client_id = ANY($"+strconv.Itoa(index)+"::bigint[])")
+		params = append(params, "{"+strings.Join(filters.ClientIDs, ",")+"}")
+	}
+	if len(filters.ProjectIDs) > 0 {
+		index := len(params) + 1
+		whereConditions = append(whereConditions, "project_id = ANY($"+strconv.Itoa(index)+"::bigint[])")
+		params = append(params, "{"+strings.Join(filters.ProjectIDs, ",")+"}")
+	}
+	if len(filters.EnvironmentIDs) > 0 {
+		index := len(params) + 1
+		whereConditions = append(whereConditions, "env_id = ANY($"+strconv.Itoa(index)+"::bigint[])")
+		params = append(params, "{"+strings.Join(filters.EnvironmentIDs, ",")+"}")
+	}
+	if len(filters.DatabaseIDs) > 0 {
+		index := len(params) + 1
+		whereConditions = append(whereConditions, "database_id = ANY($"+strconv.Itoa(index)+"::bigint[])")
+		params = append(params, "{"+strings.Join(filters.DatabaseIDs, ",")+"}")
+	}
+	if len(filters.RuntimeIDs) > 0 {
+		index := len(params) + 1
+		whereConditions = append(whereConditions, "runtime_id = ANY($"+strconv.Itoa(index)+"::bigint[])")
+		params = append(params, "{"+strings.Join(filters.RuntimeIDs, ",")+"}")
+	}
+	if len(filters.PoolIDs) > 0 {
+		index := len(params) + 1
+		whereConditions = append(whereConditions, "pool_id = ANY($"+strconv.Itoa(index)+"::bigint[])")
+		params = append(params, "{"+strings.Join(filters.PoolIDs, ",")+"}")
+	}
+	if filters.Domain != "" {
+		index := len(params) + 1
+		whereConditions = append(whereConditions, "id IN (SELECT application_id FROM application_to_domains WHERE domain_id IN (SELECT id FROM domains WHERE name LIKE '%' || $"+strconv.Itoa(index)+" || '%'))")
+		params = append(params, filters.Domain)
+	}
+	if filters.Branch != "" {
+		index := len(params) + 1
+		whereConditions = append(whereConditions, "branch LIKE '%' || $"+strconv.Itoa(index)+" || '%'")
+		params = append(params, filters.Branch)
+	}
+	if filters.DBName != "" {
+		index := len(params) + 1
+		whereConditions = append(whereConditions, "db_name LIKE '%' || $"+strconv.Itoa(index)+" || '%'")
+		params = append(params, filters.DBName)
+	}
+	if filters.DBUser != "" {
+		index := len(params) + 1
+		whereConditions = append(whereConditions, "db_user LIKE '%' || $"+strconv.Itoa(index)+" || '%'")
+		params = append(params, filters.DBUser)
+	}
+	if filters.DocRoot != "" {
+		index := len(params) + 1
+		whereConditions = append(whereConditions, "document_root LIKE '%' || $"+strconv.Itoa(index)+" || '%'")
+		params = append(params, filters.DocRoot)
+	}
+	if filters.Framework != "" {
+		index := len(params) + 1
+		whereConditions = append(whereConditions, "framework LIKE '%' || $"+strconv.Itoa(index)+" || '%'")
+		params = append(params, filters.Framework)
+	}
+	if len(whereConditions) > 0 {
+		query += " WHERE " + strings.Join(whereConditions, " AND ")
+	}
+	rows, err := a.db.Query(query, params...)
 	if err != nil {
 		return nil, err
 	}

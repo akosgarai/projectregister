@@ -71,7 +71,7 @@ func New(
 	adminRouter.HandleFunc("/environment/view/{environmentId}", routerController.EnvironmentViewController)
 	adminRouter.HandleFunc("/environment/update/{environmentId}", routerController.EnvironmentUpdateViewController).Methods("GET", "POST")
 	adminRouter.HandleFunc("/environment/delete/{environmentId}", routerController.EnvironmentDeleteViewController).Methods("POST")
-	adminRouter.HandleFunc("/environment/list", routerController.EnvironmentListViewController)
+	adminRouter.HandleFunc("/environment/list", routerController.EnvironmentListViewController).Methods("GET", "POST")
 
 	adminRouter.HandleFunc("/runtime/create", routerController.RuntimeCreateViewController).Methods("GET", "POST")
 	adminRouter.HandleFunc("/runtime/view/{runtimeId}", routerController.RuntimeViewController)
@@ -101,7 +101,7 @@ func New(
 	adminRouter.HandleFunc("/application/view/{applicationId}", routerController.ApplicationViewController)
 	adminRouter.HandleFunc("/application/update/{applicationId}", routerController.ApplicationUpdateViewController).Methods("GET", "POST")
 	adminRouter.HandleFunc("/application/delete/{applicationId}", routerController.ApplicationDeleteViewController).Methods("POST")
-	adminRouter.HandleFunc("/application/list", routerController.ApplicationListViewController)
+	adminRouter.HandleFunc("/application/list", routerController.ApplicationListViewController).Methods("GET", "POST")
 	adminRouter.HandleFunc("/application/import-to-environment/{environmentId}", routerController.ApplicationImportToEnvironmentFormController).Methods("GET", "POST")
 	adminRouter.HandleFunc("/application/mapping-to-environment/{environmentId}/{fileId}", routerController.ApplicationMappingToEnvironmentFormController).Methods("GET", "POST")
 

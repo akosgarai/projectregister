@@ -175,13 +175,103 @@ func (c *Controller) ApplicationListViewController(w http.ResponseWriter, r *htt
 		c.renderer.Error(w, http.StatusForbidden, "Forbidden", nil)
 		return
 	}
+	filter := model.NewApplicationFilter()
+	if r.Method == http.MethodPost {
+		filter.Domain = r.FormValue("domain")
+		filter.Branch = r.FormValue("branch")
+		filter.DBName = r.FormValue("db_name")
+		filter.DBUser = r.FormValue("db_user")
+		filter.DocRoot = r.FormValue("doc_root")
+		filter.Framework = r.FormValue("framework")
+		filter.Repository = r.FormValue("repository")
+
+		for _, v := range r.Form["client"] {
+			_, err := strconv.ParseInt(v, 10, 64)
+			if err != nil {
+				c.renderer.Error(w, http.StatusBadRequest, EnvironmentListServerIDInvalidErrorMessage, err)
+				return
+			}
+			filter.ClientIDs = append(filter.ClientIDs, v)
+		}
+		for _, v := range r.Form["project"] {
+			_, err := strconv.ParseInt(v, 10, 64)
+			if err != nil {
+				c.renderer.Error(w, http.StatusBadRequest, EnvironmentListServerIDInvalidErrorMessage, err)
+				return
+			}
+			filter.ProjectIDs = append(filter.ProjectIDs, v)
+		}
+		for _, v := range r.Form["environment"] {
+			_, err := strconv.ParseInt(v, 10, 64)
+			if err != nil {
+				c.renderer.Error(w, http.StatusBadRequest, EnvironmentListServerIDInvalidErrorMessage, err)
+				return
+			}
+			filter.EnvironmentIDs = append(filter.EnvironmentIDs, v)
+		}
+		for _, v := range r.Form["database"] {
+			_, err := strconv.ParseInt(v, 10, 64)
+			if err != nil {
+				c.renderer.Error(w, http.StatusBadRequest, EnvironmentListServerIDInvalidErrorMessage, err)
+				return
+			}
+			filter.DatabaseIDs = append(filter.DatabaseIDs, v)
+		}
+		for _, v := range r.Form["runtime"] {
+			_, err := strconv.ParseInt(v, 10, 64)
+			if err != nil {
+				c.renderer.Error(w, http.StatusBadRequest, EnvironmentListServerIDInvalidErrorMessage, err)
+				return
+			}
+			filter.RuntimeIDs = append(filter.RuntimeIDs, v)
+		}
+		for _, v := range r.Form["pool"] {
+			_, err := strconv.ParseInt(v, 10, 64)
+			if err != nil {
+				c.renderer.Error(w, http.StatusBadRequest, EnvironmentListServerIDInvalidErrorMessage, err)
+				return
+			}
+			filter.PoolIDs = append(filter.PoolIDs, v)
+		}
+	}
+
 	// get all applications
-	applications, err := c.repositoryContainer.GetApplicationRepository().GetApplications()
+	applications, err := c.repositoryContainer.GetApplicationRepository().GetApplications(filter)
 	if err != nil {
 		c.renderer.Error(w, http.StatusInternalServerError, ApplicationListFailedToGetApplicationsErrorMessage, err)
 		return
 	}
-	content := response.NewApplicationListResponse(currentUser, applications)
+	runtimes, err := c.repositoryContainer.GetRuntimeRepository().GetRuntimes(model.NewRuntimeFilter())
+	if err != nil {
+		c.renderer.Error(w, http.StatusInternalServerError, ApplicationCreateFailedToGetRuntimesErrorMessage, err)
+		return
+	}
+	pools, err := c.repositoryContainer.GetPoolRepository().GetPools(model.NewPoolFilter())
+	if err != nil {
+		c.renderer.Error(w, http.StatusInternalServerError, ApplicationCreateFailedToGetPoolsErrorMessage, err)
+		return
+	}
+	clients, err := c.repositoryContainer.GetClientRepository().GetClients(model.NewClientFilter())
+	if err != nil {
+		c.renderer.Error(w, http.StatusInternalServerError, ApplicationCreateFailedToGetClientsErrorMessage, err)
+		return
+	}
+	projects, err := c.repositoryContainer.GetProjectRepository().GetProjects(model.NewProjectFilter())
+	if err != nil {
+		c.renderer.Error(w, http.StatusInternalServerError, ApplicationCreateFailedToGetProjectsErrorMessage, err)
+		return
+	}
+	environments, err := c.repositoryContainer.GetEnvironmentRepository().GetEnvironments(model.NewEnvironmentFilter())
+	if err != nil {
+		c.renderer.Error(w, http.StatusInternalServerError, ApplicationCreateFailedToGetEnvironmentsErrorMessage, err)
+		return
+	}
+	databases, err := c.repositoryContainer.GetDatabaseRepository().GetDatabases(model.NewDatabaseFilter())
+	if err != nil {
+		c.renderer.Error(w, http.StatusInternalServerError, ApplicationCreateFailedToGetDatabasesErrorMessage, err)
+		return
+	}
+	content := response.NewApplicationListResponse(currentUser, applications, clients, projects, environments, databases, runtimes, pools)
 	err = c.renderer.Template.RenderTemplate(w, "listing-page.html", content)
 	if err != nil {
 		panic(err)
