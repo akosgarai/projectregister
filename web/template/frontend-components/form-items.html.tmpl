@@ -21,13 +21,13 @@
 				<select class="form-control" id="{{.Name}}" name="{{.Name}}" {{if eq .Required true}}required{{end}} >
 					<option value="">--Pick One--</option>
 					{{range $value, $selection := .Options}}
-						<option value="{{$value}}" {{if $selection.Selected}}selected{{end}}>{{$selection.Value}}</option>
+						<option value="{{$value}}" {{if $selection.Selected}}selected{{end}} title="{{$selection.Value}}">{{$selection.Value}}</option>
 					{{end}}
 				</select>
 			{{else if eq .Type "multiselect"}}
 				<select class="form-control" id="{{.Name}}" name="{{.Name}}" {{if eq .Required true}}required{{end}} size="1" multiple>
 					{{range $value, $selection := .Options}}
-						<option value="{{$value}}" {{if $selection.Selected}}selected{{end}}>{{$selection.Value}}</option>
+						<option value="{{$value}}" {{if $selection.Selected}}selected{{end}} title="{{$selection.Value}}">{{$selection.Value}}</option>
 					{{end}}
 				</select>
 			{{else if eq .Type "checkboxgroup"}}
