@@ -187,7 +187,7 @@ func (c *Controller) ProjectListViewController(w http.ResponseWriter, r *http.Re
 		c.renderer.Error(w, http.StatusInternalServerError, ProjectListFailedToGetProjectsErrorMessage, err)
 		return
 	}
-	content := response.NewProjectListResponse(currentUser, projects)
+	content := response.NewProjectListResponse(currentUser, projects, filter)
 	err = c.renderer.Template.RenderTemplate(w, "listing-page.html", content)
 	if err != nil {
 		panic(err)

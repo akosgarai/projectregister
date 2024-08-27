@@ -47,7 +47,7 @@ func newDomainFormResponse(title string, currentUser *model.User, domain *model.
 }
 
 // NewDomainListResponse is a constructor for the ListingResponse struct of the domains.
-func NewDomainListResponse(currentUser *model.User, domains *model.Domains) *ListingResponse {
+func NewDomainListResponse(currentUser *model.User, domains *model.Domains, filter *model.DomainFilter) *ListingResponse {
 	headerText := "Domain List"
 	headerContent := components.NewContentHeader(headerText, []*components.Link{})
 	if currentUser.HasPrivilege("domains.create") {
@@ -81,7 +81,7 @@ func NewDomainListResponse(currentUser *model.User, domains *model.Domains) *Lis
 	}
 	/* Create the search form. The only form item is the name. */
 	formItems := []*components.FormItem{
-		components.NewFormItem("Name", "name", "text", "", false, nil, nil),
+		components.NewFormItem("Name", "name", "text", filter.Name, false, nil, nil),
 	}
 	form := &components.Form{
 		Items:  formItems,

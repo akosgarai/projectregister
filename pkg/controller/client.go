@@ -174,20 +174,20 @@ func (c *Controller) ClientListViewController(w http.ResponseWriter, r *http.Req
 		return
 	}
 	// Define the empty filter here.
-	clientFilter := model.NewClientFilter()
+	filter := model.NewClientFilter()
 	if r.Method == http.MethodPost {
 		// On case of post request, the filter is not empty.
 		// Set the values based on the form values.
 		filterName := r.FormValue("name")
-		clientFilter.Name = filterName
+		filter.Name = filterName
 	}
 	// get all clients
-	clients, err := c.repositoryContainer.GetClientRepository().GetClients(clientFilter)
+	clients, err := c.repositoryContainer.GetClientRepository().GetClients(filter)
 	if err != nil {
 		c.renderer.Error(w, http.StatusInternalServerError, ClientListFailedToGetClientsErrorMessage, err)
 		return
 	}
-	content := response.NewClientListResponse(currentUser, clients)
+	content := response.NewClientListResponse(currentUser, clients, filter)
 	err = c.renderer.Template.RenderTemplate(w, "listing-page.html", content)
 	if err != nil {
 		panic(err)

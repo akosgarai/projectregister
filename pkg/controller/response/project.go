@@ -47,7 +47,7 @@ func newProjectFormResponse(title string, currentUser *model.User, project *mode
 }
 
 // NewProjectListResponse is a constructor for the ListingResponse struct of the projects.
-func NewProjectListResponse(currentUser *model.User, projects *model.Projects) *ListingResponse {
+func NewProjectListResponse(currentUser *model.User, projects *model.Projects, filter *model.ProjectFilter) *ListingResponse {
 	headerText := "Project List"
 	headerContent := components.NewContentHeader(headerText, []*components.Link{})
 	if currentUser.HasPrivilege("projects.create") {
@@ -81,7 +81,7 @@ func NewProjectListResponse(currentUser *model.User, projects *model.Projects) *
 	}
 	/* Create the search form. The only form item is the name. */
 	formItems := []*components.FormItem{
-		components.NewFormItem("Name", "name", "text", "", false, nil, nil),
+		components.NewFormItem("Name", "name", "text", filter.Name, false, nil, nil),
 	}
 	form := &components.Form{
 		Items:  formItems,

@@ -365,7 +365,7 @@ func (c *Controller) UserListViewController(w http.ResponseWriter, r *http.Reque
 		c.renderer.Error(w, http.StatusInternalServerError, UserFailedToGetRolesErrorMessage, err)
 		return
 	}
-	content := response.NewUserListResponse(currentUser, users, roles)
+	content := response.NewUserListResponse(currentUser, users, roles, filter)
 	err = c.renderer.Template.RenderTemplate(w, "listing-page.html", content)
 	if err != nil {
 		panic(err)

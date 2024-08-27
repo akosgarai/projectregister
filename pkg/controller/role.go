@@ -215,7 +215,7 @@ func (c *Controller) RoleListViewController(w http.ResponseWriter, r *http.Reque
 		c.renderer.Error(w, http.StatusInternalServerError, RoleListFailedToGetRolesErrorMessage, err)
 		return
 	}
-	content := response.NewRoleListResponse(currentUser, roles)
+	content := response.NewRoleListResponse(currentUser, roles, filter)
 	err = c.renderer.Template.RenderTemplate(w, "listing-page.html", content)
 	if err != nil {
 		panic(err)

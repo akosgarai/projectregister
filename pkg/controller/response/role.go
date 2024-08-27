@@ -62,7 +62,7 @@ func newRoleFormResponse(title string, currentUser *model.User, role *model.Role
 }
 
 // NewRoleListResponse is a constructor for the ListingResponse struct of the roles.
-func NewRoleListResponse(currentUser *model.User, roles *model.Roles) *ListingResponse {
+func NewRoleListResponse(currentUser *model.User, roles *model.Roles, filter *model.RoleFilter) *ListingResponse {
 	headerText := "Role List"
 	headerContent := components.NewContentHeader(headerText, []*components.Link{})
 	if currentUser.HasPrivilege("roles.create") {
@@ -96,7 +96,7 @@ func NewRoleListResponse(currentUser *model.User, roles *model.Roles) *ListingRe
 	}
 	/* Create the search form. The only form item is the name. */
 	formItems := []*components.FormItem{
-		components.NewFormItem("Name", "name", "text", "", false, nil, nil),
+		components.NewFormItem("Name", "name", "text", filter.Name, false, nil, nil),
 	}
 	form := &components.Form{
 		Items:  formItems,

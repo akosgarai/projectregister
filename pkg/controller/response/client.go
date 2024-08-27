@@ -49,7 +49,7 @@ func NewUpdateClientResponse(currentUser *model.User, client *model.Client) *For
 }
 
 // NewClientListResponse is a constructor for the ListingResponse struct of the clients.
-func NewClientListResponse(currentUser *model.User, clients *model.Clients) *ListingResponse {
+func NewClientListResponse(currentUser *model.User, clients *model.Clients, filter *model.ClientFilter) *ListingResponse {
 	headerText := "Client List"
 	headerContent := components.NewContentHeader(headerText, []*components.Link{})
 	if currentUser.HasPrivilege("clients.create") {
@@ -83,7 +83,7 @@ func NewClientListResponse(currentUser *model.User, clients *model.Clients) *Lis
 	}
 	/* Create the search form. The only form item is the name. */
 	formItems := []*components.FormItem{
-		components.NewFormItem("Name", "name", "text", "", false, nil, nil),
+		components.NewFormItem("Name", "name", "text", filter.Name, false, nil, nil),
 	}
 	form := &components.Form{
 		Items:  formItems,

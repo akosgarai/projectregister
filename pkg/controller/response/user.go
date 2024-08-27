@@ -2,6 +2,7 @@ package response
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/akosgarai/projectregister/pkg/controller/response/components"
 	"github.com/akosgarai/projectregister/pkg/model"
@@ -64,7 +65,7 @@ func newUserFormResponse(title string, currentUser, user *model.User, roles *mod
 }
 
 // NewUserListResponse is a constructor for the ListingResponse struct of the users.
-func NewUserListResponse(currentUser *model.User, users []*model.User, roles *model.Roles) *ListingResponse {
+func NewUserListResponse(currentUser *model.User, users []*model.User, roles *model.Roles, filter *model.UserFilter) *ListingResponse {
 	headerText := "User List"
 	headerContent := components.NewContentHeader(headerText, []*components.Link{})
 	if currentUser.HasPrivilege("users.create") {
@@ -113,11 +114,19 @@ func NewUserListResponse(currentUser *model.User, users []*model.User, roles *mo
 		listingRows = append(listingRows, &row)
 	}
 	/* Create the search form. The only form item is the name. */
+	// the selected role ids are strings, but the form item needs int64
+	selectedOptions := []int64{}
+	for _, v := range filter.RoleIDs {
+		integerValue, err := strconv.ParseInt(v, 10, 64)
+		if err == nil {
+			selectedOptions = append(selectedOptions, integerValue)
+		}
+	}
 	formItems := []*components.FormItem{
-		components.NewFormItem("Name", "name", "text", "", false, nil, nil),
-		components.NewFormItem("Email", "email", "text", "", false, nil, nil),
+		components.NewFormItem("Name", "name", "text", filter.Name, false, nil, nil),
+		components.NewFormItem("Email", "email", "text", filter.Email, false, nil, nil),
 		// Roles.
-		components.NewFormItem("Role", "role", "multiselect", "", false, roles.ToMap(), nil),
+		components.NewFormItem("Role", "role", "multiselect", "", false, roles.ToMap(), selectedOptions),
 	}
 	form := &components.Form{
 		Items:  formItems,

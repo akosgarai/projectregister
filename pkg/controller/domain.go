@@ -183,7 +183,7 @@ func (c *Controller) DomainListViewController(w http.ResponseWriter, r *http.Req
 		c.renderer.Error(w, http.StatusInternalServerError, DomainListFailedToGetDomainsErrorMessage, err)
 		return
 	}
-	content := response.NewDomainListResponse(currentUser, domains)
+	content := response.NewDomainListResponse(currentUser, domains, filter)
 	err = c.renderer.Template.RenderTemplate(w, "listing-page.html", content)
 	if err != nil {
 		panic(err)
