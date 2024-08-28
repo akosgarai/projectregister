@@ -183,7 +183,7 @@ func (c *Controller) RuntimeListViewController(w http.ResponseWriter, r *http.Re
 		c.renderer.Error(w, http.StatusInternalServerError, RuntimeListFailedToGetRuntimesErrorMessage, err)
 		return
 	}
-	content := response.NewRuntimeListResponse(currentUser, runtimes)
+	content := response.NewRuntimeListResponse(currentUser, runtimes, filter)
 	err = c.renderer.Template.RenderTemplate(w, "listing-page.html", content)
 	if err != nil {
 		panic(err)

@@ -276,7 +276,7 @@ func (c *Controller) EnvironmentListViewController(w http.ResponseWriter, r *htt
 		c.renderer.Error(w, http.StatusInternalServerError, EnvironmentListFailedToGetDatabasesErrorMessage, err)
 		return
 	}
-	content := response.NewEnvironmentListResponse(currentUser, environments, servers, databases)
+	content := response.NewEnvironmentListResponse(currentUser, environments, servers, databases, filter)
 	err = c.renderer.Template.RenderTemplate(w, "listing-page.html", content)
 	if err != nil {
 		panic(err)

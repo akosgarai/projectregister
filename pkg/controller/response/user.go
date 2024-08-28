@@ -2,10 +2,10 @@ package response
 
 import (
 	"fmt"
-	"strconv"
 
 	"github.com/akosgarai/projectregister/pkg/controller/response/components"
 	"github.com/akosgarai/projectregister/pkg/model"
+	"github.com/akosgarai/projectregister/pkg/transformers"
 )
 
 // NewUserDetailResponse is a constructor for the DetailResponse struct for a user.
@@ -113,20 +113,11 @@ func NewUserListResponse(currentUser *model.User, users []*model.User, roles *mo
 		row := components.ListingRow{Columns: &columns}
 		listingRows = append(listingRows, &row)
 	}
-	/* Create the search form. The only form item is the name. */
-	// the selected role ids are strings, but the form item needs int64
-	selectedOptions := []int64{}
-	for _, v := range filter.RoleIDs {
-		integerValue, err := strconv.ParseInt(v, 10, 64)
-		if err == nil {
-			selectedOptions = append(selectedOptions, integerValue)
-		}
-	}
 	formItems := []*components.FormItem{
 		components.NewFormItem("Name", "name", "text", filter.Name, false, nil, nil),
 		components.NewFormItem("Email", "email", "text", filter.Email, false, nil, nil),
 		// Roles.
-		components.NewFormItem("Role", "role", "multiselect", "", false, roles.ToMap(), selectedOptions),
+		components.NewFormItem("Role", "role", "multiselect", "", false, roles.ToMap(), transformers.StringSliceToInt64Slice(filter.RoleIDs)),
 	}
 	form := &components.Form{
 		Items:  formItems,

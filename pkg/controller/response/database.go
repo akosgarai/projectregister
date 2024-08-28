@@ -47,7 +47,7 @@ func newDatabaseFormResponse(title string, currentUser *model.User, database *mo
 }
 
 // NewDatabaseListResponse is a constructor for the ListingResponse struct of the databases.
-func NewDatabaseListResponse(currentUser *model.User, databases *model.Databases) *ListingResponse {
+func NewDatabaseListResponse(currentUser *model.User, databases *model.Databases, filter *model.DatabaseFilter) *ListingResponse {
 	headerText := "Database List"
 	headerContent := components.NewContentHeader(headerText, []*components.Link{})
 	if currentUser.HasPrivilege("databases.create") {
@@ -81,7 +81,7 @@ func NewDatabaseListResponse(currentUser *model.User, databases *model.Databases
 	}
 	/* Create the search form. The only form item is the name. */
 	formItems := []*components.FormItem{
-		components.NewFormItem("Name", "name", "text", "", false, nil, nil),
+		components.NewFormItem("Name", "name", "text", filter.Name, false, nil, nil),
 	}
 	form := &components.Form{
 		Items:  formItems,

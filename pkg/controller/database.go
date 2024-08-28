@@ -183,7 +183,7 @@ func (c *Controller) DatabaseListViewController(w http.ResponseWriter, r *http.R
 		c.renderer.Error(w, http.StatusInternalServerError, DatabaseListFailedToGetDatabasesErrorMessage, err)
 		return
 	}
-	content := response.NewDatabaseListResponse(currentUser, databases)
+	content := response.NewDatabaseListResponse(currentUser, databases, filter)
 	err = c.renderer.Template.RenderTemplate(w, "listing-page.html", content)
 	if err != nil {
 		panic(err)

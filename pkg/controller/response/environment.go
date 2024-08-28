@@ -5,6 +5,7 @@ import (
 
 	"github.com/akosgarai/projectregister/pkg/controller/response/components"
 	"github.com/akosgarai/projectregister/pkg/model"
+	"github.com/akosgarai/projectregister/pkg/transformers"
 )
 
 // NewEnvironmentDetailResponse is a constructor for the DetailResponse struct for an environment.
@@ -84,7 +85,7 @@ func newEnvironmentFormResponse(title string, currentUser *model.User, environme
 }
 
 // NewEnvironmentListResponse is a constructor for the ListingResponse struct of the environments.
-func NewEnvironmentListResponse(currentUser *model.User, environments *model.Environments, servers *model.Servers, databases *model.Databases) *ListingResponse {
+func NewEnvironmentListResponse(currentUser *model.User, environments *model.Environments, servers *model.Servers, databases *model.Databases, filter *model.EnvironmentFilter) *ListingResponse {
 	headerText := "Environment List"
 	headerContent := components.NewContentHeader(headerText, []*components.Link{})
 	if currentUser.HasPrivilege("environments.create") {
@@ -120,10 +121,10 @@ func NewEnvironmentListResponse(currentUser *model.User, environments *model.Env
 	}
 	/* Create the search form. The only form item is the name. */
 	formItems := []*components.FormItem{
-		components.NewFormItem("Name", "name", "text", "", false, nil, nil),
-		components.NewFormItem("Description", "description", "text", "", false, nil, nil),
-		components.NewFormItem("Server", "server", "multiselect", "", false, servers.ToMap(), nil),
-		components.NewFormItem("Database", "database", "multiselect", "", false, databases.ToMap(), nil),
+		components.NewFormItem("Name", "name", "text", filter.Name, false, nil, nil),
+		components.NewFormItem("Description", "description", "text", filter.Description, false, nil, nil),
+		components.NewFormItem("Server", "server", "multiselect", "", false, servers.ToMap(), transformers.StringSliceToInt64Slice(filter.ServerIDs)),
+		components.NewFormItem("Database", "database", "multiselect", "", false, databases.ToMap(), transformers.StringSliceToInt64Slice(filter.DatabaseIDs)),
 	}
 	form := &components.Form{
 		Items:  formItems,

@@ -280,7 +280,7 @@ func (c *Controller) ServerListViewController(w http.ResponseWriter, r *http.Req
 		c.renderer.Error(w, http.StatusInternalServerError, ServerListFailedToGetPoolsErrorMessage, err)
 		return
 	}
-	content := response.NewServerListResponse(currentUser, servers, pools, runtimes)
+	content := response.NewServerListResponse(currentUser, servers, pools, runtimes, filter)
 	err = c.renderer.Template.RenderTemplate(w, "listing-page.html", content)
 	if err != nil {
 		panic(err)

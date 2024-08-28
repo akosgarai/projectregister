@@ -5,6 +5,7 @@ import (
 
 	"github.com/akosgarai/projectregister/pkg/controller/response/components"
 	"github.com/akosgarai/projectregister/pkg/model"
+	"github.com/akosgarai/projectregister/pkg/transformers"
 )
 
 // NewServerDetailResponse is a constructor for the DetailResponse struct for a server.
@@ -82,7 +83,7 @@ func newServerFormResponse(title string, currentUser *model.User, server *model.
 }
 
 // NewServerListResponse is a constructor for the ListingResponse struct of the servers.
-func NewServerListResponse(currentUser *model.User, servers *model.Servers, pools *model.Pools, runtimes *model.Runtimes) *ListingResponse {
+func NewServerListResponse(currentUser *model.User, servers *model.Servers, pools *model.Pools, runtimes *model.Runtimes, filter *model.ServerFilter) *ListingResponse {
 	headerText := "Server List"
 	headerContent := components.NewContentHeader(headerText, []*components.Link{})
 	if currentUser.HasPrivilege("servers.create") {
@@ -120,11 +121,11 @@ func NewServerListResponse(currentUser *model.User, servers *model.Servers, pool
 	}
 	/* Create the search form. The only form item is the name. */
 	formItems := []*components.FormItem{
-		components.NewFormItem("Name", "name", "text", "", false, nil, nil),
-		components.NewFormItem("Remote Address", "remote_address", "text", "", false, nil, nil),
-		components.NewFormItem("Description", "description", "text", "", false, nil, nil),
-		components.NewFormItem("Pool", "pool", "multiselect", "", false, pools.ToMap(), nil),
-		components.NewFormItem("Runtime", "runtime", "multiselect", "", false, runtimes.ToMap(), nil),
+		components.NewFormItem("Name", "name", "text", filter.Name, false, nil, nil),
+		components.NewFormItem("Remote Address", "remote_address", "text", filter.RemoteAddr, false, nil, nil),
+		components.NewFormItem("Description", "description", "text", filter.Description, false, nil, nil),
+		components.NewFormItem("Pool", "pool", "multiselect", "", false, pools.ToMap(), transformers.StringSliceToInt64Slice(filter.PoolIDs)),
+		components.NewFormItem("Runtime", "runtime", "multiselect", "", false, runtimes.ToMap(), transformers.StringSliceToInt64Slice(filter.RuntimeIDs)),
 	}
 	form := &components.Form{
 		Items:  formItems,

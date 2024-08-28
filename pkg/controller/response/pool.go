@@ -47,7 +47,7 @@ func newPoolFormResponse(title string, currentUser *model.User, pool *model.Pool
 }
 
 // NewPoolListResponse is a constructor for the ListingResponse struct of the pools.
-func NewPoolListResponse(currentUser *model.User, pools *model.Pools) *ListingResponse {
+func NewPoolListResponse(currentUser *model.User, pools *model.Pools, filter *model.PoolFilter) *ListingResponse {
 	headerText := "Pool List"
 	headerContent := components.NewContentHeader(headerText, []*components.Link{})
 	if currentUser.HasPrivilege("pools.create") {
@@ -81,7 +81,7 @@ func NewPoolListResponse(currentUser *model.User, pools *model.Pools) *ListingRe
 	}
 	/* Create the search form. The only form item is the name. */
 	formItems := []*components.FormItem{
-		components.NewFormItem("Name", "name", "text", "", false, nil, nil),
+		components.NewFormItem("Name", "name", "text", filter.Name, false, nil, nil),
 	}
 	form := &components.Form{
 		Items:  formItems,

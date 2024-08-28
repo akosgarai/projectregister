@@ -183,7 +183,7 @@ func (c *Controller) PoolListViewController(w http.ResponseWriter, r *http.Reque
 		c.renderer.Error(w, http.StatusInternalServerError, PoolListFailedToGetPoolsErrorMessage, err)
 		return
 	}
-	content := response.NewPoolListResponse(currentUser, pools)
+	content := response.NewPoolListResponse(currentUser, pools, filter)
 	err = c.renderer.Template.RenderTemplate(w, "listing-page.html", content)
 	if err != nil {
 		panic(err)

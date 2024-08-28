@@ -47,7 +47,7 @@ func newRuntimeFormResponse(title string, currentUser *model.User, runtime *mode
 }
 
 // NewRuntimeListResponse is a constructor for the ListingResponse struct of the runtimes.
-func NewRuntimeListResponse(currentUser *model.User, runtimes *model.Runtimes) *ListingResponse {
+func NewRuntimeListResponse(currentUser *model.User, runtimes *model.Runtimes, filter *model.RuntimeFilter) *ListingResponse {
 	headerText := "Runtime List"
 	headerContent := components.NewContentHeader(headerText, []*components.Link{})
 	if currentUser.HasPrivilege("runtimes.create") {
@@ -81,7 +81,7 @@ func NewRuntimeListResponse(currentUser *model.User, runtimes *model.Runtimes) *
 	}
 	/* Create the search form. The only form item is the name. */
 	formItems := []*components.FormItem{
-		components.NewFormItem("Name", "name", "text", "", false, nil, nil),
+		components.NewFormItem("Name", "name", "text", filter.Name, false, nil, nil),
 	}
 	form := &components.Form{
 		Items:  formItems,

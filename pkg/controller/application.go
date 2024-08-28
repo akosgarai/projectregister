@@ -271,7 +271,7 @@ func (c *Controller) ApplicationListViewController(w http.ResponseWriter, r *htt
 		c.renderer.Error(w, http.StatusInternalServerError, ApplicationCreateFailedToGetDatabasesErrorMessage, err)
 		return
 	}
-	content := response.NewApplicationListResponse(currentUser, applications, clients, projects, environments, databases, runtimes, pools)
+	content := response.NewApplicationListResponse(currentUser, applications, clients, projects, environments, databases, runtimes, pools, filter)
 	err = c.renderer.Template.RenderTemplate(w, "listing-page.html", content)
 	if err != nil {
 		panic(err)

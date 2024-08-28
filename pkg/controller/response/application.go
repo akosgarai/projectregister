@@ -6,6 +6,7 @@ import (
 	"github.com/akosgarai/projectregister/pkg/controller/response/components"
 	"github.com/akosgarai/projectregister/pkg/model"
 	"github.com/akosgarai/projectregister/pkg/parser"
+	"github.com/akosgarai/projectregister/pkg/transformers"
 )
 
 // NewApplicationDetailResponse is a constructor for the DetailResponse struct for an application.
@@ -171,6 +172,7 @@ func NewApplicationListResponse(
 	dbs *model.Databases,
 	runtimes *model.Runtimes,
 	pools *model.Pools,
+	filter *model.ApplicationFilter,
 ) *ListingResponse {
 	headerText := "Application List"
 	headerContent := components.NewContentHeader(headerText, []*components.Link{})
@@ -263,19 +265,19 @@ func NewApplicationListResponse(
 	}
 	/* Create the search form. */
 	formItems := []*components.FormItem{
-		components.NewFormItem("Client", "client", "multiselect", "", false, clients.ToMap(), nil),
-		components.NewFormItem("Project", "project", "multiselect", "", false, projects.ToMap(), nil),
-		components.NewFormItem("Environment", "environment", "multiselect", "", false, envs.ToMap(), nil),
-		components.NewFormItem("Database", "database", "multiselect", "", false, dbs.ToMap(), nil),
-		components.NewFormItem("DB User", "db_user", "text", "", false, nil, nil),
-		components.NewFormItem("DB Name", "db_name", "text", "", false, nil, nil),
-		components.NewFormItem("Runtime", "runtime", "multiselect", "", false, runtimes.ToMap(), nil),
-		components.NewFormItem("Pool", "pool", "multiselect", "", false, pools.ToMap(), nil),
-		components.NewFormItem("Domain", "domain", "text", "", false, nil, nil),
-		components.NewFormItem("Repository", "repository", "text", "", false, nil, nil),
-		components.NewFormItem("Branch", "branch", "text", "", false, nil, nil),
-		components.NewFormItem("Framework", "framework", "text", "", false, nil, nil),
-		components.NewFormItem("Document Root", "doc_root", "text", "", false, nil, nil),
+		components.NewFormItem("Client", "client", "multiselect", "", false, clients.ToMap(), transformers.StringSliceToInt64Slice(filter.ClientIDs)),
+		components.NewFormItem("Project", "project", "multiselect", "", false, projects.ToMap(), transformers.StringSliceToInt64Slice(filter.ProjectIDs)),
+		components.NewFormItem("Environment", "environment", "multiselect", "", false, envs.ToMap(), transformers.StringSliceToInt64Slice(filter.EnvironmentIDs)),
+		components.NewFormItem("Database", "database", "multiselect", "", false, dbs.ToMap(), transformers.StringSliceToInt64Slice(filter.DatabaseIDs)),
+		components.NewFormItem("DB User", "db_user", "text", filter.DBUser, false, nil, nil),
+		components.NewFormItem("DB Name", "db_name", "text", filter.DBName, false, nil, nil),
+		components.NewFormItem("Runtime", "runtime", "multiselect", "", false, runtimes.ToMap(), transformers.StringSliceToInt64Slice(filter.RuntimeIDs)),
+		components.NewFormItem("Pool", "pool", "multiselect", "", false, pools.ToMap(), transformers.StringSliceToInt64Slice(filter.PoolIDs)),
+		components.NewFormItem("Domain", "domain", "text", filter.Domain, false, nil, nil),
+		components.NewFormItem("Repository", "repository", "text", filter.Repository, false, nil, nil),
+		components.NewFormItem("Branch", "branch", "text", filter.Branch, false, nil, nil),
+		components.NewFormItem("Framework", "framework", "text", filter.Framework, false, nil, nil),
+		components.NewFormItem("Document Root", "doc_root", "text", filter.DocRoot, false, nil, nil),
 	}
 	form := &components.Form{
 		Items:  formItems,
