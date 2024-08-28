@@ -179,8 +179,13 @@ func NewApplicationListResponse(
 	if currentUser.HasPrivilege("applications.create") {
 		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("Create", "/admin/application/create"))
 	}
+	filteredHeaders := []string{}
+	allColumns := filter.GetAllColumns()
+	for _, header := range filter.VisibleColumns {
+		filteredHeaders = append(filteredHeaders, allColumns[header])
+	}
 	listingHeader := &components.ListingHeader{
-		Headers: []string{"ID", "Client", "Project", "Environment", "Database", "Runtime", "Pool", "Codebase", "Framework", "Document Root", "Domains", "Created At", "Updated At", "Actions"},
+		Headers: filteredHeaders,
 	}
 	// create the rows
 	listingRows := components.ListingRows{}
@@ -188,83 +193,113 @@ func NewApplicationListResponse(
 	userCanDelete := currentUser.HasPrivilege("applications.delete")
 	for _, application := range *apps {
 		columns := components.ListingColumns{}
-		idColumn := &components.ListingColumn{Values: &components.ListingColumnValues{{Value: fmt.Sprintf("%d", application.ID)}}}
-		columns = append(columns, idColumn)
-		clientViewLink := ""
-		if currentUser.HasPrivilege("clients.view") {
-			clientViewLink = fmt.Sprintf("/admin/client/view/%d", application.Client.ID)
-		}
-		clientColumn := &components.ListingColumn{Values: &components.ListingColumnValues{{Value: application.Client.Name, Link: clientViewLink}}}
-		columns = append(columns, clientColumn)
-		projectViewLink := ""
-		if currentUser.HasPrivilege("projects.view") {
-			projectViewLink = fmt.Sprintf("/admin/project/view/%d", application.Project.ID)
-		}
-		projectColumn := &components.ListingColumn{Values: &components.ListingColumnValues{{Value: application.Project.Name, Link: projectViewLink}}}
-		columns = append(columns, projectColumn)
-		environmentViewLink := ""
-		if currentUser.HasPrivilege("environments.view") {
-			environmentViewLink = fmt.Sprintf("/admin/environment/view/%d", application.Environment.ID)
-		}
-		environmentColumn := &components.ListingColumn{Values: &components.ListingColumnValues{{Value: application.Environment.Name, Link: environmentViewLink}}}
-		columns = append(columns, environmentColumn)
-		databaseViewLink := ""
-		if currentUser.HasPrivilege("databases.view") {
-			databaseViewLink = fmt.Sprintf("/admin/database/view/%d", application.Database.ID)
-		}
-		databaseColumn := &components.ListingColumn{Values: &components.ListingColumnValues{{Value: application.Database.Name, Link: databaseViewLink}}}
-		if application.DBName != "" {
-			*databaseColumn.Values = append(*databaseColumn.Values, &components.ListingColumnValue{Value: application.DBUser + " / " + application.DBName})
-		}
-		columns = append(columns, databaseColumn)
-		runtimeViewLink := ""
-		if currentUser.HasPrivilege("runtimes.view") {
-			runtimeViewLink = fmt.Sprintf("/admin/runtime/view/%d", application.Runtime.ID)
-		}
-		runtimeColumn := &components.ListingColumn{Values: &components.ListingColumnValues{{Value: application.Runtime.Name, Link: runtimeViewLink}}}
-		columns = append(columns, runtimeColumn)
-		poolViewLink := ""
-		if currentUser.HasPrivilege("pools.view") {
-			poolViewLink = fmt.Sprintf("/admin/pool/view/%d", application.Pool.ID)
-		}
-		poolColumn := &components.ListingColumn{Values: &components.ListingColumnValues{{Value: application.Pool.Name, Link: poolViewLink}}}
-		columns = append(columns, poolColumn)
-		codebaseColumn := &components.ListingColumn{Values: &components.ListingColumnValues{{Value: application.Repository, Link: application.Repository}}}
-		if application.Branch != "" {
-			*codebaseColumn.Values = append(*codebaseColumn.Values, &components.ListingColumnValue{Value: application.Branch})
-		}
-		columns = append(columns, codebaseColumn)
-		frameworkColumn := &components.ListingColumn{Values: &components.ListingColumnValues{{Value: application.Framework}}}
-		columns = append(columns, frameworkColumn)
-		documentRootColumn := &components.ListingColumn{Values: &components.ListingColumnValues{{Value: application.DocumentRoot}}}
-		columns = append(columns, documentRootColumn)
-		domainsColumn := &components.ListingColumn{Values: &components.ListingColumnValues{}}
-		if application.Domains != nil {
-			for _, domain := range application.Domains {
-				*domainsColumn.Values = append(*domainsColumn.Values, &components.ListingColumnValue{Value: domain.Name, Link: fmt.Sprintf("/admin/domain/view/%d", domain.ID)})
-			}
-		}
-		columns = append(columns, domainsColumn)
-		createAtColumn := &components.ListingColumn{Values: &components.ListingColumnValues{{Value: application.CreatedAt}}}
-		columns = append(columns, createAtColumn)
-		updateAtColumn := &components.ListingColumn{Values: &components.ListingColumnValues{{Value: application.UpdatedAt}}}
-		columns = append(columns, updateAtColumn)
 
-		actionsColumn := components.ListingColumn{Values: &components.ListingColumnValues{
-			{Value: "View", Link: fmt.Sprintf("/admin/application/view/%d", application.ID)},
-		}}
-		if userCanEdit {
-			*actionsColumn.Values = append(*actionsColumn.Values, &components.ListingColumnValue{Value: "Update", Link: fmt.Sprintf("/admin/application/update/%d", application.ID)})
+		if filter.IsVisibleColumn("ID") {
+			idColumn := &components.ListingColumn{Values: &components.ListingColumnValues{{Value: fmt.Sprintf("%d", application.ID)}}}
+			columns = append(columns, idColumn)
 		}
-		if userCanDelete {
-			*actionsColumn.Values = append(*actionsColumn.Values, &components.ListingColumnValue{Value: "Delete", Link: fmt.Sprintf("/admin/application/delete/%d", application.ID), Form: true})
+		if filter.IsVisibleColumn("Client") {
+			clientViewLink := ""
+			if currentUser.HasPrivilege("clients.view") {
+				clientViewLink = fmt.Sprintf("/admin/client/view/%d", application.Client.ID)
+			}
+			clientColumn := &components.ListingColumn{Values: &components.ListingColumnValues{{Value: application.Client.Name, Link: clientViewLink}}}
+			columns = append(columns, clientColumn)
 		}
-		columns = append(columns, &actionsColumn)
+		if filter.IsVisibleColumn("Project") {
+			projectViewLink := ""
+			if currentUser.HasPrivilege("projects.view") {
+				projectViewLink = fmt.Sprintf("/admin/project/view/%d", application.Project.ID)
+			}
+			projectColumn := &components.ListingColumn{Values: &components.ListingColumnValues{{Value: application.Project.Name, Link: projectViewLink}}}
+			columns = append(columns, projectColumn)
+		}
+		if filter.IsVisibleColumn("Environment") {
+			environmentViewLink := ""
+			if currentUser.HasPrivilege("environments.view") {
+				environmentViewLink = fmt.Sprintf("/admin/environment/view/%d", application.Environment.ID)
+			}
+			environmentColumn := &components.ListingColumn{Values: &components.ListingColumnValues{{Value: application.Environment.Name, Link: environmentViewLink}}}
+			columns = append(columns, environmentColumn)
+		}
+		if filter.IsVisibleColumn("Database") {
+			databaseViewLink := ""
+			if currentUser.HasPrivilege("databases.view") {
+				databaseViewLink = fmt.Sprintf("/admin/database/view/%d", application.Database.ID)
+			}
+			databaseColumn := &components.ListingColumn{Values: &components.ListingColumnValues{{Value: application.Database.Name, Link: databaseViewLink}}}
+			if application.DBName != "" {
+				*databaseColumn.Values = append(*databaseColumn.Values, &components.ListingColumnValue{Value: application.DBUser + " / " + application.DBName})
+			}
+			columns = append(columns, databaseColumn)
+		}
+		if filter.IsVisibleColumn("Runtime") {
+			runtimeViewLink := ""
+			if currentUser.HasPrivilege("runtimes.view") {
+				runtimeViewLink = fmt.Sprintf("/admin/runtime/view/%d", application.Runtime.ID)
+			}
+			runtimeColumn := &components.ListingColumn{Values: &components.ListingColumnValues{{Value: application.Runtime.Name, Link: runtimeViewLink}}}
+			columns = append(columns, runtimeColumn)
+		}
+		if filter.IsVisibleColumn("Pool") {
+			poolViewLink := ""
+			if currentUser.HasPrivilege("pools.view") {
+				poolViewLink = fmt.Sprintf("/admin/pool/view/%d", application.Pool.ID)
+			}
+			poolColumn := &components.ListingColumn{Values: &components.ListingColumnValues{{Value: application.Pool.Name, Link: poolViewLink}}}
+			columns = append(columns, poolColumn)
+		}
+		if filter.IsVisibleColumn("Codebase") {
+			codebaseColumn := &components.ListingColumn{Values: &components.ListingColumnValues{{Value: application.Repository, Link: application.Repository}}}
+			if application.Branch != "" {
+				*codebaseColumn.Values = append(*codebaseColumn.Values, &components.ListingColumnValue{Value: application.Branch})
+			}
+			columns = append(columns, codebaseColumn)
+		}
+		if filter.IsVisibleColumn("Framework") {
+			frameworkColumn := &components.ListingColumn{Values: &components.ListingColumnValues{{Value: application.Framework}}}
+			columns = append(columns, frameworkColumn)
+		}
+		if filter.IsVisibleColumn("Document Root") {
+			documentRootColumn := &components.ListingColumn{Values: &components.ListingColumnValues{{Value: application.DocumentRoot}}}
+			columns = append(columns, documentRootColumn)
+		}
+		if filter.IsVisibleColumn("Domains") {
+			domainsColumn := &components.ListingColumn{Values: &components.ListingColumnValues{}}
+			if application.Domains != nil {
+				for _, domain := range application.Domains {
+					*domainsColumn.Values = append(*domainsColumn.Values, &components.ListingColumnValue{Value: domain.Name, Link: fmt.Sprintf("/admin/domain/view/%d", domain.ID)})
+				}
+			}
+			columns = append(columns, domainsColumn)
+		}
+		if filter.IsVisibleColumn("Created At") {
+			createAtColumn := &components.ListingColumn{Values: &components.ListingColumnValues{{Value: application.CreatedAt}}}
+			columns = append(columns, createAtColumn)
+		}
+		if filter.IsVisibleColumn("Updated At") {
+			updateAtColumn := &components.ListingColumn{Values: &components.ListingColumnValues{{Value: application.UpdatedAt}}}
+			columns = append(columns, updateAtColumn)
+		}
+
+		if filter.IsVisibleColumn("Actions") {
+			actionsColumn := components.ListingColumn{Values: &components.ListingColumnValues{
+				{Value: "View", Link: fmt.Sprintf("/admin/application/view/%d", application.ID)},
+			}}
+			if userCanEdit {
+				*actionsColumn.Values = append(*actionsColumn.Values, &components.ListingColumnValue{Value: "Update", Link: fmt.Sprintf("/admin/application/update/%d", application.ID)})
+			}
+			if userCanDelete {
+				*actionsColumn.Values = append(*actionsColumn.Values, &components.ListingColumnValue{Value: "Delete", Link: fmt.Sprintf("/admin/application/delete/%d", application.ID), Form: true})
+			}
+			columns = append(columns, &actionsColumn)
+		}
 
 		listingRows = append(listingRows, &components.ListingRow{Columns: &columns})
 	}
 	/* Create the search form. */
 	formItems := []*components.FormItem{
+		components.NewFormItem("Columns", "visible_columns", "multiselect", "", false, filter.GetAllColumns(), filter.VisibleColumns),
 		components.NewFormItem("Client", "client", "multiselect", "", false, clients.ToMap(), transformers.StringSliceToInt64Slice(filter.ClientIDs)),
 		components.NewFormItem("Project", "project", "multiselect", "", false, projects.ToMap(), transformers.StringSliceToInt64Slice(filter.ProjectIDs)),
 		components.NewFormItem("Environment", "environment", "multiselect", "", false, envs.ToMap(), transformers.StringSliceToInt64Slice(filter.EnvironmentIDs)),

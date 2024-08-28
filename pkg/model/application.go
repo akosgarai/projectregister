@@ -53,6 +53,9 @@ type ApplicationFilter struct {
 	DocRoot    string
 	Framework  string
 	Repository string
+
+	VisibleColumns []int64
+	allColumns     map[int64]string
 }
 
 // NewApplicationFilter creates a new application filter
@@ -71,7 +74,30 @@ func NewApplicationFilter() *ApplicationFilter {
 		DocRoot:        "",
 		Framework:      "",
 		Repository:     "",
+
+		VisibleColumns: []int64{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13},
+		allColumns: map[int64]string{
+			0: "ID", 1: "Client", 2: "Project",
+			3: "Environment", 4: "Database", 5: "Runtime",
+			6: "Pool", 7: "Codebase", 8: "Framework",
+			9: "Document Root", 10: "Domains", 11: "Created At",
+			12: "Updated At", 13: "Actions"},
 	}
+}
+
+// GetAllColumns returns all the columns
+func (f *ApplicationFilter) GetAllColumns() map[int64]string {
+	return f.allColumns
+}
+
+// IsVisibleColumn checks if the column is visible
+func (f *ApplicationFilter) IsVisibleColumn(column string) bool {
+	for _, v := range f.VisibleColumns {
+		if f.allColumns[v] == column {
+			return true
+		}
+	}
+	return false
 }
 
 // ApplicationRepository interface

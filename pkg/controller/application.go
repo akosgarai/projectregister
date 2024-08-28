@@ -10,6 +10,7 @@ import (
 	"github.com/akosgarai/projectregister/pkg/controller/response"
 	"github.com/akosgarai/projectregister/pkg/model"
 	"github.com/akosgarai/projectregister/pkg/parser"
+	"github.com/akosgarai/projectregister/pkg/transformers"
 )
 
 // ApplicationViewController is the controller for the application view page.
@@ -233,6 +234,7 @@ func (c *Controller) ApplicationListViewController(w http.ResponseWriter, r *htt
 			}
 			filter.PoolIDs = append(filter.PoolIDs, v)
 		}
+		filter.VisibleColumns = transformers.StringSliceToInt64Slice(r.Form["visible_columns"])
 	}
 
 	// get all applications
