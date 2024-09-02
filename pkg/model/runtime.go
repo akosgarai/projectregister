@@ -4,6 +4,7 @@ package model
 type Runtime struct {
 	ID        int64
 	Name      string
+	Score     int
 	CreatedAt string
 	UpdatedAt string
 }
@@ -37,7 +38,7 @@ func NewRuntimeFilter() *RuntimeFilter {
 
 // RuntimeRepository interface
 type RuntimeRepository interface {
-	CreateRuntime(name string) (*Runtime, error)
+	CreateRuntime(name string, score int) (*Runtime, error)
 	GetRuntimeByName(name string) (*Runtime, error)
 	GetRuntimeByID(id int64) (*Runtime, error)
 	UpdateRuntime(client *Runtime) error

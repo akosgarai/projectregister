@@ -616,7 +616,7 @@ func (c *Controller) importApplicationToEnvironment(environmentID int64, fileNam
 		// if the runtime name does not exist, create it
 		runtime, err := c.repositoryContainer.GetRuntimeRepository().GetRuntimeByName(runtimeName)
 		if err != nil {
-			runtime, err = c.repositoryContainer.GetRuntimeRepository().CreateRuntime(runtimeName)
+			runtime, err = c.repositoryContainer.GetRuntimeRepository().CreateRuntime(runtimeName, 0)
 			if err != nil {
 				currentData := results[rowIndex]
 				currentData.ErrorMessage = err.Error()

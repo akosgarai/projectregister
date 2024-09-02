@@ -5,6 +5,7 @@ type Environment struct {
 	ID          int64
 	Name        string
 	Description string
+	Score       int
 	CreatedAt   string
 	UpdatedAt   string
 	Servers     []*Server
@@ -66,7 +67,7 @@ func NewEnvironmentFilter() *EnvironmentFilter {
 
 // EnvironmentRepository interface
 type EnvironmentRepository interface {
-	CreateEnvironment(name, description string, serverIDs, databaseIDs []int64) (*Environment, error)
+	CreateEnvironment(name, description string, serverIDs, databaseIDs []int64, score int) (*Environment, error)
 	GetEnvironmentByName(name string) (*Environment, error)
 	GetEnvironmentByID(id int64) (*Environment, error)
 	UpdateEnvironment(client *Environment) error

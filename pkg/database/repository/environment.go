@@ -24,10 +24,10 @@ func NewEnvironmentRepository(db *database.DB) *EnvironmentRepository {
 // CreateEnvironment creates a new environment
 // the input parameter is the name
 // it returns the created environment and an error
-func (r *EnvironmentRepository) CreateEnvironment(name, description string, serverIDs, databaseIDs []int64) (*model.Environment, error) {
+func (r *EnvironmentRepository) CreateEnvironment(name, description string, serverIDs, databaseIDs []int64, score int) (*model.Environment, error) {
 	var environment model.Environment
-	query := "INSERT INTO environments (name, description) VALUES ($1, $2) RETURNING *"
-	err := r.db.QueryRow(query, name, description).Scan(&environment.ID, &environment.Name, &environment.Description, &environment.CreatedAt, &environment.UpdatedAt)
+	query := "INSERT INTO environments (name, description, score) VALUES ($1, $2, $3) RETURNING *"
+	err := r.db.QueryRow(query, name, description, score).Scan(&environment.ID, &environment.Name, &environment.Description, &environment.CreatedAt, &environment.UpdatedAt, &environment.Score)
 	if err != nil {
 		return nil, err
 	}
@@ -57,7 +57,7 @@ func (r *EnvironmentRepository) CreateEnvironment(name, description string, serv
 func (r *EnvironmentRepository) GetEnvironmentByName(name string) (*model.Environment, error) {
 	var environment model.Environment
 	query := "SELECT * FROM environments WHERE name = $1"
-	err := r.db.QueryRow(query, name).Scan(&environment.ID, &environment.Name, &environment.Description, &environment.CreatedAt, &environment.UpdatedAt)
+	err := r.db.QueryRow(query, name).Scan(&environment.ID, &environment.Name, &environment.Description, &environment.CreatedAt, &environment.UpdatedAt, &environment.Score)
 	if err != nil {
 		return nil, err
 	}
@@ -70,7 +70,7 @@ func (r *EnvironmentRepository) GetEnvironmentByName(name string) (*model.Enviro
 func (r *EnvironmentRepository) GetEnvironmentByID(id int64) (*model.Environment, error) {
 	var environment model.Environment
 	query := "SELECT * FROM environments WHERE id = $1"
-	err := r.db.QueryRow(query, id).Scan(&environment.ID, &environment.Name, &environment.Description, &environment.CreatedAt, &environment.UpdatedAt)
+	err := r.db.QueryRow(query, id).Scan(&environment.ID, &environment.Name, &environment.Description, &environment.CreatedAt, &environment.UpdatedAt, &environment.Score)
 	if err != nil {
 		return nil, err
 	}
@@ -81,9 +81,9 @@ func (r *EnvironmentRepository) GetEnvironmentByID(id int64) (*model.Environment
 // the input parameter is the environment
 // it returns an error
 func (r *EnvironmentRepository) UpdateEnvironment(environment *model.Environment) error {
-	query := "UPDATE environments SET name = $1,  description = $2, updated_at = $3 WHERE id = $4"
+	query := "UPDATE environments SET name = $1,  description = $2, updated_at = $3, score = $4 WHERE id = $5"
 	now := time.Now().Format("2006-01-02 15:04:05.999999-07:00")
-	_, err := r.db.Exec(query, environment.Name, environment.Description, now, environment.ID)
+	_, err := r.db.Exec(query, environment.Name, environment.Description, now, environment.Score, environment.ID)
 
 	// delete the environment ids from the environment_to_servers table
 	query = "DELETE FROM environment_to_servers WHERE environment_id = $1"
@@ -177,7 +177,7 @@ func (r *EnvironmentRepository) GetEnvironments(filters *model.EnvironmentFilter
 	defer rows.Close()
 	for rows.Next() {
 		var environment model.Environment
-		err = rows.Scan(&environment.ID, &environment.Name, &environment.Description, &environment.CreatedAt, &environment.UpdatedAt)
+		err = rows.Scan(&environment.ID, &environment.Name, &environment.Description, &environment.CreatedAt, &environment.UpdatedAt, &environment.Score)
 		if err != nil {
 			return nil, err
 		}

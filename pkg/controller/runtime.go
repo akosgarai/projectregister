@@ -73,8 +73,13 @@ func (c *Controller) RuntimeCreateViewController(w http.ResponseWriter, r *http.
 			c.renderer.Error(w, http.StatusBadRequest, RuntimeCreateRequiredFieldMissing, nil)
 			return
 		}
+		scoreRaw := r.FormValue("score")
+		score, err := strconv.Atoi(scoreRaw)
+		if err != nil {
+			score = 0
+		}
 
-		_, err := c.repositoryContainer.GetRuntimeRepository().CreateRuntime(name)
+		_, err = c.repositoryContainer.GetRuntimeRepository().CreateRuntime(name, score)
 		if err != nil {
 			c.renderer.Error(w, http.StatusInternalServerError, RuntimeCreateCreateRuntimeErrorMessage, err)
 			return
@@ -126,9 +131,15 @@ func (c *Controller) RuntimeUpdateViewController(w http.ResponseWriter, r *http.
 			c.renderer.Error(w, http.StatusBadRequest, RuntimeUpdateRequiredFieldMissing, nil)
 			return
 		}
+		scoreRaw := r.FormValue("score")
+		score, err := strconv.Atoi(scoreRaw)
+		if err != nil {
+			score = 0
+		}
 
 		// update the runtime
 		runtime.Name = name
+		runtime.Score = score
 		err = c.repositoryContainer.GetRuntimeRepository().UpdateRuntime(runtime)
 		if err != nil {
 			c.renderer.Error(w, http.StatusInternalServerError, RuntimeUpdateUpdateRuntimeErrorMessage, err)

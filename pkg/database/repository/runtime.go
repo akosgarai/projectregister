@@ -22,10 +22,10 @@ func NewRuntimeRepository(db *database.DB) *RuntimeRepository {
 // CreateRuntime creates a new runtime
 // the input parameter is the name
 // it returns the created runtime and an error
-func (r *RuntimeRepository) CreateRuntime(name string) (*model.Runtime, error) {
+func (r *RuntimeRepository) CreateRuntime(name string, score int) (*model.Runtime, error) {
 	var runtime model.Runtime
-	query := "INSERT INTO runtimes (name) VALUES ($1) RETURNING *"
-	err := r.db.QueryRow(query, name).Scan(&runtime.ID, &runtime.Name, &runtime.CreatedAt, &runtime.UpdatedAt)
+	query := "INSERT INTO runtimes (name, score) VALUES ($1, $2) RETURNING *"
+	err := r.db.QueryRow(query, name, score).Scan(&runtime.ID, &runtime.Name, &runtime.CreatedAt, &runtime.UpdatedAt, &runtime.Score)
 
 	return &runtime, err
 }
@@ -36,7 +36,7 @@ func (r *RuntimeRepository) CreateRuntime(name string) (*model.Runtime, error) {
 func (r *RuntimeRepository) GetRuntimeByName(name string) (*model.Runtime, error) {
 	var runtime model.Runtime
 	query := "SELECT * FROM runtimes WHERE name = $1"
-	err := r.db.QueryRow(query, name).Scan(&runtime.ID, &runtime.Name, &runtime.CreatedAt, &runtime.UpdatedAt)
+	err := r.db.QueryRow(query, name).Scan(&runtime.ID, &runtime.Name, &runtime.CreatedAt, &runtime.UpdatedAt, &runtime.Score)
 
 	return &runtime, err
 }
@@ -47,7 +47,7 @@ func (r *RuntimeRepository) GetRuntimeByName(name string) (*model.Runtime, error
 func (r *RuntimeRepository) GetRuntimeByID(id int64) (*model.Runtime, error) {
 	var runtime model.Runtime
 	query := "SELECT * FROM runtimes WHERE id = $1"
-	err := r.db.QueryRow(query, id).Scan(&runtime.ID, &runtime.Name, &runtime.CreatedAt, &runtime.UpdatedAt)
+	err := r.db.QueryRow(query, id).Scan(&runtime.ID, &runtime.Name, &runtime.CreatedAt, &runtime.UpdatedAt, &runtime.Score)
 
 	return &runtime, err
 }
@@ -56,9 +56,9 @@ func (r *RuntimeRepository) GetRuntimeByID(id int64) (*model.Runtime, error) {
 // the input parameter is the runtime
 // it returns an error
 func (r *RuntimeRepository) UpdateRuntime(runtime *model.Runtime) error {
-	query := "UPDATE runtimes SET name = $1, updated_at = $2 WHERE id = $3"
+	query := "UPDATE runtimes SET name = $1, score = $2, updated_at = $3 WHERE id = $4"
 	now := time.Now().Format("2006-01-02 15:04:05.999999-07:00")
-	_, err := r.db.Exec(query, runtime.Name, now, runtime.ID)
+	_, err := r.db.Exec(query, runtime.Name, runtime.Score, now, runtime.ID)
 
 	return err
 }
@@ -90,7 +90,7 @@ func (r *RuntimeRepository) GetRuntimes(filters *model.RuntimeFilter) (*model.Ru
 	defer rows.Close()
 	for rows.Next() {
 		var runtime model.Runtime
-		err = rows.Scan(&runtime.ID, &runtime.Name, &runtime.CreatedAt, &runtime.UpdatedAt)
+		err = rows.Scan(&runtime.ID, &runtime.Name, &runtime.CreatedAt, &runtime.UpdatedAt, &runtime.Score)
 		if err != nil {
 			return nil, err
 		}

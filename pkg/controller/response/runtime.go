@@ -14,6 +14,7 @@ func NewRuntimeDetailResponse(currentUser *model.User, runtime *model.Runtime) *
 	details := &components.DetailItems{
 		{Label: "ID", Value: &components.DetailValues{{Value: fmt.Sprintf("%d", runtime.ID)}}},
 		{Label: "Name", Value: &components.DetailValues{{Value: runtime.Name}}},
+		{Label: "Score", Value: &components.DetailValues{{Value: fmt.Sprintf("%d", runtime.Score)}}},
 		{Label: "Created At", Value: &components.DetailValues{{Value: runtime.CreatedAt}}},
 		{Label: "Updated At", Value: &components.DetailValues{{Value: runtime.UpdatedAt}}},
 	}
@@ -36,6 +37,8 @@ func newRuntimeFormResponse(title string, currentUser *model.User, runtime *mode
 	formItems := []*components.FormItem{
 		// Name.
 		components.NewFormItem("Name", "name", "text", runtime.Name, true, nil, nil),
+		// Score.
+		components.NewFormItem("Score", "score", "number", fmt.Sprintf("%d", runtime.Score), true, nil, nil),
 	}
 	form := &components.Form{
 		Items:  formItems,
@@ -54,7 +57,7 @@ func NewRuntimeListResponse(currentUser *model.User, runtimes *model.Runtimes, f
 		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("Create", "/admin/runtime/create"))
 	}
 	listingHeader := &components.ListingHeader{
-		Headers: []string{"ID", "Name", "Actions"},
+		Headers: []string{"ID", "Name", "Score", "Actions"},
 	}
 	// create the rows
 	listingRows := components.ListingRows{}
@@ -66,6 +69,8 @@ func NewRuntimeListResponse(currentUser *model.User, runtimes *model.Runtimes, f
 		columns = append(columns, idColumn)
 		nameColumn := &components.ListingColumn{&components.ListingColumnValues{{Value: runtime.Name}}}
 		columns = append(columns, nameColumn)
+		scoreColumn := &components.ListingColumn{&components.ListingColumnValues{{Value: fmt.Sprintf("%d", runtime.Score)}}}
+		columns = append(columns, scoreColumn)
 		actionsColumn := components.ListingColumn{&components.ListingColumnValues{
 			{Value: "View", Link: fmt.Sprintf("/admin/runtime/view/%d", runtime.ID)},
 		}}

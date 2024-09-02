@@ -32,6 +32,7 @@ func NewEnvironmentDetailResponse(currentUser *model.User, environment *model.En
 		{Label: "ID", Value: &components.DetailValues{{Value: fmt.Sprintf("%d", environment.ID)}}},
 		{Label: "Name", Value: &components.DetailValues{{Value: environment.Name}}},
 		{Label: "Description", Value: &components.DetailValues{{Value: environment.Description}}},
+		{Label: "Score", Value: &components.DetailValues{{Value: fmt.Sprintf("%d", environment.Score)}}},
 		{Label: "Created At", Value: &components.DetailValues{{Value: environment.CreatedAt}}},
 		{Label: "Updated At", Value: &components.DetailValues{{Value: environment.UpdatedAt}}},
 		{Label: "Servers", Value: &serverValues},
@@ -70,6 +71,8 @@ func newEnvironmentFormResponse(title string, currentUser *model.User, environme
 		components.NewFormItem("Name", "name", "text", environment.Name, true, nil, nil),
 		// Description.
 		components.NewFormItem("Description", "description", "textarea", environment.Description, false, nil, nil),
+		// Score.
+		components.NewFormItem("Score", "score", "number", fmt.Sprintf("%d", environment.Score), true, nil, nil),
 		// Servers.
 		components.NewFormItem("Servers", "servers", "checkboxgroup", "", false, servers.ToMap(), selectedServers),
 		// Databases.
@@ -92,7 +95,7 @@ func NewEnvironmentListResponse(currentUser *model.User, environments *model.Env
 		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("Create", "/admin/environment/create"))
 	}
 	listingHeader := &components.ListingHeader{
-		Headers: []string{"ID", "Name", "Description", "Actions"},
+		Headers: []string{"ID", "Name", "Description", "Score", "Actions"},
 	}
 	// create the rows
 	listingRows := components.ListingRows{}
@@ -106,6 +109,8 @@ func NewEnvironmentListResponse(currentUser *model.User, environments *model.Env
 		columns = append(columns, nameColumn)
 		desctiptionColumn := &components.ListingColumn{Values: &components.ListingColumnValues{{Value: environment.Description}}}
 		columns = append(columns, desctiptionColumn)
+		scoreColumn := &components.ListingColumn{Values: &components.ListingColumnValues{{Value: fmt.Sprintf("%d", environment.Score)}}}
+		columns = append(columns, scoreColumn)
 		actionsColumn := components.ListingColumn{Values: &components.ListingColumnValues{
 			{Value: "View", Link: fmt.Sprintf("/admin/environment/view/%d", environment.ID)},
 		}}

@@ -105,8 +105,13 @@ func (c *Controller) EnvironmentCreateViewController(w http.ResponseWriter, r *h
 			}
 			databaseIDs = append(databaseIDs, databaseID)
 		}
+		scoreRaw := r.FormValue("score")
+		score, err := strconv.Atoi(scoreRaw)
+		if err != nil {
+			score = 0
+		}
 
-		_, err := c.repositoryContainer.GetEnvironmentRepository().CreateEnvironment(name, description, serverIDs, databaseIDs)
+		_, err = c.repositoryContainer.GetEnvironmentRepository().CreateEnvironment(name, description, serverIDs, databaseIDs, score)
 		if err != nil {
 			c.renderer.Error(w, http.StatusInternalServerError, EnvironmentCreateCreateEnvironmentErrorMessage, err)
 			return
@@ -191,10 +196,16 @@ func (c *Controller) EnvironmentUpdateViewController(w http.ResponseWriter, r *h
 			}
 			environment.Databases[i] = &model.Database{ID: databaseID}
 		}
+		scoreRaw := r.FormValue("score")
+		score, err := strconv.Atoi(scoreRaw)
+		if err != nil {
+			score = 0
+		}
 
 		// update the environment
 		environment.Name = name
 		environment.Description = description
+		environment.Score = score
 		err = c.repositoryContainer.GetEnvironmentRepository().UpdateEnvironment(environment)
 		if err != nil {
 			c.renderer.Error(w, http.StatusInternalServerError, EnvironmentUpdateUpdateEnvironmentErrorMessage, err)
