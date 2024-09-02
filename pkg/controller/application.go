@@ -1,6 +1,8 @@
 package controller
 
 import (
+	"encoding/csv"
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -177,6 +179,7 @@ func (c *Controller) ApplicationListViewController(w http.ResponseWriter, r *htt
 		return
 	}
 	filter := model.NewApplicationFilter()
+	csvOutput := false
 	if r.Method == http.MethodPost {
 		filter.Domain = r.FormValue("domain")
 		filter.Branch = r.FormValue("branch")
@@ -235,12 +238,20 @@ func (c *Controller) ApplicationListViewController(w http.ResponseWriter, r *htt
 			filter.PoolIDs = append(filter.PoolIDs, v)
 		}
 		filter.VisibleColumns = transformers.StringSliceToInt64Slice(r.Form["visible_columns"])
+		// if the csv output is requested, set the flag
+		if r.FormValue("export-search") != "" {
+			csvOutput = true
+		}
 	}
 
 	// get all applications
 	applications, err := c.repositoryContainer.GetApplicationRepository().GetApplications(filter)
 	if err != nil {
 		c.renderer.Error(w, http.StatusInternalServerError, ApplicationListFailedToGetApplicationsErrorMessage, err)
+		return
+	}
+	if csvOutput {
+		c.exportApplicationsToCSV(w, applications, filter)
 		return
 	}
 	runtimes, err := c.repositoryContainer.GetRuntimeRepository().GetRuntimes(model.NewRuntimeFilter())
@@ -666,4 +677,77 @@ func (c *Controller) importApplicationToEnvironment(environmentID int64, fileNam
 		results[rowIndex] = currentData
 	}
 	return &results, nil
+}
+
+// exportApplicationsToCSV exports the applications to a csv file.
+func (c *Controller) exportApplicationsToCSV(w http.ResponseWriter, applications *model.Applications, filter *model.ApplicationFilter) {
+	csvData := [][]string{}
+	// add the header
+	filteredHeaders := []string{}
+	allColumns := filter.GetAllColumns()
+	for _, header := range filter.VisibleColumns {
+		// skip the actions column
+		if allColumns[header] == "Actions" {
+			continue
+		}
+		filteredHeaders = append(filteredHeaders, allColumns[header])
+	}
+	csvData = append(csvData, filteredHeaders)
+	for _, app := range *applications {
+		currentRow := []string{}
+		if filter.IsVisibleColumn("ID") {
+			currentRow = append(currentRow, fmt.Sprintf("%d", app.ID))
+		}
+		if filter.IsVisibleColumn("Client") {
+			currentRow = append(currentRow, app.Client.Name)
+		}
+		if filter.IsVisibleColumn("Project") {
+			currentRow = append(currentRow, app.Project.Name)
+		}
+		if filter.IsVisibleColumn("Environment") {
+			currentRow = append(currentRow, app.Environment.Name)
+		}
+		if filter.IsVisibleColumn("Database") {
+			currentRow = append(currentRow, fmt.Sprintf("%s, %s / %s", app.Database.Name, app.DBUser, app.DBName))
+		}
+		if filter.IsVisibleColumn("Runtime") {
+			currentRow = append(currentRow, app.Runtime.Name)
+		}
+		if filter.IsVisibleColumn("Pool") {
+			currentRow = append(currentRow, app.Pool.Name)
+		}
+		if filter.IsVisibleColumn("Codebase") {
+			currentRow = append(currentRow, fmt.Sprintf("%s (%s)", app.Repository, app.Branch))
+		}
+		if filter.IsVisibleColumn("Framework") {
+			currentRow = append(currentRow, app.Framework)
+		}
+		if filter.IsVisibleColumn("Document Root") {
+			currentRow = append(currentRow, app.DocumentRoot)
+		}
+		if filter.IsVisibleColumn("Domains") {
+			domainNames := []string{}
+			for _, domain := range app.Domains {
+				domainNames = append(domainNames, domain.Name)
+			}
+			currentRow = append(currentRow, strings.Join(domainNames, ", "))
+		}
+		if filter.IsVisibleColumn("Created At") {
+			currentRow = append(currentRow, app.CreatedAt)
+		}
+		if filter.IsVisibleColumn("Updated At") {
+			currentRow = append(currentRow, app.UpdatedAt)
+		}
+		csvData = append(csvData, currentRow)
+	}
+	csvFileName := "applications.csv"
+	w.Header().Set("Content-Disposition", "attachment; filename="+csvFileName)
+	w.Header().Set("Content-Type", "text/csv")
+	// Create a CSV writer using our HTTP response writer as our io.Writer
+	wr := csv.NewWriter(w)
+	// Write the CSV header
+	if err := wr.WriteAll(csvData); err != nil {
+		c.renderer.Error(w, http.StatusInternalServerError, "Failed to export listing.", err)
+		return
+	}
 }

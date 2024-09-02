@@ -17,6 +17,8 @@
 				<input type="{{.Type}}" class="form-control" name="{{.Name}}" value="{{.Value}}" >
 			{{else if eq .Type "textarea"}}
 				<textarea class="form-control" id="{{.Name}}" name="{{.Name}}" placeholder="{{.Label}}" {{if eq .Required true}}required{{end}} >{{.Value}}</textarea>
+			{{else if eq .Type "submit"}}
+				<input type="{{.Type}}" name="{{.Name}}" value="{{.Value}}" >
 			{{else if eq .Type "select"}}
 				<select class="form-control" id="{{.Name}}" name="{{.Name}}" {{if eq .Required true}}required{{end}} >
 					<option value="">--Pick One--</option>

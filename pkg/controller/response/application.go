@@ -313,6 +313,7 @@ func NewApplicationListResponse(
 		components.NewFormItem("Branch", "branch", "text", filter.Branch, false, nil, nil),
 		components.NewFormItem("Framework", "framework", "text", filter.Framework, false, nil, nil),
 		components.NewFormItem("Document Root", "doc_root", "text", filter.DocRoot, false, nil, nil),
+		components.NewFormItem("", "export-search", "submit", "Export", false, nil, nil),
 	}
 	form := &components.Form{
 		Items:  formItems,
