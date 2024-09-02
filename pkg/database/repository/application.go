@@ -25,12 +25,12 @@ func NewApplicationRepository(db *database.DB) *ApplicationRepository {
 // the input parameter is the name
 // it returns the created application and an error
 func (a *ApplicationRepository) CreateApplication(
-	clientID, projectID, environmentID, databaseID, runtimeID, poolID int64,
-	repository, branch, dbName, dbUser, framework, docRoot string,
+	clientID, projectID, environmentID, databaseID, runtimeID, poolID, frameworkID int64,
+	repository, branch, dbName, dbUser, docRoot string,
 	domains []int64) (*model.Application, error) {
 	var appID int64
-	query := "INSERT INTO applications (client_id, project_id, env_id, database_id, runtime_id, pool_id, repository, branch, db_name, db_user, framework, document_root) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING id"
-	err := a.db.QueryRow(query, clientID, projectID, environmentID, databaseID, runtimeID, poolID, repository, branch, dbName, dbUser, framework, docRoot).Scan(&appID)
+	query := "INSERT INTO applications (client_id, project_id, env_id, database_id, runtime_id, pool_id, repository, branch, db_name, db_user, framework_id, document_root) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING id"
+	err := a.db.QueryRow(query, clientID, projectID, environmentID, databaseID, runtimeID, poolID, repository, branch, dbName, dbUser, frameworkID, docRoot).Scan(&appID)
 	if err != nil {
 		return nil, err
 	}
@@ -57,16 +57,18 @@ func (a *ApplicationRepository) GetApplicationByID(id int64) (*model.Application
 	application.Database = &model.Database{}
 	application.Runtime = &model.Runtime{}
 	application.Pool = &model.Pool{}
+	application.Framework = &model.Framework{}
 	application.ID = id
-	query := "SELECT clients.*, projects.*, environments.*, databases.*, runtimes.*, pools.*, a.repository, a.branch, a.db_name, a.db_user, a.framework, a.document_root, a.created_at, a.updated_at FROM applications a JOIN clients ON a.client_id = clients.id JOIN projects ON a.project_id = projects.id JOIN environments ON a.env_id = environments.id JOIN databases ON a.database_id = databases.id JOIN runtimes ON a.runtime_id = runtimes.id JOIN pools ON a.pool_id = pools.id WHERE a.id = $1"
+	query := "SELECT clients.*, projects.*, environments.*, databases.*, runtimes.*, pools.*, frameworks.*, a.repository, a.branch, a.db_name, a.db_user, a.document_root, a.created_at, a.updated_at FROM applications a JOIN clients ON a.client_id = clients.id JOIN projects ON a.project_id = projects.id JOIN environments ON a.env_id = environments.id JOIN databases ON a.database_id = databases.id JOIN runtimes ON a.runtime_id = runtimes.id JOIN pools ON a.pool_id = pools.id JOIN frameworks ON a.framework_id = frameworks.id WHERE a.id = $1"
 	err := a.db.QueryRow(query, id).Scan(
 		&application.Client.ID, &application.Client.Name, &application.Client.CreatedAt, &application.Client.UpdatedAt,
 		&application.Project.ID, &application.Project.Name, &application.Project.CreatedAt, &application.Project.UpdatedAt,
-		&application.Environment.ID, &application.Environment.Name, &application.Environment.Description, &application.Environment.CreatedAt, &application.Environment.UpdatedAt,
+		&application.Environment.ID, &application.Environment.Name, &application.Environment.Description, &application.Environment.CreatedAt, &application.Environment.UpdatedAt, &application.Environment.Score,
 		&application.Database.ID, &application.Database.Name, &application.Database.CreatedAt, &application.Database.UpdatedAt,
-		&application.Runtime.ID, &application.Runtime.Name, &application.Runtime.CreatedAt, &application.Runtime.UpdatedAt,
+		&application.Runtime.ID, &application.Runtime.Name, &application.Runtime.CreatedAt, &application.Runtime.UpdatedAt, &application.Runtime.Score,
 		&application.Pool.ID, &application.Pool.Name, &application.Pool.CreatedAt, &application.Pool.UpdatedAt,
-		&application.Repository, &application.Branch, &application.DBName, &application.DBUser, &application.Framework, &application.DocumentRoot, &application.CreatedAt, &application.UpdatedAt)
+		&application.Framework.ID, &application.Framework.Name, &application.Framework.Score, &application.Framework.CreatedAt, &application.Framework.UpdatedAt,
+		&application.Repository, &application.Branch, &application.DBName, &application.DBUser, &application.DocumentRoot, &application.CreatedAt, &application.UpdatedAt)
 
 	if err != nil {
 		return nil, err
@@ -79,9 +81,9 @@ func (a *ApplicationRepository) GetApplicationByID(id int64) (*model.Application
 // the input parameter is the application
 // it returns an error
 func (a *ApplicationRepository) UpdateApplication(application *model.Application) error {
-	query := "UPDATE applications SET client_id = $1, project_id = $2, env_id = $3, database_id = $4, runtime_id = $5, pool_id = $6, repository = $7, branch = $8, db_name = $9, db_user = $10, framework = $11, document_root = $12, updated_at = $13 WHERE id = $14"
+	query := "UPDATE applications SET client_id = $1, project_id = $2, env_id = $3, database_id = $4, runtime_id = $5, pool_id = $6, repository = $7, branch = $8, db_name = $9, db_user = $10, framework_id = $11, document_root = $12, updated_at = $13 WHERE id = $14"
 	now := time.Now().Format("2006-01-02 15:04:05.999999-07:00")
-	_, err := a.db.Exec(query, application.Client.ID, application.Project.ID, application.Environment.ID, application.Database.ID, application.Runtime.ID, application.Pool.ID, application.Repository, application.Branch, application.DBName, application.DBUser, application.Framework, application.DocumentRoot, now, application.ID)
+	_, err := a.db.Exec(query, application.Client.ID, application.Project.ID, application.Environment.ID, application.Database.ID, application.Runtime.ID, application.Pool.ID, application.Repository, application.Branch, application.DBName, application.DBUser, application.Framework.ID, application.DocumentRoot, now, application.ID)
 
 	if err != nil {
 		return err
@@ -181,10 +183,10 @@ func (a *ApplicationRepository) GetApplications(filters *model.ApplicationFilter
 		whereConditions = append(whereConditions, "document_root LIKE '%' || $"+strconv.Itoa(index)+" || '%'")
 		params = append(params, filters.DocRoot)
 	}
-	if filters.Framework != "" {
+	if len(filters.FrameworkIDs) > 0 {
 		index := len(params) + 1
-		whereConditions = append(whereConditions, "framework LIKE '%' || $"+strconv.Itoa(index)+" || '%'")
-		params = append(params, filters.Framework)
+		whereConditions = append(whereConditions, "framework_id = ANY($"+strconv.Itoa(index)+"::bigint[])")
+		params = append(params, "{"+strings.Join(filters.FrameworkIDs, ",")+"}")
 	}
 	if len(whereConditions) > 0 {
 		query += " WHERE " + strings.Join(whereConditions, " AND ")

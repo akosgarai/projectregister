@@ -9,12 +9,12 @@ type Application struct {
 	Database    *Database
 	Runtime     *Runtime
 	Pool        *Pool
+	Framework   *Framework
 
 	Branch       string
 	DBName       string
 	DBUser       string
 	DocumentRoot string
-	Framework    string
 	Repository   string
 
 	CreatedAt string
@@ -45,13 +45,13 @@ type ApplicationFilter struct {
 	DatabaseIDs    []string
 	RuntimeIDs     []string
 	PoolIDs        []string
+	FrameworkIDs   []string
 
 	Domain     string
 	Branch     string
 	DBName     string
 	DBUser     string
 	DocRoot    string
-	Framework  string
 	Repository string
 
 	VisibleColumns []int64
@@ -67,12 +67,12 @@ func NewApplicationFilter() *ApplicationFilter {
 		DatabaseIDs:    []string{},
 		RuntimeIDs:     []string{},
 		PoolIDs:        []string{},
+		FrameworkIDs:   []string{},
 		Domain:         "",
 		Branch:         "",
 		DBName:         "",
 		DBUser:         "",
 		DocRoot:        "",
-		Framework:      "",
 		Repository:     "",
 
 		VisibleColumns: []int64{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13},
@@ -102,7 +102,7 @@ func (f *ApplicationFilter) IsVisibleColumn(column string) bool {
 
 // ApplicationRepository interface
 type ApplicationRepository interface {
-	CreateApplication(clientID, projectID, environmentID, databaseID, runtimeID, poolID int64, repository, branch, dbName, dbUser, framework, docRoot string, domains []int64) (*Application, error)
+	CreateApplication(clientID, projectID, environmentID, databaseID, runtimeID, poolID, frameworkID int64, repository, branch, dbName, dbUser, docRoot string, domains []int64) (*Application, error)
 	GetApplicationByID(id int64) (*Application, error)
 	UpdateApplication(application *Application) error
 	DeleteApplication(id int64) error

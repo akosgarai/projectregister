@@ -97,6 +97,12 @@ func New(
 	adminRouter.HandleFunc("/server/delete/{serverId}", routerController.ServerDeleteViewController).Methods("POST")
 	adminRouter.HandleFunc("/server/list", routerController.ServerListViewController).Methods("GET", "POST")
 
+	adminRouter.HandleFunc("/framework/create", routerController.FrameworkCreateViewController).Methods("GET", "POST")
+	adminRouter.HandleFunc("/framework/view/{frameworkId}", routerController.FrameworkViewController)
+	adminRouter.HandleFunc("/framework/update/{frameworkId}", routerController.FrameworkUpdateViewController).Methods("GET", "POST")
+	adminRouter.HandleFunc("/framework/delete/{frameworkId}", routerController.FrameworkDeleteViewController).Methods("POST")
+	adminRouter.HandleFunc("/framework/list", routerController.FrameworkListViewController).Methods("GET", "POST")
+
 	adminRouter.HandleFunc("/application/create", routerController.ApplicationCreateViewController).Methods("GET", "POST")
 	adminRouter.HandleFunc("/application/view/{applicationId}", routerController.ApplicationViewController)
 	adminRouter.HandleFunc("/application/update/{applicationId}", routerController.ApplicationUpdateViewController).Methods("GET", "POST")

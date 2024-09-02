@@ -14,4 +14,5 @@ type RepositoryContainer interface {
 	GetRuntimeRepository() RuntimeRepository
 	GetServerRepository() ServerRepository
 	GetUserRepository() UserRepository
+	GetFrameworkRepository() FrameworkRepository
 }

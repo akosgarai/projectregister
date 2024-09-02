@@ -20,6 +20,7 @@ type ContainerRepository struct {
 	runtimes     *RuntimeRepository
 	servers      *ServerRepository
 	users        *UserRepository
+	frameworks   *FrameworkRepository
 }
 
 // NewContainerRepository creates a new container repository
@@ -37,6 +38,7 @@ func NewContainerRepository(db *database.DB) *ContainerRepository {
 		runtimes:     NewRuntimeRepository(db),
 		servers:      NewServerRepository(db),
 		users:        NewUserRepository(db),
+		frameworks:   NewFrameworkRepository(db),
 	}
 }
 
@@ -98,4 +100,9 @@ func (r *ContainerRepository) GetServerRepository() model.ServerRepository {
 // GetUserRepository returns the user repository
 func (r *ContainerRepository) GetUserRepository() model.UserRepository {
 	return r.users
+}
+
+// GetFrameworkRepository returns the framework repository
+func (r *ContainerRepository) GetFrameworkRepository() model.FrameworkRepository {
+	return r.frameworks
 }

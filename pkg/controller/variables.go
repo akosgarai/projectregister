@@ -21,12 +21,16 @@ var (
 	ApplicationCreateFailedToGetDomainsErrorMessage = "Failed to get domains"
 	// ApplicationCreateFailedToGetEnvironmentsErrorMessage is the error message for the failed environments get.
 	ApplicationCreateFailedToGetEnvironmentsErrorMessage = "Failed to get environments"
+	// ApplicationCreateFailedToGetFrameworksErrorMessage is the error message for the failed frameworks get.
+	ApplicationCreateFailedToGetFrameworksErrorMessage = "Failed to get frameworks"
 	// ApplicationCreateFailedToGetPoolsErrorMessage is the error message for the failed pools get.
 	ApplicationCreateFailedToGetPoolsErrorMessage = "Failed to get pools"
 	// ApplicationCreateFailedToGetProjectsErrorMessage is the error message for the failed projects get.
 	ApplicationCreateFailedToGetProjectsErrorMessage = "Failed to get projects"
 	// ApplicationCreateFailedToGetRuntimesErrorMessage is the error message for the failed runtimes get.
 	ApplicationCreateFailedToGetRuntimesErrorMessage = "Failed to get runtimes"
+	// ApplicationCreateFrameworkIDInvalidErrorMessage is the error message for the invalid framework id in the application form.
+	ApplicationCreateFrameworkIDInvalidErrorMessage = "Invalid framework id"
 	// ApplicationCreatePoolIDInvalidErrorMessage is the error message for the invalid pool id in the application form.
 	ApplicationCreatePoolIDInvalidErrorMessage = "Invalid pool id"
 	// ApplicationCreateProjectIDInvalidErrorMessage is the error message for the invalid project id in the application form.
@@ -139,6 +143,23 @@ var (
 	EnvironmentUpdateServerIDInvalidErrorMessage = "Invalid server id"
 	// EnvironmentUpdateUpdateEnvironmentErrorMessage is the error message for the failed environment update.
 	EnvironmentUpdateUpdateEnvironmentErrorMessage = "Failed to update the environment"
+
+	// FrameworkCreateCreateFrameworkErrorMessage is the error message for the failed framework creation.
+	FrameworkCreateCreateFrameworkErrorMessage = "Failed to create the framework"
+	// FrameworkCreateRequiredFieldMissing is the error message for the required fields in the framework create.
+	FrameworkCreateRequiredFieldMissing = "Name is required"
+	// FrameworkDeleteFailedToDeleteErrorMessage is the error message for the failed framework deletion.
+	FrameworkDeleteFailedToDeleteErrorMessage = "Failed to delete the framework"
+	// FrameworkFailedToGetFrameworkErrorMessage is the error message for the failed framework get.
+	FrameworkFailedToGetFrameworkErrorMessage = "Failed to get framework data"
+	// FrameworkFrameworkIDInvalidErrorMessage is the error message prefix for the invalid framework id.
+	FrameworkFrameworkIDInvalidErrorMessage = "Invalid framework id"
+	// FrameworkListFailedToGetFrameworksErrorMessage is the error message for the failed frameworks get.
+	FrameworkListFailedToGetFrameworksErrorMessage = "Failed to get frameworks"
+	// FrameworkUpdateRequiredFieldMissing is the error message for the required fields in the framework update.
+	FrameworkUpdateRequiredFieldMissing = "Name is required"
+	// FrameworkUpdateUpdateFrameworkErrorMessage is the error message for the failed framework update.
+	FrameworkUpdateUpdateFrameworkErrorMessage = "Failed to update the framework"
 
 	// PoolCreateCreatePoolErrorMessage is the error message for the failed pool creation.
 	PoolCreateCreatePoolErrorMessage = "Failed to create the pool"

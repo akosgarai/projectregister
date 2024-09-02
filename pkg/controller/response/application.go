@@ -42,7 +42,7 @@ func NewApplicationDetailResponse(currentUser *model.User, app *model.Applicatio
 		{Label: "Runtime", Value: &components.DetailValues{{Value: app.Runtime.Name, Link: fmt.Sprintf("/admin/runtime/view/%d", app.Runtime.ID)}}},
 		{Label: "Pool", Value: &components.DetailValues{{Value: app.Pool.Name, Link: fmt.Sprintf("/admin/pool/view/%d", app.Pool.ID)}}},
 		{Label: "Codebase", Value: codebaseValues},
-		{Label: "Framework", Value: &components.DetailValues{{Value: app.Framework}}},
+		{Label: "Framework", Value: &components.DetailValues{{Value: app.Framework.Name, Link: fmt.Sprintf("/admin/framework/view/%d", app.Framework.ID)}}},
 		{Label: "Document Root", Value: &components.DetailValues{{Value: app.DocumentRoot}}},
 		{Label: "Created At", Value: &components.DetailValues{{Value: app.CreatedAt}}},
 		{Label: "Updated At", Value: &components.DetailValues{{Value: app.UpdatedAt}}},
@@ -60,9 +60,10 @@ func NewCreateApplicationResponse(
 	dbs *model.Databases,
 	runtimes *model.Runtimes,
 	pools *model.Pools,
+	frameworks *model.Frameworks,
 	domains *model.Domains,
 ) *FormResponse {
-	return newApplicationFormResponse("Create Application", currentUser, &model.Application{}, clients, projects, envs, dbs, runtimes, pools, domains, "/admin/application/create", "POST", "Create")
+	return newApplicationFormResponse("Create Application", currentUser, &model.Application{}, clients, projects, envs, dbs, runtimes, pools, frameworks, domains, "/admin/application/create", "POST", "Create")
 }
 
 // NewUpdateApplicationResponse is a constructor for the FormResponse struct for the application update page.
@@ -75,9 +76,10 @@ func NewUpdateApplicationResponse(
 	dbs *model.Databases,
 	runtimes *model.Runtimes,
 	pools *model.Pools,
+	frameworks *model.Frameworks,
 	domains *model.Domains,
 ) *FormResponse {
-	return newApplicationFormResponse("Update Application", currentUser, app, clients, projects, envs, dbs, runtimes, pools, domains, fmt.Sprintf("/admin/application/update/%d", app.ID), "POST", "Update")
+	return newApplicationFormResponse("Update Application", currentUser, app, clients, projects, envs, dbs, runtimes, pools, frameworks, domains, fmt.Sprintf("/admin/application/update/%d", app.ID), "POST", "Update")
 }
 
 // NewApplicationFormResponse is a constructor for the ApplicationFormResponse struct.
@@ -91,12 +93,13 @@ func newApplicationFormResponse(
 	dbs *model.Databases,
 	runtimes *model.Runtimes,
 	pools *model.Pools,
+	frameworks *model.Frameworks,
 	domains *model.Domains,
 	action, method, submitLabel string,
 ) *FormResponse {
 	headerContent := components.NewContentHeader(title, []*components.Link{components.NewLink("List", "/admin/application/list")})
 
-	var selectedClients, selectedProjects, selectedEnvironments, selectedDatabases, selectedRuntimes, selectedPools, selectedDomains []int64
+	var selectedClients, selectedProjects, selectedEnvironments, selectedDatabases, selectedRuntimes, selectedPools, selectedFrameworks, selectedDomains []int64
 
 	if app.Client != nil {
 		selectedClients = []int64{app.Client.ID}
@@ -115,6 +118,9 @@ func newApplicationFormResponse(
 	}
 	if app.Pool != nil {
 		selectedPools = []int64{app.Pool.ID}
+	}
+	if app.Framework != nil {
+		selectedFrameworks = []int64{app.Framework.ID}
 	}
 	if app.Domains != nil {
 		for _, domain := range app.Domains {
@@ -147,7 +153,7 @@ func newApplicationFormResponse(
 		// Branch.
 		components.NewFormItem("Branch", "branch", "text", app.Branch, false, nil, nil),
 		// Framework
-		components.NewFormItem("Framework", "framework", "text", app.Framework, false, nil, nil),
+		components.NewFormItem("Framework", "framework", "select", "", false, frameworks.ToMap(), selectedFrameworks),
 		// Document root.
 		components.NewFormItem("Document Root", "document_root", "text", app.DocumentRoot, false, nil, nil),
 		// Domains.
@@ -172,6 +178,7 @@ func NewApplicationListResponse(
 	dbs *model.Databases,
 	runtimes *model.Runtimes,
 	pools *model.Pools,
+	frameworks *model.Frameworks,
 	filter *model.ApplicationFilter,
 ) *ListingResponse {
 	headerText := "Application List"
@@ -257,7 +264,11 @@ func NewApplicationListResponse(
 			columns = append(columns, codebaseColumn)
 		}
 		if filter.IsVisibleColumn("Framework") {
-			frameworkColumn := &components.ListingColumn{Values: &components.ListingColumnValues{{Value: application.Framework}}}
+			frameViewLink := ""
+			if currentUser.HasPrivilege("frameworks.view") {
+				frameViewLink = fmt.Sprintf("/admin/framework/view/%d", application.Framework.ID)
+			}
+			frameworkColumn := &components.ListingColumn{Values: &components.ListingColumnValues{{Value: application.Framework.Name, Link: frameViewLink}}}
 			columns = append(columns, frameworkColumn)
 		}
 		if filter.IsVisibleColumn("Document Root") {
@@ -311,7 +322,7 @@ func NewApplicationListResponse(
 		components.NewFormItem("Domain", "domain", "text", filter.Domain, false, nil, nil),
 		components.NewFormItem("Repository", "repository", "text", filter.Repository, false, nil, nil),
 		components.NewFormItem("Branch", "branch", "text", filter.Branch, false, nil, nil),
-		components.NewFormItem("Framework", "framework", "text", filter.Framework, false, nil, nil),
+		components.NewFormItem("Framework", "framework", "multiselect", "", false, frameworks.ToMap(), transformers.StringSliceToInt64Slice(filter.FrameworkIDs)),
 		components.NewFormItem("Document Root", "doc_root", "text", filter.DocRoot, false, nil, nil),
 		components.NewFormItem("", "export-search", "submit", "Export", false, nil, nil),
 	}

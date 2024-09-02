@@ -23,6 +23,8 @@ const (
 	ServerResource = "server"
 	// ApplicationResource is the resource name for the application.
 	ApplicationResource = "application"
+	// FrameworkResource is the resource name for the framework.
+	FrameworkResource = "framework"
 
 	// UsersPrivilege is the privilege name for the users.
 	UsersPrivilege = "users"
@@ -46,6 +48,8 @@ const (
 	ServersPrivilege = "servers"
 	// ApplicationsPrivilege is the privilege name for the applications.
 	ApplicationsPrivilege = "applications"
+	// FrameworksPrivilege is the privilege name for the frameworks.
+	FrameworksPrivilege = "frameworks"
 )
 
 var (
@@ -62,12 +66,13 @@ var (
 		DatabaseResource:    DatabasesPrivilege,
 		ServerResource:      ServersPrivilege,
 		ApplicationResource: ApplicationsPrivilege,
+		FrameworkResource:   FrameworksPrivilege,
 	}
 
 	// Resources is a slice of the resource names.
 	Resources = []string{
 		UserResource, RoleResource, ClientResource, ProjectResource, DomainResource,
 		EnvironmentResource, RuntimeResource, PoolResource, DatabaseResource,
-		ServerResource, ApplicationResource,
+		ServerResource, ApplicationResource, FrameworkResource,
 	}
 )

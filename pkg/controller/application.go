@@ -79,7 +79,7 @@ func (c *Controller) ApplicationCreateViewController(w http.ResponseWriter, r *h
 			c.renderer.Error(w, http.StatusBadRequest, errorMessage, err)
 			return
 		}
-		_, err = c.repositoryContainer.GetApplicationRepository().CreateApplication(app.Client.ID, app.Project.ID, app.Environment.ID, app.Database.ID, app.Runtime.ID, app.Pool.ID, app.Repository, app.Branch, app.DBName, app.DBUser, app.Framework, app.DocumentRoot, domainIDS)
+		_, err = c.repositoryContainer.GetApplicationRepository().CreateApplication(app.Client.ID, app.Project.ID, app.Environment.ID, app.Database.ID, app.Runtime.ID, app.Pool.ID, app.Framework.ID, app.Repository, app.Branch, app.DBName, app.DBUser, app.DocumentRoot, domainIDS)
 		if err != nil {
 			c.renderer.Error(w, http.StatusInternalServerError, ApplicationCreateCreateApplicationErrorMessage, err)
 			return
@@ -186,7 +186,6 @@ func (c *Controller) ApplicationListViewController(w http.ResponseWriter, r *htt
 		filter.DBName = r.FormValue("db_name")
 		filter.DBUser = r.FormValue("db_user")
 		filter.DocRoot = r.FormValue("doc_root")
-		filter.Framework = r.FormValue("framework")
 		filter.Repository = r.FormValue("repository")
 
 		for _, v := range r.Form["client"] {
@@ -237,6 +236,14 @@ func (c *Controller) ApplicationListViewController(w http.ResponseWriter, r *htt
 			}
 			filter.PoolIDs = append(filter.PoolIDs, v)
 		}
+		for _, v := range r.Form["framework"] {
+			_, err := strconv.ParseInt(v, 10, 64)
+			if err != nil {
+				c.renderer.Error(w, http.StatusBadRequest, EnvironmentListServerIDInvalidErrorMessage, err)
+				return
+			}
+			filter.FrameworkIDs = append(filter.FrameworkIDs, v)
+		}
 		filter.VisibleColumns = transformers.StringSliceToInt64Slice(r.Form["visible_columns"])
 		// if the csv output is requested, set the flag
 		if r.FormValue("export-search") != "" {
@@ -284,7 +291,12 @@ func (c *Controller) ApplicationListViewController(w http.ResponseWriter, r *htt
 		c.renderer.Error(w, http.StatusInternalServerError, ApplicationCreateFailedToGetDatabasesErrorMessage, err)
 		return
 	}
-	content := response.NewApplicationListResponse(currentUser, applications, clients, projects, environments, databases, runtimes, pools, filter)
+	frameworks, err := c.repositoryContainer.GetFrameworkRepository().GetFrameworks(model.NewFrameworkFilter())
+	if err != nil {
+		c.renderer.Error(w, http.StatusInternalServerError, ApplicationCreateFailedToGetFrameworksErrorMessage, err)
+		return
+	}
+	content := response.NewApplicationListResponse(currentUser, applications, clients, projects, environments, databases, runtimes, pools, frameworks, filter)
 	err = c.renderer.Template.RenderTemplate(w, "listing-page.html", content)
 	if err != nil {
 		panic(err)
@@ -461,12 +473,16 @@ func (c *Controller) createApplicationFormResponse(currentUser *model.User, appl
 	if err != nil {
 		return &response.FormResponse{}, ApplicationCreateFailedToGetDomainsErrorMessage, err
 	}
-
-	if application == nil {
-		return response.NewCreateApplicationResponse(currentUser, clients, projects, environments, databases, runtimes, pools, domains), "", nil
+	frameworks, err := c.repositoryContainer.GetFrameworkRepository().GetFrameworks(model.NewFrameworkFilter())
+	if err != nil {
+		return &response.FormResponse{}, ApplicationCreateFailedToGetFrameworksErrorMessage, err
 	}
 
-	return response.NewUpdateApplicationResponse(currentUser, application, clients, projects, environments, databases, runtimes, pools, domains), "", nil
+	if application == nil {
+		return response.NewCreateApplicationResponse(currentUser, clients, projects, environments, databases, runtimes, pools, frameworks, domains), "", nil
+	}
+
+	return response.NewUpdateApplicationResponse(currentUser, application, clients, projects, environments, databases, runtimes, pools, frameworks, domains), "", nil
 }
 
 // It validates the application form data. Returns the Application with the validated data, the domain ids, and an error message and error.
@@ -481,7 +497,7 @@ func (c *Controller) validateApplicationForm(r *http.Request) (*model.Applicatio
 	dbUser := r.FormValue("db_user")
 	repository := r.FormValue("repository")
 	branch := r.FormValue("branch")
-	framework := r.FormValue("framework")
+	frameworkIDRaw := r.FormValue("framework")
 	documentRoot := r.FormValue("document_root")
 	domainIDsRaw := r.Form["domain"]
 	var domainIDS []int64
@@ -515,6 +531,10 @@ func (c *Controller) validateApplicationForm(r *http.Request) (*model.Applicatio
 	if err != nil {
 		return nil, domainIDS, ApplicationCreatePoolIDInvalidErrorMessage, err
 	}
+	frameworkID, err := strconv.ParseInt(frameworkIDRaw, 10, 64)
+	if err != nil {
+		return nil, domainIDS, ApplicationCreateFrameworkIDInvalidErrorMessage, err
+	}
 	app := &model.Application{
 		Client:       &model.Client{ID: clientID},
 		Project:      &model.Project{ID: projectID},
@@ -526,7 +546,7 @@ func (c *Controller) validateApplicationForm(r *http.Request) (*model.Applicatio
 		Branch:       branch,
 		DBName:       dbName,
 		DBUser:       dbUser,
-		Framework:    framework,
+		Framework:    &model.Framework{ID: frameworkID},
 		DocumentRoot: documentRoot,
 	}
 	for _, domainIDRaw := range domainIDsRaw {
@@ -577,7 +597,7 @@ func (c *Controller) importApplicationToEnvironment(environmentID int64, fileNam
 		databaseTypeName := importRow.RowData["database"]
 
 		domainsRaw := importRow.RowData["domains"]
-		framework := importRow.RowData["framework"]
+		frameworkName := importRow.RowData["framework"]
 		databaseName := importRow.RowData["database_name"]
 		if databaseName == "-" {
 			databaseName = ""
@@ -646,6 +666,17 @@ func (c *Controller) importApplicationToEnvironment(environmentID int64, fileNam
 				continue
 			}
 		}
+		// if the framework name does not exist, create it
+		framework, err := c.repositoryContainer.GetFrameworkRepository().GetFrameworkByName(frameworkName)
+		if err != nil {
+			framework, err = c.repositoryContainer.GetFrameworkRepository().CreateFramework(frameworkName, 0)
+			if err != nil {
+				currentData := results[rowIndex]
+				currentData.ErrorMessage = err.Error()
+				results[rowIndex] = currentData
+				continue
+			}
+		}
 
 		// handle the domains. The domains are separated by space.
 		// If the domain does not exists, create it.
@@ -666,7 +697,7 @@ func (c *Controller) importApplicationToEnvironment(environmentID int64, fileNam
 		}
 
 		// create the application
-		app, err := c.repositoryContainer.GetApplicationRepository().CreateApplication(client.ID, project.ID, environmentID, database.ID, runtime.ID, pool.ID, repository, branch, databaseName, databaseUser, framework, docRoot, domainIDs)
+		app, err := c.repositoryContainer.GetApplicationRepository().CreateApplication(client.ID, project.ID, environmentID, database.ID, runtime.ID, pool.ID, framework.ID, repository, branch, databaseName, databaseUser, docRoot, domainIDs)
 		currentData := results[rowIndex]
 		if err != nil {
 			currentData.ErrorMessage = err.Error()
@@ -720,7 +751,7 @@ func (c *Controller) exportApplicationsToCSV(w http.ResponseWriter, applications
 			currentRow = append(currentRow, fmt.Sprintf("%s (%s)", app.Repository, app.Branch))
 		}
 		if filter.IsVisibleColumn("Framework") {
-			currentRow = append(currentRow, app.Framework)
+			currentRow = append(currentRow, app.Framework.Name)
 		}
 		if filter.IsVisibleColumn("Document Root") {
 			currentRow = append(currentRow, app.DocumentRoot)
