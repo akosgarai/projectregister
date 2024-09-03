@@ -2,6 +2,7 @@ package response
 
 import (
 	"fmt"
+	"math"
 
 	"github.com/akosgarai/projectregister/pkg/controller/response/components"
 	"github.com/akosgarai/projectregister/pkg/model"
@@ -274,6 +275,16 @@ func NewApplicationListResponse(
 		if filter.IsVisibleColumn("Document Root") {
 			documentRootColumn := &components.ListingColumn{Values: &components.ListingColumnValues{{Value: application.DocumentRoot}}}
 			columns = append(columns, documentRootColumn)
+		}
+		if filter.IsVisibleColumn("Score") {
+			scoreValue := math.Min(float64(application.Framework.Score), math.Min(float64(application.Runtime.Score), float64(application.Environment.Score)))
+			scoreColumn := &components.ListingColumn{Values: &components.ListingColumnValues{
+				{Value: fmt.Sprintf("Environment Score: %d", application.Environment.Score)},
+				{Value: fmt.Sprintf("Framework Score: %d", application.Framework.Score)},
+				{Value: fmt.Sprintf("Runtime Score: %d", application.Runtime.Score)},
+				{Value: fmt.Sprintf("Min Score: %d", int(scoreValue))}},
+			}
+			columns = append(columns, scoreColumn)
 		}
 		if filter.IsVisibleColumn("Domains") {
 			domainsColumn := &components.ListingColumn{Values: &components.ListingColumnValues{}}

@@ -53,6 +53,7 @@ type ApplicationFilter struct {
 	DBUser     string
 	DocRoot    string
 	Repository string
+	Score      int
 
 	VisibleColumns []int64
 	allColumns     map[int64]string
@@ -74,14 +75,15 @@ func NewApplicationFilter() *ApplicationFilter {
 		DBUser:         "",
 		DocRoot:        "",
 		Repository:     "",
+		Score:          0,
 
-		VisibleColumns: []int64{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13},
+		VisibleColumns: []int64{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14},
 		allColumns: map[int64]string{
 			0: "ID", 1: "Client", 2: "Project",
 			3: "Environment", 4: "Database", 5: "Runtime",
 			6: "Pool", 7: "Codebase", 8: "Framework",
-			9: "Document Root", 10: "Domains", 11: "Created At",
-			12: "Updated At", 13: "Actions"},
+			9: "Document Root", 10: "Score", 11: "Domains",
+			12: "Created At", 13: "Updated At", 14: "Actions"},
 	}
 }
 
