@@ -66,6 +66,7 @@ func New(
 	adminRouter.HandleFunc("/domain/update/{domainId}", routerController.DomainUpdateViewController).Methods("GET", "POST")
 	adminRouter.HandleFunc("/domain/delete/{domainId}", routerController.DomainDeleteViewController).Methods("POST")
 	adminRouter.HandleFunc("/domain/list", routerController.DomainListViewController).Methods("GET", "POST")
+	adminRouter.HandleFunc("/domain/check-ssl/{domainId}", routerController.DomainCheckSSLViewController).Methods("GET")
 
 	adminRouter.HandleFunc("/environment/create", routerController.EnvironmentCreateViewController).Methods("GET", "POST")
 	adminRouter.HandleFunc("/environment/view/{environmentId}", routerController.EnvironmentViewController)

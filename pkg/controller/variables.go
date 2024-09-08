@@ -87,6 +87,8 @@ var (
 	DatabaseUpdateRequiredFieldMissing = "Name is required"
 	// DatabaseUpdateUpdateDatabaseErrorMessage is the error message for the failed database update.
 	DatabaseUpdateUpdateDatabaseErrorMessage = "Failed to update the database"
+	// DomainCheckSSLFailedToUpdateDomainErrorMessage is the error message for the failed domain update.
+	DomainCheckSSLFailedToUpdateDomainErrorMessage = "Failed to update the domain"
 	// DomainCreateCreateDomainErrorMessage is the error message for the failed domain creation.
 	DomainCreateCreateDomainErrorMessage = "Failed to create the domain"
 	// DomainCreateRequiredFieldMissing is the error message for the required fields in the domain create.

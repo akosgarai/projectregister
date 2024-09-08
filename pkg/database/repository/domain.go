@@ -36,7 +36,7 @@ func (r *DomainRepository) CreateDomain(name string) (*model.Domain, error) {
 func (r *DomainRepository) GetDomainByName(name string) (*model.Domain, error) {
 	var domain model.Domain
 	query := "SELECT * FROM domains WHERE name = $1"
-	err := r.db.QueryRow(query, name).Scan(&domain.ID, &domain.Name, &domain.CreatedAt, &domain.UpdatedAt)
+	err := r.db.QueryRow(query, name).Scan(&domain.ID, &domain.Name, &domain.CreatedAt, &domain.UpdatedAt, &domain.HasSSL)
 
 	return &domain, err
 }
@@ -47,7 +47,7 @@ func (r *DomainRepository) GetDomainByName(name string) (*model.Domain, error) {
 func (r *DomainRepository) GetDomainByID(id int64) (*model.Domain, error) {
 	var domain model.Domain
 	query := "SELECT * FROM domains WHERE id = $1"
-	err := r.db.QueryRow(query, id).Scan(&domain.ID, &domain.Name, &domain.CreatedAt, &domain.UpdatedAt)
+	err := r.db.QueryRow(query, id).Scan(&domain.ID, &domain.Name, &domain.CreatedAt, &domain.UpdatedAt, &domain.HasSSL)
 
 	return &domain, err
 }
@@ -56,9 +56,9 @@ func (r *DomainRepository) GetDomainByID(id int64) (*model.Domain, error) {
 // the input parameter is the domain
 // it returns an error
 func (r *DomainRepository) UpdateDomain(domain *model.Domain) error {
-	query := "UPDATE domains SET name = $1, updated_at = $2 WHERE id = $3"
+	query := "UPDATE domains SET name = $1, has_ssl = $2, updated_at = $3 WHERE id = $4"
 	now := time.Now().Format("2006-01-02 15:04:05.999999-07:00")
-	_, err := r.db.Exec(query, domain.Name, now, domain.ID)
+	_, err := r.db.Exec(query, domain.Name, domain.HasSSL, now, domain.ID)
 
 	return err
 }
@@ -90,7 +90,7 @@ func (r *DomainRepository) GetDomains(filters *model.DomainFilter) (*model.Domai
 	defer rows.Close()
 	for rows.Next() {
 		var domain model.Domain
-		err = rows.Scan(&domain.ID, &domain.Name, &domain.CreatedAt, &domain.UpdatedAt)
+		err = rows.Scan(&domain.ID, &domain.Name, &domain.CreatedAt, &domain.UpdatedAt, &domain.HasSSL)
 		if err != nil {
 			return nil, err
 		}
@@ -112,7 +112,7 @@ func (r *DomainRepository) GetFreeDomains() (*model.Domains, error) {
 	defer rows.Close()
 	for rows.Next() {
 		var domain model.Domain
-		err = rows.Scan(&domain.ID, &domain.Name, &domain.CreatedAt, &domain.UpdatedAt)
+		err = rows.Scan(&domain.ID, &domain.Name, &domain.CreatedAt, &domain.UpdatedAt, &domain.HasSSL)
 		if err != nil {
 			return nil, err
 		}

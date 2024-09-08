@@ -4,6 +4,7 @@ package model
 type Domain struct {
 	ID        int64
 	Name      string
+	HasSSL    bool
 	CreatedAt string
 	UpdatedAt string
 }

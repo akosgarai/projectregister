@@ -7,6 +7,7 @@ import (
 	"github.com/gorilla/mux"
 
 	"github.com/akosgarai/projectregister/pkg/controller/response"
+	"github.com/akosgarai/projectregister/pkg/domaincheck"
 	"github.com/akosgarai/projectregister/pkg/model"
 )
 
@@ -188,4 +189,39 @@ func (c *Controller) DomainListViewController(w http.ResponseWriter, r *http.Req
 	if err != nil {
 		panic(err)
 	}
+}
+
+// DomainCheckSSLViewController is the controller for the domain check ssl view.
+// It is responsible for checking the ssl status of a domain.
+// It redirects to the domain view page.
+func (c *Controller) DomainCheckSSLViewController(w http.ResponseWriter, r *http.Request) {
+	currentUser := c.CurrentUser(r)
+	if !currentUser.HasPrivilege("domains.update") {
+		c.renderer.Error(w, http.StatusForbidden, "Forbidden", nil)
+		return
+	}
+	vars := mux.Vars(r)
+	domainIDVariable := vars["domainId"]
+	// it has to be converted to int64
+	domainID, err := strconv.ParseInt(domainIDVariable, 10, 64)
+	if err != nil {
+		c.renderer.Error(w, http.StatusBadRequest, DomainDomainIDInvalidErrorMessage, err)
+		return
+	}
+	// get the domain
+	domain, err := c.repositoryContainer.GetDomainRepository().GetDomainByID(domainID)
+	if err != nil {
+		c.renderer.Error(w, http.StatusInternalServerError, DomainFailedToGetDomainErrorMessage, err)
+		return
+	}
+	// check the ssl status
+	hasSSL := domaincheck.HasSSL(domain)
+	// update the domain
+	domain.HasSSL = hasSSL
+	err = c.repositoryContainer.GetDomainRepository().UpdateDomain(domain)
+	if err != nil {
+		c.renderer.Error(w, http.StatusInternalServerError, DomainCheckSSLFailedToUpdateDomainErrorMessage, err)
+		return
+	}
+	http.Redirect(w, r, "/admin/domain/view/"+strconv.FormatInt(domainID, 10), http.StatusSeeOther)
 }

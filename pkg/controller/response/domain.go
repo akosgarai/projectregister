@@ -11,9 +11,16 @@ import (
 func NewDomainDetailResponse(currentUser *model.User, domain *model.Domain) *DetailResponse {
 	headerText := "Domain Detail"
 	headerContent := components.NewContentHeader(headerText, newDetailHeaderButtons(currentUser, "domains", fmt.Sprintf("%d", domain.ID)))
+	if currentUser.HasPrivilege("domains.update") {
+		headerContent.Buttons = append(
+			[]*components.Link{components.NewLink("Check", fmt.Sprintf("/admin/domain/check-ssl/%d", domain.ID))},
+			headerContent.Buttons...,
+		)
+	}
 	details := &components.DetailItems{
 		{Label: "ID", Value: &components.DetailValues{{Value: fmt.Sprintf("%d", domain.ID)}}},
-		{Label: "Name", Value: &components.DetailValues{{Value: domain.Name, Link: domain.Name}}},
+		{Label: "Name", Value: &components.DetailValues{{Value: domain.Name, Link: fmt.Sprintf("http://%s", domain.Name)}}},
+		{Label: "Has SSL", Value: &components.DetailValues{{Value: fmt.Sprintf("%t", domain.HasSSL)}}},
 		{Label: "Created At", Value: &components.DetailValues{{Value: domain.CreatedAt}}},
 		{Label: "Updated At", Value: &components.DetailValues{{Value: domain.UpdatedAt}}},
 	}
@@ -54,7 +61,7 @@ func NewDomainListResponse(currentUser *model.User, domains *model.Domains, filt
 		headerContent.Buttons = append(headerContent.Buttons, components.NewLink("Create", "/admin/domain/create"))
 	}
 	listingHeader := &components.ListingHeader{
-		Headers: []string{"ID", "Name", "Actions"},
+		Headers: []string{"ID", "Name", "Has SSL", "Actions"},
 	}
 	// create the rows
 	listingRows := components.ListingRows{}
@@ -66,6 +73,8 @@ func NewDomainListResponse(currentUser *model.User, domains *model.Domains, filt
 		columns = append(columns, idColumn)
 		nameColumn := &components.ListingColumn{&components.ListingColumnValues{{Value: domain.Name}}}
 		columns = append(columns, nameColumn)
+		hasSSLColumn := &components.ListingColumn{&components.ListingColumnValues{{Value: fmt.Sprintf("%t", domain.HasSSL)}}}
+		columns = append(columns, hasSSLColumn)
 		actionsColumn := components.ListingColumn{&components.ListingColumnValues{
 			{Value: "View", Link: fmt.Sprintf("/admin/domain/view/%d", domain.ID)},
 		}}
