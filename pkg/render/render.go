@@ -2,7 +2,9 @@ package render
 
 import (
 	"encoding/json"
+	"io"
 	"net/http"
+	"os"
 
 	"github.com/akosgarai/projectregister/pkg/config"
 )
@@ -70,4 +72,9 @@ func (r *Renderer) Error(w http.ResponseWriter, status int, message string, deta
 		message += " " + details.Error()
 	}
 	http.Error(w, message, status)
+}
+
+// GetLogOutput returns the log output.
+func (r *Renderer) GetLogOutput() io.Writer {
+	return os.Stdout
 }

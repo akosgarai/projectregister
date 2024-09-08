@@ -1,7 +1,10 @@
 package router
 
 import (
+	"fmt"
+	"log"
 	"net/http"
+	"time"
 
 	"github.com/gorilla/mux"
 
@@ -12,7 +15,64 @@ import (
 	"github.com/akosgarai/projectregister/pkg/storage"
 )
 
-// I want the router creation to be here.
+// LoggingResponseWriter is a wrapper for the http.ResponseWriter to store the status code.
+type LoggingResponseWriter struct {
+	http.ResponseWriter
+	statusCode   int
+	bytesWritten int
+}
+
+// NewLoggingResponseWriter is a constructor for the LoggingResponseWriter.
+func NewLoggingResponseWriter(w http.ResponseWriter) *LoggingResponseWriter {
+	return &LoggingResponseWriter{w, http.StatusOK, 0}
+}
+
+// WriteHeader is a wrapper for the http.ResponseWriter WriteHeader method.
+func (lrw *LoggingResponseWriter) WriteHeader(code int) {
+	lrw.statusCode = code
+	lrw.ResponseWriter.WriteHeader(code)
+}
+
+// Write is a wrapper for the http.ResponseWriter Write method.
+func (lrw *LoggingResponseWriter) Write(b []byte) (int, error) {
+	n, err := lrw.ResponseWriter.Write(b)
+	lrw.bytesWritten += n
+	return n, err
+}
+
+// LoggingMiddleware is a middleware for logging the requests.
+func LoggingMiddleware(logger *log.Logger) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			statuscode := 200
+			returnSize := "-"
+			defer func() {
+				now := time.Now()
+				// log the request in apache combined log format
+				logger.Printf("%s - - [%s] \"%s %s %s\" %d %s \"%s\" \"%s\"\n",
+					r.RemoteAddr,
+					now.Format("02/Jan/2006:15:04:05 -0700"),
+					r.Method,
+					r.RequestURI,
+					r.Proto,
+					statuscode,
+					returnSize,
+					r.Header.Get("Referer"),
+					r.Header.Get("User-Agent"),
+				)
+			}()
+			loggedResponse := NewLoggingResponseWriter(w)
+
+			next.ServeHTTP(loggedResponse, r)
+			// get the status code
+			statuscode = loggedResponse.statusCode
+			// get the response size
+			if loggedResponse.bytesWritten > 0 {
+				returnSize = fmt.Sprintf("%d", loggedResponse.bytesWritten)
+			}
+		})
+	}
+}
 
 // New creates a new instance of the router gorilla/mux router.
 func New(
@@ -22,6 +82,8 @@ func New(
 	renderer *render.Renderer,
 ) *mux.Router {
 	r := mux.NewRouter()
+	// add logger middleware. The logger default flags has to be empty, because the apache log format is used.
+	r.Use(LoggingMiddleware(log.New(renderer.GetLogOutput(), "", 0)))
 	// handle the static files
 	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir(renderer.GetStaticDirectoryPath()))))
 	routerController := controller.New(
@@ -119,6 +181,9 @@ func New(
 	apiRouter.HandleFunc("/user/update/{userId}", routerController.UserUpdateAPIController).Methods("POST")
 	apiRouter.HandleFunc("/user/delete/{userId}", routerController.UserDeleteAPIController).Methods("DELETE")
 	apiRouter.HandleFunc("/user/list", routerController.UserListAPIController)
+
+	// Re-define the default NotFound handler, so that the logger middleware can log the 404 status code.
+	r.NotFoundHandler = r.NewRoute().HandlerFunc(http.NotFound).GetHandler()
 
 	routerController.CacheTemplates()
 	return r
