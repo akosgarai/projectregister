@@ -17,9 +17,13 @@ func NewDomainDetailResponse(currentUser *model.User, domain *model.Domain) *Det
 			headerContent.Buttons...,
 		)
 	}
+	protocol := "http"
+	if domain.HasSSL {
+		protocol = "https"
+	}
 	details := &components.DetailItems{
 		{Label: "ID", Value: &components.DetailValues{{Value: fmt.Sprintf("%d", domain.ID)}}},
-		{Label: "Name", Value: &components.DetailValues{{Value: domain.Name, Link: fmt.Sprintf("http://%s", domain.Name)}}},
+		{Label: "Name", Value: &components.DetailValues{{Value: domain.Name, Link: fmt.Sprintf("%s://%s", protocol, domain.Name)}}},
 		{Label: "Has SSL", Value: &components.DetailValues{{Value: fmt.Sprintf("%t", domain.HasSSL)}}},
 		{Label: "Created At", Value: &components.DetailValues{{Value: domain.CreatedAt}}},
 		{Label: "Updated At", Value: &components.DetailValues{{Value: domain.UpdatedAt}}},
